@@ -49,7 +49,9 @@ class StPicoD0AnaMaker : public StMaker
     bool isGoodTrack(StPicoTrack const*) const;
     bool isTpcPion(StPicoTrack const*) const;
     bool isTpcKaon(StPicoTrack const*) const;
+    bool isTofKaon(StPicoTrack const*) const;
     bool isGoodPair(StKaonPion const*) const;
+    float getTofBeta(StPicoTrack const*) const;
 
     StPicoDstMaker* mPicoDstMaker;
     StPicoD0Event* mPicoD0Event;
