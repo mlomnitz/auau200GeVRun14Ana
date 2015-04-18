@@ -183,9 +183,7 @@ bool StPicoD0AnaMaker::isTofKaon(StPicoTrack const * const trk, float beta) cons
 //-----------------------------------------------------------------------------
 float StPicoD0AnaMaker::getTofBeta(StPicoTrack const * const trk, StThreeVectorF const* const pVtx) const
 {
-   StDcaGeometry dcaG = trk->dcaGeometry();
-   double ptot = dcaG.momentum().mag();
-   StPhysicalHelixD helix = dcaG.helix();
+   StPhysicalHelixD helix = trk->helix();
 
    int index2tof = trk->bTofPidTraitsIndex();
 

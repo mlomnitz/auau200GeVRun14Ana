@@ -17,11 +17,11 @@
 
 #include "TChain.h"
 #include "StMaker.h"
+#include "StThreeVectorF.hh"
 
 class TString;
 class TFile;
 class TNtuple;
-class StThreeVectorF;
 class StPicoD0Event;
 class StKaonPion;
 class StPicoTrack;
