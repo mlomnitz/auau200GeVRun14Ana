@@ -124,7 +124,7 @@ Int_t StPicoD0AnaMaker::Make()
          bool tpcKaon = isTpcKaon(kaon);
          float kBeta = getTofBeta(kaon);
          bool tofAvailable = kBeta>0;
-         bool tofKaon = tofAvailable && isTofKaon(kBeta);
+         bool tofKaon = tofAvailable && isTofKaon(kaon,kBeta);
 
          if (tpcKaon || tofKaon)
          {
@@ -165,12 +165,13 @@ bool StPicoD0AnaMaker::isGoodPair(StKaonPion const* const kp) const
           kp->dcaDaughters() < anaCuts::dcaDaughters;
 }
 //-----------------------------------------------------------------------------
-bool StPicoD0AnaMaker::isTofKaon(float beta) const
+bool StPicoD0AnaMaker::isTofKaon(StPicoTrack const * const trk, float beta) const
 {
    bool tofKaon = false;
 
    if(beta>0)
    {
+     double ptot = trk->dcaDaughters().momentum().mag();
      float beta_k = ptot/sqrt(ptot*ptot+M_KAON_PLUS*M_KAON_PLUS);
      tofKaon = fabs(1/beta - 1/beta_k) < anaCuts::kTofBetaDiff ? true : false;
    }
