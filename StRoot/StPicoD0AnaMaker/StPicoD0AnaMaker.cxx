@@ -124,7 +124,7 @@ Int_t StPicoD0AnaMaker::Make()
          if (!isTpcPion(pion)) continue;
 
          bool tpcKaon = isTpcKaon(kaon);
-         float kBeta = getTofBeta(kaon,*pVtx);
+         float kBeta = getTofBeta(kaon,&pVtx);
          bool tofAvailable = kBeta>0;
          bool tofKaon = tofAvailable && isTofKaon(kaon,kBeta);
 
