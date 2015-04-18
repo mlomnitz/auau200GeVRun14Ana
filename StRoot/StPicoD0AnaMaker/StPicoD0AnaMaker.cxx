@@ -12,6 +12,7 @@
 #include "StThreeVectorF.hh"
 #include "StPhysicalHelixD.hh"
 #include "phys_constants.h"
+#include "StRoot/StPicoDstMaker/StPicoBTofPidTraits.h"
 #include "StBTofUtil/tofPathLength.hh"
 #include "StPicoDstMaker/StPicoDstMaker.h"
 #include "StPicoDstMaker/StPicoDst.h"
@@ -197,7 +198,7 @@ float StPicoD0AnaMaker::getTofBeta(StPicoTrack const * const trk) const
 
          if (beta < 1e-4)
          {
-            StThreeVectorF btofHitPos = tofPid->btofHitPos();
+            StThreeVectorF const btofHitPos = tofPid->btofHitPos();
 
             float L = tofPathLength(mPicoDstMaker->picoDst()->event()->primaryVertex(), &btofHitPos, helix.curvature());
             float tof = tofPid->btof();
