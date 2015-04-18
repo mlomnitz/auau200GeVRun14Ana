@@ -25,11 +25,8 @@ namespace anaCuts
    //kaons
    float const nSigmaKaon = 2.0;
 
-   // histograms kaonPion pair cuts
-   float const qaNHitsFit = 20;
-   float const qaNSigmaKaon = 2.0;
-   float const qaCosTheta = 0.995;
-   float const qaDcaDaughters = 0.0050;
-   float const qaKDca = 0.008; // minimum
-   float const qaPDca = 0.008;
+   float const cosTheta = 0.995;
+   float const dcaDaughters = 0.0050;
+   float const kDca = 0.008; // minimum
+   float const pDca = 0.008;
 }
