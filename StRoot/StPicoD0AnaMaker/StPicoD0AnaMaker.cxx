@@ -21,7 +21,8 @@ ClassImp(StPicoD0AnaMaker)
 
 StPicoD0AnaMaker::StPicoD0AnaMaker(char const * name,TString const inputFilesList, 
     TString const outFileBaseName,StPicoDstMaker* picoDstMaker): 
-  StMaker(name),mPicoDstMaker(picoDstMaker),mPicoD0Event(NULL), mChain(NULL), mEventCounter(0)
+  StMaker(name),mPicoDstMaker(picoDstMaker),mPicoD0Event(NULL), 
+  mInputFilesList(inputFilesList), mOutFileBaseName(outFileBaseName), mChain(NULL), mEventCounter(0)
 {}
 
 Int_t StPicoD0AnaMaker::Init()
@@ -29,7 +30,7 @@ Int_t StPicoD0AnaMaker::Init()
    mPicoD0Event = new StPicoD0Event();
 
    mChain = new TChain("T");
-   std::ifstream listOfFiles(inputFilesList.Data());
+   std::ifstream listOfFiles(mInputFilesList.Data());
    if (listOfFiles.is_open())
    {
       std::string file;

@@ -52,6 +52,8 @@ class StPicoD0AnaMaker : public StMaker
     StPicoDstMaker* mPicoDstMaker;
     StPicoD0Event* mPicoD0Event;
 
+    TString mInputFilesList;
+    TString mOutFileBaseName;
     TChain* mChain;
     int mEventCounter;
 
