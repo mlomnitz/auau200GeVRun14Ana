@@ -18,7 +18,7 @@ StPicoD0AnaHists::StPicoD0AnaHists(TString fileBaseName) : mPrescales(NULL), mOu
 {
   mPrescales = new StPicoPrescales(cuts::prescalesFilesDirectoryName);
 
-  mOutFile = new TFile(Form("%s.picoD0.hists.root",fileBaseName.Data()),"RECREATE");
+  mOutFile = new TFile(Form("%s.hists.root",fileBaseName.Data()),"RECREATE");
 
   int nRuns = mPrescales->numberOfRuns();
   TH1::SetDefaultSumw2();
