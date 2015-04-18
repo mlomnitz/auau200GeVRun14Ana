@@ -15,14 +15,13 @@
 #include "StPicoD0EventMaker/StPicoD0Event.h"
 #include "StPicoD0EventMaker/StKaonPion.h"
 #include "StPicoD0AnaMaker.h"
-#include "StPicoHFMaker/StHFCuts.h"
+#include "StAnaCuts.h"
 
 ClassImp(StPicoD0AnaMaker)
 
-StPicoD0AnaMaker::StPicoD0AnaMaker(char const * name,char const * inputFilesList, 
-    char const * outName,StPicoDstMaker* picoDstMaker): 
-  StMaker(name),mPicoDstMaker(picoDstMaker),mPicoD0Event(NULL), mOutFileName(outName), mInputFileList(inputFilesList),
-  mOutputFile(NULL), mChain(NULL), mEventCounter(0), mHFCuts(NULL)
+StPicoD0AnaMaker::StPicoD0AnaMaker(char const * name,TString const inputFilesList, 
+    TString const outFileBaseName,StPicoDstMaker* picoDstMaker): 
+  StMaker(name),mPicoDstMaker(picoDstMaker),mPicoD0Event(NULL), mChain(NULL), mEventCounter(0)
 {}
 
 Int_t StPicoD0AnaMaker::Init()
@@ -30,7 +29,7 @@ Int_t StPicoD0AnaMaker::Init()
    mPicoD0Event = new StPicoD0Event();
 
    mChain = new TChain("T");
-   std::ifstream listOfFiles(mInputFileList.Data());
+   std::ifstream listOfFiles(inputFileList.Data());
    if (listOfFiles.is_open())
    {
       std::string file;
@@ -49,12 +48,6 @@ Int_t StPicoD0AnaMaker::Init()
    mChain->GetBranch("dEvent")->SetAutoDelete(kFALSE);
    mChain->SetBranchAddress("dEvent", &mPicoD0Event);
 
-   mOutputFile = new TFile(mOutFileName.Data(), "RECREATE");
-   mOutputFile->cd();
-
-   if (!mHFCuts)
-    mHFCuts = new StHFCuts;   
-
    // -------------- USER VARIABLES -------------------------
    
    return kStOK;
@@ -67,12 +60,6 @@ StPicoD0AnaMaker::~StPicoD0AnaMaker()
 //-----------------------------------------------------------------------------
 Int_t StPicoD0AnaMaker::Finish()
 {
-   LOG_INFO << " StPicoD0AnaMaker - writing data and closing output file " <<endm;
-   mOutputFile->cd();
-   // save user variables here
-
-   mOutputFile->Close();
-
    return kStOK;
 }
 //-----------------------------------------------------------------------------
@@ -119,22 +106,31 @@ Int_t StPicoD0AnaMaker::Make()
    return kStOK;
 }
 //-----------------------------------------------------------------------------
+bool StPicoD0AnaMaker::isGoodEvent()
+{
+   return mPicoEvent->triggerWord() & anaCuts::triggerWord;
+}
+//-----------------------------------------------------------------------------
+bool StPicoD0AnaMaker::isGoodTrack(StPicoTrack const * const trk) const
+{
+   return trk->nHitsFit() >= anaCuts::nHitsFit;
+}
+//-----------------------------------------------------------------------------
+bool StPicoD0AnaMaker::isTpcPion(StPicoTrack const * const trk) const
+{
+   return fabs(trk->nSigmaPion()) < anaCuts::nSigmaPion;
+}
+//-----------------------------------------------------------------------------
+bool StPicoD0AnaMaker::isTpcKaon(StPicoTrack const * const trk) const
+{
+   return fabs(trk->nSigmaKaon()) < anaCuts::nSigmaKaon;
+}
+//-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isGoodPair(StKaonPion const* const kp) const
 {
-  if(!kp) return false;
-
-  StPicoTrack const* kaon = mPicoDstMaker->picoDst()->track(kp->kaonIdx());
-  StPicoTrack const* pion = mPicoDstMaker->picoDst()->track(kp->pionIdx());
-
-  //  To be replaced by mHFCuts->isGoodSecondaryVertexPair(kp))
-  bool pairCuts = kp->m() > mHFCuts->cutSecondaryPairMassMin() && 
-    kp->m() < mHFCuts->cutSecondaryPairMassMax() &&
-    std::cos(kp->pointingAngle()) > mHFCuts->cutSecondaryPairCosThetaMin() &&
-    kp->decayLength()  > mHFCuts->cutSecondaryPairDecayLengthMin() && 
-    kp->decayLength()  < mHFCuts->cutSecondaryPairDecayLengthMax() &&
-    kp->dcaDaughters() < mHFCuts->cutSecondaryPairDcaDaughtersMax();
-
-  return (mHFCuts->isGoodTrack(kaon) && mHFCuts->isGoodTrack(pion) &&
-	  mHFCuts->isTPCKaon(kaon) && mHFCuts->isTPCPion(pion) && 
-	  pairCuts);
+  return pion.nHitsFit() >= anaCuts::qaNHitsFit && kaon.nHitsFit() >= anaCuts::qaNHitsFit &&
+         fabs(kaon.nSigmaKaon()) < anaCuts::qaNSigmaKaon && 
+         cos(kp.pointingAngle()) > anaCuts::qaCosTheta &&
+         kp.pionDca() > anaCuts::qaPDca && kp.kaonDca() > anaCuts::qaKDca &&
+         kp.dcaDaughters() < anaCuts::qaDcaDaughters;
 }

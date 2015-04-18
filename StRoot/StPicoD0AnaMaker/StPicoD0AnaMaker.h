@@ -24,14 +24,13 @@ class TNtuple;
 class StPicoD0Event;
 class StKaonPion;
 class StPicoDstMaker;
-class StHFCuts;
 
 
 class StPicoD0AnaMaker : public StMaker
 {
   public:
-    StPicoD0AnaMaker(char const * name, char const * inputFilesList, 
-        char const * outName,StPicoDstMaker* picoDstMaker);
+    StPicoD0AnaMaker(char const * name, TString const inputFilesList, 
+        TString const outBaseName,StPicoDstMaker* picoDstMaker);
     virtual ~StPicoD0AnaMaker();
 
     virtual Int_t Init();
@@ -46,18 +45,15 @@ class StPicoD0AnaMaker : public StMaker
     StPicoD0AnaMaker() {}
     void readNextEvent();
 
+    bool isGoodEvent(StPicoEvent const*) const;
+    bool isGoodTrack(StPicoTrack const*) const;
     bool isGoodPair(StKaonPion const*) const;
 
     StPicoDstMaker* mPicoDstMaker;
     StPicoD0Event* mPicoD0Event;
 
-    TString mOutFileName;
-    TString mInputFileList;
-    TFile* mOutputFile;
     TChain* mChain;
     int mEventCounter;
-
-    StHFCuts* mHFCuts;
 
     // -------------- USER variables -------------------------
     // add your member variables here. 
@@ -75,10 +71,4 @@ inline void StPicoD0AnaMaker::readNextEvent()
 {
   mChain->GetEntry(mEventCounter++);
 }
-
-inline void StPicoD0AnaMaker::setHFCuts(StHFCuts* cuts)   
-{ 
-  mHFCuts = cuts; 
-}
-
 #endif
