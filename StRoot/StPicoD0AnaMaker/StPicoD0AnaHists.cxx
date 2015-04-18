@@ -37,7 +37,7 @@ StPicoD0AnaHists::~StPicoD0AnaHists()
 //-----------------------------------------------------------------------
 void StPicoD0AnaHists::addEvent(StPicoEvent const* const picoEvent)
 {
-  int runIndex = mPrescales->runIndex(picoEvent.runId());
+  int runIndex = mPrescales->runIndex(picoEvent->runId());
   mh1TotalEventsInRun->Fill(runIndex);
 }
 //---------------------------------------------------------------------
