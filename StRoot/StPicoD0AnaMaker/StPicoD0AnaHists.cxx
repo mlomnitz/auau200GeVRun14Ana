@@ -41,16 +41,16 @@ void StPicoD0AnaHists::addEvent(StPicoEvent const& picoEvent)
   mh1TotalEventsInRun->Fill(runIndex);
 }
 //---------------------------------------------------------------------
-void StPicoD0AnaHists::addKaonPion(StKaonPion const* const kp, bool unlike, bool tof)
+void StPicoD0AnaHists::addKaonPion(StKaonPion const* const kp, bool unlike, bool tpc, bool tof)
 {
   if(unlike)
   {
-    mh2InvariantMassVsPt->Fill(kp->pt(),kp->m());
+    if(tpc) mh2InvariantMassVsPt->Fill(kp->pt(),kp->m());
     if(tof) mh2InvariantMassVsPtTof->Fill(kp->pt(),kp->m());
   }
   else
   {
-    mh2InvariantMassVsPtLike->Fill(kp->pt(),kp->m());
+    if(tpc) mh2InvariantMassVsPtLike->Fill(kp->pt(),kp->m());
     if(tof) mh2InvariantMassVsPtTofLike->Fill(kp->pt(),kp->m());
   }
 }
