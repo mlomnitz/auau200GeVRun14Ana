@@ -25,7 +25,7 @@ class StPicoD0AnaHists: public TObject
   public:
    StPicoD0AnaHists(TString fileBaseName);
    virtual ~StPicoD0AnaHists();
-   void addEvent(StPicoEvent const &);
+   void addEvent(StPicoEvent const *);
    void addKaonPion(StKaonPion const*, bool unlike, bool tpc, bool tof);
    void closeFile();
 

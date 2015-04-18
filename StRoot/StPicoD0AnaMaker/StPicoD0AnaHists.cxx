@@ -35,7 +35,7 @@ StPicoD0AnaHists::~StPicoD0AnaHists()
   // when the file is closed.
 }
 //-----------------------------------------------------------------------
-void StPicoD0AnaHists::addEvent(StPicoEvent const& picoEvent)
+void StPicoD0AnaHists::addEvent(StPicoEvent const* const picoEvent)
 {
   int runIndex = mPrescales->runIndex(picoEvent.runId());
   mh1TotalEventsInRun->Fill(runIndex);

@@ -98,7 +98,7 @@ Int_t StPicoD0AnaMaker::Make()
 
    if(isGoodEvent(picoDst->event()))
    {
-     mHists->addEvent(&(picoDst->event()));
+     mHists->addEvent(picoDst->event());
 
      TClonesArray const * aKaonPion = mPicoD0Event->kaonPionArray();
 
