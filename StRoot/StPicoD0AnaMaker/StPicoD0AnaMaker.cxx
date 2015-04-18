@@ -29,7 +29,7 @@ Int_t StPicoD0AnaMaker::Init()
    mPicoD0Event = new StPicoD0Event();
 
    mChain = new TChain("T");
-   std::ifstream listOfFiles(inputFileList.Data());
+   std::ifstream listOfFiles(inputFilesList.Data());
    if (listOfFiles.is_open())
    {
       std::string file;
@@ -106,7 +106,7 @@ Int_t StPicoD0AnaMaker::Make()
    return kStOK;
 }
 //-----------------------------------------------------------------------------
-bool StPicoD0AnaMaker::isGoodEvent()
+bool StPicoD0AnaMaker::isGoodEvent() const
 {
    return mPicoEvent->triggerWord() & anaCuts::triggerWord;
 }
@@ -128,9 +128,7 @@ bool StPicoD0AnaMaker::isTpcKaon(StPicoTrack const * const trk) const
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isGoodPair(StKaonPion const* const kp) const
 {
-  return pion.nHitsFit() >= anaCuts::qaNHitsFit && kaon.nHitsFit() >= anaCuts::qaNHitsFit &&
-         fabs(kaon.nSigmaKaon()) < anaCuts::qaNSigmaKaon && 
-         cos(kp.pointingAngle()) > anaCuts::qaCosTheta &&
-         kp.pionDca() > anaCuts::qaPDca && kp.kaonDca() > anaCuts::qaKDca &&
-         kp.dcaDaughters() < anaCuts::qaDcaDaughters;
+  return cos(kp->pointingAngle()) > anaCuts::qaCosTheta &&
+         kp->pionDca() > anaCuts::qaPDca && kp->kaonDca() > anaCuts::qaKDca &&
+         kp->dcaDaughters() < anaCuts::qaDcaDaughters;
 }

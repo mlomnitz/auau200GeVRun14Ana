@@ -39,14 +39,14 @@ class StPicoD0AnaMaker : public StMaker
 
     int getEntries() const;
 
-    void setHFCuts(StHFCuts* cuts);    
-
   private:
     StPicoD0AnaMaker() {}
     void readNextEvent();
 
     bool isGoodEvent(StPicoEvent const*) const;
     bool isGoodTrack(StPicoTrack const*) const;
+    bool isTpcPion(StPicoTrack const*) const;
+    bool isTpcKaon(StPicoTrack const*) const;
     bool isGoodPair(StKaonPion const*) const;
 
     StPicoDstMaker* mPicoDstMaker;
