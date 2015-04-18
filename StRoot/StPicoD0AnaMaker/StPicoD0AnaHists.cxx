@@ -5,7 +5,7 @@
 #include "TString.h"
 #include "../StPicoDstMaker/StPicoEvent.h"
 #include "../StPicoPrescales/StPicoPrescales.h"
-#include "StKaonPion.h"
+#include "../StPicoD0EventMaker/StKaonPion.h"
 #include "StAnaCuts.h"
 
 #include "StPicoD0AnaHists.h"
@@ -13,10 +13,10 @@
 ClassImp(StPicoD0AnaHists)
 
 //-----------------------------------------------------------------------
-StPicoD0AnaHists::StPicoD0AnaHists(TString fileBaseName) : mPrescales(NULL), mOutFile, 
+StPicoD0AnaHists::StPicoD0AnaHists(TString fileBaseName) : mPrescales(NULL), mOutFile(NULL), 
   mh2InvariantMassVsPt(NULL), mh2InvariantMassVsPtLike(NULL), mh2InvariantMassVsPtTof(NULL), mh2InvariantMassVsPtTofLike(NULL)
 {
-  mPrescales = new StPicoPrescales(cuts::prescalesFilesDirectoryName);
+  mPrescales = new StPicoPrescales(anaCuts::prescalesFilesDirectoryName);
 
   mOutFile = new TFile(Form("%s.hists.root",fileBaseName.Data()),"RECREATE");
 
@@ -37,7 +37,7 @@ StPicoD0AnaHists::~StPicoD0AnaHists()
 //-----------------------------------------------------------------------
 void StPicoD0AnaHists::addEvent(StPicoEvent const& picoEvent)
 {
-  int runIndex = mPrescales->runIndex(picoD0Event.runId());
+  int runIndex = mPrescales->runIndex(picoEvent.runId());
   mh1TotalEventsInRun->Fill(runIndex);
 }
 //---------------------------------------------------------------------
