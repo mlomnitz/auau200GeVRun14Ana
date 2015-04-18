@@ -147,7 +147,7 @@ bool StPicoD0AnaMaker::isGoodEvent(StPicoEvent const * const picoEvent) const
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isGoodTrack(StPicoTrack const * const trk) const
 {
-   return trk->nHitsFit() >= anaCuts::nHitsFit;
+   return trk->gPt() > anaCuts::minPt && trk->nHitsFit() >= anaCuts::nHitsFit;
 }
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isTpcPion(StPicoTrack const * const trk) const

@@ -17,6 +17,7 @@ namespace anaCuts
    UShort_t const triggerWord = 0x1F; //first five bits see http://rnc.lbl.gov/~xdong/SoftHadron/picoDst.html
 
    //tracking
+   float const minPt = 1.2;
    int const nHitsFit = 20;
 
    //pions

@@ -19,6 +19,7 @@ namespace anaCuts
    extern UShort_t const triggerWord;
 
    //tracking
+   extern float const minPt;
    extern int const nHitsFit;
 
    //pions
