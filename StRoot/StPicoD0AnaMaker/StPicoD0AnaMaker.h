@@ -23,6 +23,7 @@ class TFile;
 class TNtuple;
 class StPicoD0Event;
 class StKaonPion;
+class StPicoTrack;
 class StPicoDstMaker;
 
 
