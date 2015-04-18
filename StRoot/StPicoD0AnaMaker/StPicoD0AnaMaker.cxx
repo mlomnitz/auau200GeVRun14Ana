@@ -104,9 +104,10 @@ Int_t StPicoD0AnaMaker::Make()
 
    if (isGoodEvent(picoDst->event()))
    {
-      mHists->addEvent(picoDst->event());
 
       TClonesArray const * aKaonPion = mPicoD0Event->kaonPionArray();
+      if(aKaonPion->GetEntries()) mHists->addEvent(picoDst->event());
+      else break;
 
       StThreeVectorF const pVtx = picoDst->event()->primaryVertex();
 
