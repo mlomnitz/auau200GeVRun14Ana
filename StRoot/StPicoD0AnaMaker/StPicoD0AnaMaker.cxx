@@ -122,9 +122,9 @@ Int_t StPicoD0AnaMaker::Make()
          if (!isTpcPion(pion)) continue;
 
          bool tpcKaon = isTpcKaon(kaon);
-         float beta = getTofBeta(kaon);
-         bool tofAvailable = beta>0;
-         bool tofKaon = tofAvailable && isTofKaon(kaon);
+         float kBeta = getTofBeta(kaon);
+         bool tofAvailable = kBeta>0;
+         bool tofKaon = tofAvailable && isTofKaon(kBeta);
 
          if (tpcKaon || tofKaon)
          {
@@ -165,7 +165,7 @@ bool StPicoD0AnaMaker::isGoodPair(StKaonPion const* const kp) const
           kp->dcaDaughters() < anaCuts::dcaDaughters;
 }
 //-----------------------------------------------------------------------------
-bool StPicoD0AnaMaker::isTofKaon(float beta)
+bool StPicoD0AnaMaker::isTofKaon(float beta) const
 {
    bool tofKaon = false;
 
@@ -200,7 +200,7 @@ float StPicoD0AnaMaker::getTofBeta(StPicoTrack const * const trk) const
          {
             StThreeVectorF const btofHitPos = tofPid->btofHitPos();
 
-            float L = tofPathLength(mPicoDstMaker->picoDst()->event()->primaryVertex(), &btofHitPos, helix.curvature());
+            float L = tofPathLength(*(mPicoDstMaker->picoDst()->event()->primaryVertex()), &btofHitPos, helix.curvature());
             float tof = tofPid->btof();
             if (tof > 0) beta = L / (tof * (C_C_LIGHT / 1.e9));
             else beta = std::numeric_limits<float>::quiet_NaN();
