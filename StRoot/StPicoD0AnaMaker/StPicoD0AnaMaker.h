@@ -25,6 +25,7 @@ class StPicoD0Event;
 class StKaonPion;
 class StPicoTrack;
 class StPicoDstMaker;
+class StPicoD0AnaHists;
 
 
 class StPicoD0AnaMaker : public StMaker
@@ -61,6 +62,7 @@ class StPicoD0AnaMaker : public StMaker
     // -------------- USER variables -------------------------
     // add your member variables here. 
     // Remember that ntuples size can be really big, use histograms where appropriate
+    StPicoD0AnaHists* mHists;
 
     ClassDef(StPicoD0AnaMaker, 1)
 };

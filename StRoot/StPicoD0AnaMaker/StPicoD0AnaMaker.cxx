@@ -15,6 +15,7 @@
 #include "StPicoD0EventMaker/StPicoD0Event.h"
 #include "StPicoD0EventMaker/StKaonPion.h"
 #include "StPicoD0AnaMaker.h"
+#include "StPicoD0AnaHists.h"
 #include "StAnaCuts.h"
 
 ClassImp(StPicoD0AnaMaker)
@@ -22,7 +23,8 @@ ClassImp(StPicoD0AnaMaker)
 StPicoD0AnaMaker::StPicoD0AnaMaker(char const * name,TString const inputFilesList, 
     TString const outFileBaseName,StPicoDstMaker* picoDstMaker): 
   StMaker(name),mPicoDstMaker(picoDstMaker),mPicoD0Event(NULL), 
-  mInputFilesList(inputFilesList), mOutFileBaseName(outFileBaseName), mChain(NULL), mEventCounter(0)
+  mInputFilesList(inputFilesList), mOutFileBaseName(outFileBaseName), mChain(NULL), mEventCounter(0),
+  mHists(NULL)
 {}
 
 Int_t StPicoD0AnaMaker::Init()
@@ -50,6 +52,7 @@ Int_t StPicoD0AnaMaker::Init()
    mChain->SetBranchAddress("dEvent", &mPicoD0Event);
 
    // -------------- USER VARIABLES -------------------------
+   mHists = new StPicoD0AnaHists(mOutFileBaseName);
    
    return kStOK;
 }
@@ -61,6 +64,7 @@ StPicoD0AnaMaker::~StPicoD0AnaMaker()
 //-----------------------------------------------------------------------------
 Int_t StPicoD0AnaMaker::Finish()
 {
+   mHists->closeFile();
    return kStOK;
 }
 //-----------------------------------------------------------------------------
@@ -91,18 +95,37 @@ Int_t StPicoD0AnaMaker::Make()
    }
 
    // -------------- USER ANALYSIS -------------------------
-   TClonesArray const * aKaonPion = mPicoD0Event->kaonPionArray();
 
-   for (int idx = 0; idx < aKaonPion->GetEntries(); ++idx)
+   if(isGoodEvent(picoDst->event()))
    {
-      // this is an example of how to get the kaonPion pairs and their corresponsing tracks
-      StKaonPion const* kp = (StKaonPion*)aKaonPion->At(idx);
-      if(!isGoodPair(kp)) continue;
+     mHists->addEvent(&(picoDst->event()));
 
-      StPicoTrack const* kaon = picoDst->track(kp->kaonIdx());
-      StPicoTrack const* pion = picoDst->track(kp->pionIdx());
+     TClonesArray const * aKaonPion = mPicoD0Event->kaonPionArray();
 
-   }
+     for (int idx = 0; idx < aKaonPion->GetEntries(); ++idx)
+     {
+       // this is an example of how to get the kaonPion pairs and their corresponsing tracks
+       StKaonPion const* kp = (StKaonPion*)aKaonPion->At(idx);
+
+       if(!isGoodPair(kp)) continue;
+
+       StPicoTrack const* kaon = picoDst->track(kp->kaonIdx());
+       StPicoTrack const* pion = picoDst->track(kp->pionIdx());
+
+       if(!isGoodTrack(kaon) || !isGoodTrack(pion)) continue;
+       if(!isTpcPion(pion)) continue;
+
+       bool tpcKaon = isTpcKaon(kaon);
+       // bool tofKaon = isTofKaon(kaon);
+
+       if(tpcKaon)
+       {
+         bool unlike = kaon->charge()*pion->charge() < 0 ? true : false;
+         mHists->addKaonPion(kp,unlike,tpcKaon,false);
+       }
+
+     } // end of kaonPion loop
+   } // end of isGoodEvent
 
    return kStOK;
 }
@@ -129,7 +152,7 @@ bool StPicoD0AnaMaker::isTpcKaon(StPicoTrack const * const trk) const
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isGoodPair(StKaonPion const* const kp) const
 {
-  return cos(kp->pointingAngle()) > anaCuts::qaCosTheta &&
-         kp->pionDca() > anaCuts::qaPDca && kp->kaonDca() > anaCuts::qaKDca &&
-         kp->dcaDaughters() < anaCuts::qaDcaDaughters;
+  return cos(kp->pointingAngle()) > anaCuts::cosTheta &&
+         kp->pionDca() > anaCuts::pDca && kp->kaonDca() > anaCuts::kDca &&
+         kp->dcaDaughters() < anaCuts::dcaDaughters;
 }
