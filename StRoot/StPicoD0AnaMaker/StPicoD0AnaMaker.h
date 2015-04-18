@@ -21,6 +21,7 @@
 class TString;
 class TFile;
 class TNtuple;
+class StThreeVectorF;
 class StPicoD0Event;
 class StKaonPion;
 class StPicoTrack;
@@ -51,7 +52,7 @@ class StPicoD0AnaMaker : public StMaker
     bool isTpcKaon(StPicoTrack const*) const;
     bool isTofKaon(StPicoTrack const* const, float beta) const;
     bool isGoodPair(StKaonPion const*) const;
-    float getTofBeta(StPicoTrack const*) const;
+    float getTofBeta(StPicoTrack const*,StThreeVectorF const * pVtx) const;
 
     StPicoDstMaker* mPicoDstMaker;
     StPicoD0Event* mPicoD0Event;

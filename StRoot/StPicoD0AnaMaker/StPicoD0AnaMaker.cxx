@@ -108,6 +108,8 @@ Int_t StPicoD0AnaMaker::Make()
 
       TClonesArray const * aKaonPion = mPicoD0Event->kaonPionArray();
 
+      StThreeVectorF const pVtx = picoDst->event()->primaryVertex();
+
       for (int idx = 0; idx < aKaonPion->GetEntries(); ++idx)
       {
          // this is an example of how to get the kaonPion pairs and their corresponsing tracks
@@ -122,7 +124,7 @@ Int_t StPicoD0AnaMaker::Make()
          if (!isTpcPion(pion)) continue;
 
          bool tpcKaon = isTpcKaon(kaon);
-         float kBeta = getTofBeta(kaon);
+         float kBeta = getTofBeta(kaon,*pVtx);
          bool tofAvailable = kBeta>0;
          bool tofKaon = tofAvailable && isTofKaon(kaon,kBeta);
 
@@ -171,7 +173,7 @@ bool StPicoD0AnaMaker::isTofKaon(StPicoTrack const * const trk, float beta) cons
 
    if(beta>0)
    {
-     double ptot = trk->dcaDaughters().momentum().mag();
+     double ptot = trk->dcaGeometry().momentum().mag();
      float beta_k = ptot/sqrt(ptot*ptot+M_KAON_PLUS*M_KAON_PLUS);
      tofKaon = fabs(1/beta - 1/beta_k) < anaCuts::kTofBetaDiff ? true : false;
    }
@@ -179,7 +181,7 @@ bool StPicoD0AnaMaker::isTofKaon(StPicoTrack const * const trk, float beta) cons
    return tofKaon;
 }
 //-----------------------------------------------------------------------------
-float StPicoD0AnaMaker::getTofBeta(StPicoTrack const * const trk) const
+float StPicoD0AnaMaker::getTofBeta(StPicoTrack const * const trk, StThreeVectorF const* const pVtx) const
 {
    StDcaGeometry dcaG = trk->dcaGeometry();
    double ptot = dcaG.momentum().mag();
@@ -201,7 +203,7 @@ float StPicoD0AnaMaker::getTofBeta(StPicoTrack const * const trk) const
          {
             StThreeVectorF const btofHitPos = tofPid->btofHitPos();
 
-            float L = tofPathLength(*(mPicoDstMaker->picoDst()->event()->primaryVertex()), &btofHitPos, helix.curvature());
+            float L = tofPathLength(pVtx, &btofHitPos, helix.curvature());
             float tof = tofPid->btof();
             if (tof > 0) beta = L / (tof * (C_C_LIGHT / 1.e9));
             else beta = std::numeric_limits<float>::quiet_NaN();
