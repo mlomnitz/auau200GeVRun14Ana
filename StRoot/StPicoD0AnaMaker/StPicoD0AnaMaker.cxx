@@ -107,9 +107,9 @@ Int_t StPicoD0AnaMaker::Make()
    return kStOK;
 }
 //-----------------------------------------------------------------------------
-bool StPicoD0AnaMaker::isGoodEvent() const
+bool StPicoD0AnaMaker::isGoodEvent(StPicoEvent const * const picoEvent) const
 {
-   return mPicoEvent->triggerWord() & anaCuts::triggerWord;
+   return picoEvent->triggerWord() & anaCuts::triggerWord;
 }
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isGoodTrack(StPicoTrack const * const trk) const
