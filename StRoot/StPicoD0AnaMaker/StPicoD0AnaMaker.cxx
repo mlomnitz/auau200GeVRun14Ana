@@ -122,7 +122,7 @@ Int_t StPicoD0AnaMaker::Make()
 
          if (!isGoodTrack(kaon) || !isGoodTrack(pion)) continue;
 
-         bool tpcPion = isTpcKaon(pion);
+         bool tpcPion = isTpcPion(pion);
          bool tpcKaon = isTpcKaon(kaon);
          float pBeta = getTofBeta(pion,&pVtx);
          float kBeta = getTofBeta(kaon,&pVtx);
