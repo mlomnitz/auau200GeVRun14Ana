@@ -25,7 +25,8 @@ namespace anaCuts
 
    //kaons
    float const nSigmaKaon = 2.0;
-   float const kTofBetaDiff = 0.04;
+   float const pTofBetaDiff = 0.03;
+   float const kTofBetaDiff = 0.03;
 
    float const cosTheta = 0.995;
    float const dcaDaughters = 0.0050;

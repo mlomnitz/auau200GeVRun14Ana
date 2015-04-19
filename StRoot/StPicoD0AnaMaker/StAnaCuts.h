@@ -27,6 +27,7 @@ namespace anaCuts
 
    //kaons
    extern float const nSigmaKaon;
+   extern float const pTofBetaDiff;
    extern float const kTofBetaDiff;
 
    extern float const cosTheta;

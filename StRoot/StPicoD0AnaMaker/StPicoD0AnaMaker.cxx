@@ -121,17 +121,25 @@ Int_t StPicoD0AnaMaker::Make()
          StPicoTrack const* pion = picoDst->track(kp->pionIdx());
 
          if (!isGoodTrack(kaon) || !isGoodTrack(pion)) continue;
-         if (!isTpcPion(pion)) continue;
 
+         bool tpcPion = isTpcKaon(pion);
          bool tpcKaon = isTpcKaon(kaon);
+         float pBeta = getTofBeta(pion,&pVtx);
          float kBeta = getTofBeta(kaon,&pVtx);
-         bool tofAvailable = kBeta>0;
-         bool tofKaon = tofAvailable && isTofKaon(kaon,kBeta);
+         bool pTofAvailable = pBeta>0;
+         bool kTofAvailable = kBeta>0;
+         bool tofPion = isTofPion(pion,pBeta);
+         bool tofKaon = isTofKaon(kaon,kBeta);
 
-         if (tpcKaon || tofKaon)
+         bool goodPion = (pTofAvailable && tofPion) || (!pTofAvailable && tpcPion);
+         bool goodKaon = (kTofAvailable && tofKaon) || (!kTofAvailable && tpcKaon);
+         bool tof = goodPion && goodKaon;
+         bool tpc = tpcPion && tpcKaon;
+
+         if (tpc || tof)
          {
             bool unlike = kaon->charge() * pion->charge() < 0 ? true : false;
-            mHists->addKaonPion(kp, unlike, tpcKaon, ((tofAvailable && tofKaon) || (!tofAvailable && tpcKaon)));
+            mHists->addKaonPion(kp, unlike, tpc, tof);
          }
 
       } // end of kaonPion loop
@@ -179,6 +187,20 @@ bool StPicoD0AnaMaker::isTofKaon(StPicoTrack const * const trk, float beta) cons
    }
    
    return tofKaon;
+}
+//-----------------------------------------------------------------------------
+bool StPicoD0AnaMaker::isTofPion(StPicoTrack const * const trk, float beta) const
+{
+   bool tofPion = false;
+
+   if(beta>0)
+   {
+     double ptot = trk->dcaGeometry().momentum().mag();
+     float beta_pi = ptot/sqrt(ptot*ptot+M_PION_PLUS*M_PION_PLUS);
+     tofPion = fabs(1/beta - 1/beta_pi) < anaCuts::pTofBetaDiff ? true : false;
+   }
+   
+   return tofPion;
 }
 //-----------------------------------------------------------------------------
 float StPicoD0AnaMaker::getTofBeta(StPicoTrack const * const trk, StThreeVectorF const* const pVtx) const
