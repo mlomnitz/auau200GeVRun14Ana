@@ -24,10 +24,10 @@ namespace anaCuts
 
    //pions
    extern float const nSigmaPion;
+   extern float const pTofBetaDiff;
 
    //kaons
    extern float const nSigmaKaon;
-   extern float const pTofBetaDiff;
    extern float const kTofBetaDiff;
 
    extern float const cosTheta;

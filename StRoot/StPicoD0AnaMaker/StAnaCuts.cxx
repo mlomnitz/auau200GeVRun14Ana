@@ -22,10 +22,10 @@ namespace anaCuts
 
    //pions
    float const nSigmaPion = 3.0;
+   float const pTofBetaDiff = 0.03;
 
    //kaons
    float const nSigmaKaon = 2.0;
-   float const pTofBetaDiff = 0.03;
    float const kTofBetaDiff = 0.03;
 
    float const cosTheta = 0.995;
