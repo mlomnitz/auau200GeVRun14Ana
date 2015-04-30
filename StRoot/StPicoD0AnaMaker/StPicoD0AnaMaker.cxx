@@ -205,8 +205,6 @@ bool StPicoD0AnaMaker::isTofPion(StPicoTrack const * const trk, float beta) cons
 //-----------------------------------------------------------------------------
 float StPicoD0AnaMaker::getTofBeta(StPicoTrack const * const trk, StThreeVectorF const* const pVtx) const
 {
-   StPhysicalHelixD helix = trk->helix();
-
    int index2tof = trk->bTofPidTraitsIndex();
 
    float beta = std::numeric_limits<float>::quiet_NaN();
@@ -223,14 +221,11 @@ float StPicoD0AnaMaker::getTofBeta(StPicoTrack const * const trk, StThreeVectorF
          {
             StThreeVectorF const btofHitPos = tofPid->btofHitPos();
 
+            StPhysicalHelixD helix = trk->helix();
             float L = tofPathLength(pVtx, &btofHitPos, helix.curvature());
             float tof = tofPid->btof();
             if (tof > 0) beta = L / (tof * (C_C_LIGHT / 1.e9));
             else beta = std::numeric_limits<float>::quiet_NaN();
-         }
-         else
-         {
-           beta = std::numeric_limits<float>::quiet_NaN();
          }
       }
    }
