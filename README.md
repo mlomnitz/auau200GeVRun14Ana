@@ -1,8 +1,8 @@
 ##LBNL STAR Run14 D<sup>0</sup> Spectra and Nuclear Modification Factor Analysis
   
 ###Principal Authors:  
-	Guannan Xie [ guannanxie@lbl.gov ](guannanxie@lbl.gov)  
-	Mustafa Mustafa [ mmustafa@lbl.gov ](mmustafa@lbl.gov)  
+	Guannan Xie [guannanxie@lbl.gov](guannanxie@lbl.gov)  
+	Mustafa Mustafa [mmustafa@lbl.gov](mmustafa@lbl.gov)  
 
 - - -
 ###How to build this code:  
