@@ -17,7 +17,8 @@ git clone git@github.com:MustafaMustafa/auau200GeVRun14Ana.git
 git clone git@github.com:rnc-lbl/auau200GeVRun14.git
 
 # Now you need to get StPicoDstMaker
-# If compiling at PDSF you need to get a klog token as below. You don't need this step at RCF.
+# If compiling at PDSF you need to get a klog token as below.
+# - You don't need this step at RCF - 
 # You will need to enter your RCF password.
 klog -principal YOURRCFUSERNAME
 cvs co -r Run14_AuAu200_physics offline/users/dongx/pico/source/StPicoDstMaker
