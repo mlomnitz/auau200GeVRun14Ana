@@ -1,4 +1,6 @@
-##LBNL STAR Run14 D<sup>0</sup> Spectra and Nuclear Modification Factor Analysis
+#D<sup>0</sup> Spectra and Nuclear Modification Factor Analysis
+## LBNL - STAR Experiment, Relativistic Heavy Ion Collider (RHIC), BNL  
+## RHIC Run 2014 Data, with Heavy Flavor Tracker
   
 ###Principal Authors:  
 	Guannan Xie [guannanxie@lbl.gov](guannanxie@lbl.gov)  
