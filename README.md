@@ -3,8 +3,8 @@ LBNL - STAR Experiment, Relativistic Heavy Ion Collider (RHIC), BNL
 RHIC year 2014 Run, with Heavy Flavor Tracker
   
 ###Principal Authors:  
-	Guannan Xie [guannanxie@lbl.gov](guannanxie@lbl.gov)  
-	Mustafa Mustafa [mmustafa@lbl.gov](mmustafa@lbl.gov)  
+	Guannan Xie (guannanxie@lbl.gov)  
+	Mustafa Mustafa (mmustafa@lbl.gov)  
 
 - - -
 ###How to build this code:  
