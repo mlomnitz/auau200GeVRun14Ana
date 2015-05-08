@@ -37,11 +37,12 @@ cvs co -r Run14_AuAu200_physics offline/users/dongx/pico/source/StPicoDstMaker
 # Link all needed code under one StRoot directory:
 mkdir StRoot
 cd StRoot
-ln -s ../auau200GeVRun14Ana/StPicoD0AnaMaker
-ln -s ../auau200GeVRun14Ana/StRoot/StPicoD0EventMaker
-ln -s ../auau200GeVRun14Ana/StRoot/StPicoPrescales
-ln -s ../auau200GeVRun14Ana/StRoot/StPicoHFMaker
+ln -s ../auau200GeVRun14Ana/StRoot/StPicoD0AnaMaker
+ln -s ../auau200GeVRun14/StRoot/StPicoD0EventMaker
+ln -s ../auau200GeVRun14/StRoot/StPicoPrescales
+ln -s ../auau200GeVRun14/StRoot/StPicoHFMaker
 ln -s ../offline/users/dongx/pico/source/StPicoDstMaker
+cp -r -p auau200GeVRun14/run14AuAu200GeVPrescales/ .
 
 # Compile
 cd ..
@@ -65,7 +66,7 @@ git pull origin master
 ```bash
 cd myAnalysis
 ln -s auau200GeVRun14Ana/StRoot/macros/runPicoD0AnaMaker.C
-root4star -l -b -q -x 'runPicoD0AnaMaker.C(“d0Trees.list”,”outputfile.root”)'
+root4star -l -b -q -x runPicoD0AnaMaker.C\(\“d0Files.list\”,\”outFileName\”\)
 ```
 
 ###How to submit jobs:
@@ -74,4 +75,3 @@ root4star -l -b -q -x 'runPicoD0AnaMaker.C(“d0Trees.list”,”outputfile.root
 cp -p auau200GeVRun14/starSubmit/submitPicoD0AnaMaker.xml .
 # auau200GeVRun14/starSubmit/uREADME contains a how to use.
 ```
-
