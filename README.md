@@ -7,6 +7,15 @@ RHIC year 2014 Run, with Heavy Flavor Tracker
 	Mustafa Mustafa (mmustafa@lbl.gov)  
 
 - - -
+### Presentations:  
+#### STAR Protected:  
+- [Introduction to data production and pipeline flow](http://www.star.bnl.gov/protected/heavy/mstftsm/run14/talks/2015-04-02.pdf), Mustafa, HF PWG, 2014-04-02  
+
+- - -
+### Preliminary results:
+![](PR_D0_official.png)
+
+- - -
 ###How to build this code:  
 ```bash
 mkdir myAnalysis
@@ -66,10 +75,3 @@ cp -p auau200GeVRun14/starSubmit/submitPicoD0AnaMaker.xml .
 # auau200GeVRun14/starSubmit/uREADME contains a how to use.
 ```
 
-- - -
-### Preliminary results:
-![](PR_D0_official.png)
-
-### Presentations:  
-#### STAR Protected:  
-- [Introduction to data production and pipeline flow](http://www.star.bnl.gov/protected/heavy/mstftsm/run14/talks/2015-04-02.pdf), Mustafa, HF PWG, 2014-04-02  
