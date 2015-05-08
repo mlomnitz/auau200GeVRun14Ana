@@ -60,6 +60,6 @@ root4star -l -b -q -x 'runPicoD0AnaMaker.C(“d0Trees.list”,”outputfile.root
 ###How to submit jobs:
 ```bash
 # You cah find STAR Scheduler XML file under:
-cp -p auau200GeVRun14/starSubmit/submitPicoD0AnaMaker.xml
+cp -p auau200GeVRun14/starSubmit/submitPicoD0AnaMaker.xml .
 # auau200GeVRun14/starSubmit/uREADME contains a how to use.
 ```
