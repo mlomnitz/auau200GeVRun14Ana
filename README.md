@@ -42,10 +42,10 @@ ln -s ../auau200GeVRun14/StRoot/StPicoD0EventMaker
 ln -s ../auau200GeVRun14/StRoot/StPicoPrescales
 ln -s ../auau200GeVRun14/StRoot/StPicoHFMaker
 ln -s ../offline/users/dongx/pico/source/StPicoDstMaker
+cd ..
 cp -r -p auau200GeVRun14/run14AuAu200GeVPrescales/ .
 
 # Compile
-cd ..
 starver SL15c
 cons
 ```
@@ -64,9 +64,10 @@ git pull origin master
 
 ###How to run this code:  
 ```bash
-cd myAnalysis
+# For testing we can run the code on one file:
+tail -n1 fileLists/Run14/AuAu/200GeV/physics/picoD0Lists/daily/picoD0List_2015-04-10.list > test.list
 ln -s auau200GeVRun14Ana/StRoot/macros/runPicoD0AnaMaker.C
-root4star -l -b -q -x runPicoD0AnaMaker.C\(\“d0Files.list\”,\”outFileName\”\)
+root4star -l -b -q -x runPicoD0AnaMaker.C\(\"test.list\",\"test_out\"\)
 ```
 
 ###How to submit jobs:
