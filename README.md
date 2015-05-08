@@ -63,3 +63,7 @@ root4star -l -b -q -x 'runPicoD0AnaMaker.C(“d0Trees.list”,”outputfile.root
 cp -p auau200GeVRun14/starSubmit/submitPicoD0AnaMaker.xml .
 # auau200GeVRun14/starSubmit/uREADME contains a how to use.
 ```
+
+- - -
+### Preliminary results:
+![](PR_D0_official.png)
