@@ -31,9 +31,12 @@ void runPicoD0AnaMaker(TString d0list, TString outFileName, TString badRunListFi
 
    chain->Init();
    int nEntries = picoD0AnaMaker->getEntries();
+   cout<<"Processing "<<nEntries<<" events..."<<endl;
    for (int iEvent = 0; iEvent < nEntries; ++iEvent)
    {
       chain->Clear();
+      if(iEvent && iEvent%2000 == 0) cout<<"... finished processing "<<iEvent<<" events."<<endl;
+
       int iret = chain->Make();
       if (iret)
       {
