@@ -24,13 +24,15 @@ class StKaonPion;
 class StPicoTrack;
 class StPicoDstMaker;
 class StPicoD0AnaHists;
+class StRefMultCorr;
+class StPicoBTofPidTraits;
 
 
 class StPicoD0AnaMaker : public StMaker
 {
   public:
     StPicoD0AnaMaker(char const * name, TString const inputFilesList, 
-        TString const outBaseName,StPicoDstMaker* picoDstMaker);
+        TString const outBaseName,StPicoDstMaker* picoDstMaker, StRefMultCorr* grefmultCorrUtil );
     virtual ~StPicoD0AnaMaker();
 
     virtual Int_t Init();
@@ -44,6 +46,7 @@ class StPicoD0AnaMaker : public StMaker
     void readNextEvent();
 
     bool isGoodEvent(StPicoEvent const*) const;
+    bool isGoodTpcTrack(StPicoTrack const * ,StThreeVectorF const momentum ,const double dca) const;
     bool isGoodTrack(StPicoTrack const*) const;
     bool isTpcPion(StPicoTrack const*) const;
     bool isTpcKaon(StPicoTrack const*) const;
@@ -54,6 +57,8 @@ class StPicoD0AnaMaker : public StMaker
 
     StPicoDstMaker* mPicoDstMaker;
     StPicoD0Event* mPicoD0Event;
+    StRefMultCorr* mgrefmultCorrUtil;
+    StPicoBTofPidTraits*  mPicoBTofPidTraits;
 
     TString mInputFilesList;
     TString mOutFileBaseName;
