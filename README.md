@@ -32,7 +32,7 @@ git clone git@github.com:rnc-lbl/auau200GeVRun14.git
 # - You don't need this step at RCF - 
 # You will need to enter your RCF password.
 klog -principal YOURRCFUSERNAME
-cvs co -r Run14_AuAu200_physics offline/users/dongx/pico/source/StPicoDstMaker
+cvs co -r Run14_AuAu200_physics2 offline/users/dongx/pico/source/StPicoDstMaker
 
 # Link all needed code under one StRoot directory:
 mkdir StRoot
@@ -54,7 +54,7 @@ cons
 git clone git@github.com:rnc-lbl/fileLists.git
 
 # The list of daily D0 production will be under:
-ls fileLists/Run14/AuAu/200GeV/physics/picoD0Lists/daily
+ls fileLists/Run14/AuAu/200GeV/physics2/picoD0Lists/daily
 
 # To update your local copy of the list of files (recommended to do daily):
 git pull origin master
@@ -63,7 +63,7 @@ git pull origin master
 ###How to run this code:  
 ```bash
 # For testing we can run the code on one file:
-tail -n1 fileLists/Run14/AuAu/200GeV/physics/picoD0Lists/daily/picoD0List_2015-04-10.list > test.list
+tail -n1 fileLists/Run14/AuAu/200GeV/physics2/picoD0Lists/daily/picoD0List_2015-05-21.list > test.list
 ln -s `pwd`/auau200GeVRun14Ana/StRoot/macros/runPicoD0AnaMaker.C
 root4star -l -b -q -x runPicoD0AnaMaker.C\(\"test.list\",\"test_out\"\)
 ```
