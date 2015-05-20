@@ -12,6 +12,17 @@ void runPicoD0AnaMaker(TString d0list, TString outFileName, TString badRunListFi
    gROOT->LoadMacro("$STAR/StRoot/StMuDSTMaker/COMMON/macros/loadSharedLibraries.C");
    loadSharedLibraries();
 
+   // KFVertexFitter dependancies
+   gSystem->Load("StTpcDb");
+   gSystem->Load("StDbUtilities");
+   gSystem->Load("Sti");
+   gSystem->Load("StiUtilities");
+   gSystem->Load("StSsdDbMaker");
+   gSystem->Load("StSvtDbMaker");
+   gSystem->Load("StiMaker");
+   gSystem->Load("StPicoKFVertexFitter");
+   // ---
+
    gSystem->Load("StPicoDstMaker");
    gSystem->Load("StPicoPrescales");
    gSystem->Load("StPicoD0EventMaker");
