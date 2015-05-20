@@ -26,12 +26,13 @@
 #include "StAnaCuts.h"
 #include "StRoot/StRefMultCorr/StRefMultCorr.h"
 #include "StRoot/StRefMultCorr/CentralityMaker.h"
+#include "StRoot/StEventPlane/StEventPlane.h"
 
 ClassImp(StPicoD0AnaMaker)
 
 StPicoD0AnaMaker::StPicoD0AnaMaker(char const * name, TString const inputFilesList,
-                                   TString const outFileBaseName, StPicoDstMaker* picoDstMaker, StRefMultCorr* grefmultCorrUtil):
-   StMaker(name), mPicoDstMaker(picoDstMaker), mPicoD0Event(NULL), mgrefmultCorrUtil(grefmultCorrUtil),
+                                   TString const outFileBaseName, StPicoDstMaker* picoDstMaker, StRefMultCorr* grefmultCorrUtil, StEventPlane*  eventPlaneMaker):
+   StMaker(name), mPicoDstMaker(picoDstMaker), mPicoD0Event(NULL), mgrefmultCorrUtil(grefmultCorrUtil), meventPlane(eventPlaneMaker),
    mInputFilesList(inputFilesList), mOutFileBaseName(outFileBaseName), mChain(NULL), mEventCounter(0),
    mHists(NULL)
 {}
@@ -109,6 +110,7 @@ Int_t StPicoD0AnaMaker::Make()
 
   // -------------- USER ANALYSIS -------------------------
 
+  mHists->addEventBeforeCut(picoDst->event());
   if (isGoodEvent(picoDst->event()))
   {
 
@@ -131,6 +133,8 @@ Int_t StPicoD0AnaMaker::Make()
     const double reweight = mgrefmultCorrUtil->getWeight();
     const double refmultCor = mgrefmultCorrUtil->getRefMultCorr();
     mHists->addCent(refmultCor,centrality,reweight);
+//    cout<<"**************************************"<<endl;
+//    cout<<"centrality(From StRefMultCorr)="<<centrality<<endl;
 
     //Basiclly add some QA plots
     UInt_t nTracks = picoDst->numberOfTracks();
@@ -155,6 +159,10 @@ Int_t StPicoD0AnaMaker::Make()
       if (trk && TofMatch && dca<1.5 && trk->isHFTTrack()) mHists->addHFTNumer1(momentum.perp(),centrality);
       if (trk && TofMatch && dca<0.1 && trk->isHFTTrack()) mHists->addHFTNumer2(momentum.perp(),centrality);
     } // .. end tracks loop
+
+//    cout<<meventPlane->getCentrality()<<endl;
+//    cout<<meventPlane->getEventPlane()<<endl;
+//    cout<<meventPlane->getResolutionRandom()<<endl;
 
     for (int idx = 0; idx < aKaonPion->GetEntries(); ++idx)
     {
@@ -185,7 +193,7 @@ Int_t StPicoD0AnaMaker::Make()
       if (tpc || tof)
       {
         bool unlike = kaon->charge() * pion->charge() < 0 ? true : false;
-        mHists->addKaonPion(kp, unlike, tpc, tof, centrality);
+        mHists->addKaonPion(kp, unlike, tpc, tof, centrality, reweight);
       }
 
     } // end of kaonPion loop
