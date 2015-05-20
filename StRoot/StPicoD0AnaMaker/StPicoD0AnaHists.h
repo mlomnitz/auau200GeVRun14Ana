@@ -27,8 +27,9 @@ class StPicoD0AnaHists: public TObject
    StPicoD0AnaHists(TString fileBaseName);
    virtual ~StPicoD0AnaHists();
    void addEvent(StPicoEvent const *);
+   void addEventBeforeCut(StPicoEvent const *);
    void addCent(const double refmultCor,int centrality, const double reweight);
-   void addKaonPion(StKaonPion const*, bool unlike, bool tpc, bool tof, int centrality);
+   void addKaonPion(StKaonPion const*, bool unlike, bool tpc, bool tof, int centrality, const double reweight);
    void addTpcDenom1(double pt, int centrality);
    void addTpcDenom2(double pt, int centrality);
    void addHFTNumer1(double pt, int centrality);
@@ -41,12 +42,14 @@ class StPicoD0AnaHists: public TObject
    StPicoPrescales* mPrescales;
    TFile* mOutFile;
    TH1F* mh1TotalEventsInRun;
+   TH1F* mh1TotalEventsInRunBeforeCut;
    TH2F* mh2InvariantMassVsPt;
    TH2F* mh2InvariantMassVsPtLike;
    TH2F* mh2InvariantMassVsPtTof;
    TH2F* mh2InvariantMassVsPtTofLike;
    //centrality
    TH1F* mh1Cent;
+   TH1F* mh1CentWg;
    TH1F* mh1gRefmultCor;
    TH1F* mh1gRefmultCorWg;
    TH3F* mh3InvariantMassVsPtVsCent;
