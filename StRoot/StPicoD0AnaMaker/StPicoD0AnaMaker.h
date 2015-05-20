@@ -26,13 +26,14 @@ class StPicoDstMaker;
 class StPicoD0AnaHists;
 class StRefMultCorr;
 class StPicoBTofPidTraits;
+class StEventPlane;;
 
 
 class StPicoD0AnaMaker : public StMaker
 {
   public:
     StPicoD0AnaMaker(char const * name, TString const inputFilesList, 
-        TString const outBaseName,StPicoDstMaker* picoDstMaker, StRefMultCorr* grefmultCorrUtil );
+        TString const outBaseName,StPicoDstMaker* picoDstMaker, StRefMultCorr* grefmultCorrUtil, StEventPlane* eventPlaneMaker);
     virtual ~StPicoD0AnaMaker();
 
     virtual Int_t Init();
@@ -59,6 +60,7 @@ class StPicoD0AnaMaker : public StMaker
     StPicoD0Event* mPicoD0Event;
     StRefMultCorr* mgrefmultCorrUtil;
     StPicoBTofPidTraits*  mPicoBTofPidTraits;
+    StEventPlane*  meventPlane;
 
     TString mInputFilesList;
     TString mOutFileBaseName;
