@@ -47,6 +47,7 @@ ln -s `pwd`/auau200GeVRun14/StRoot/StPicoPrescales StRoot
 ln -s `pwd`/auau200GeVRun14/StRoot/StPicoHFMaker StRoot
 ln -s `pwd`/offline/users/dongx/pico/source/StPicoDstMaker StRoot
 ln -s `pwd`/Run14AuAu200GeV_StRefMultCorr/VPDMB5/StRefMultCorr StRoot
+ln -s `pwd`/auau200GeVRun14/StRoot/StPicoKFVertexFitter StRoot
 cp -r -p auau200GeVRun14/run14AuAu200GeVPrescales/ .
 
 # Compile
