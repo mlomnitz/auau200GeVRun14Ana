@@ -115,7 +115,6 @@ Int_t StPicoD0AnaMaker::Make()
     StThreeVectorF const pVtx = picoDst->event()->primaryVertex();
     StThreeVectorF const pVtxErr = picoDst->event()->primaryVertexError();
 
-    double magn = picoDst->event()->bField();
 
     if(!mGRefMultCorrUtil) {  
       LOG_WARN << " No mGRefMultCorrUtil! Skip! " << endl;
@@ -137,28 +136,23 @@ Int_t StPicoD0AnaMaker::Make()
     { 
       StPicoTrack* trk = picoDst->track(iTrack);
       if (!trk) continue;
-      StDcaGeometry dcaG;
-      dcaG.set(trk->params(),trk->errMatrix());
-      StPhysicalHelixD helix = dcaG.helix();
+      StPhysicalHelixD helix = trk->helix();
       double dca = helix.geometricSignedDistance(pVtx);
-      StThreeVectorF momentum = trk->gMom(pVtx,magn);
-      //StThreeVectorF momentum = trk->gMom();
-      bool TofMatch =kFALSE;
-      int tofIndex = trk->bTofPidTraitsIndex(); 
-      if(tofIndex >=0 )  mPicoBTofPidTraits = picoDst->btofPidTraits(tofIndex);    
-      if(tofIndex>=0 && mPicoBTofPidTraits && mPicoBTofPidTraits->btofMatchFlag()>0)  TofMatch=kTRUE;
-      if (!isGoodTpcTrack(trk, momentum, dca)) continue;
-      if (trk && TofMatch && dca<1.5) mHists->addTpcDenom1(momentum.perp(),centrality);//Dca cut on 1.5cm
-      if (trk && TofMatch && dca<0.1) mHists->addTpcDenom2(momentum.perp(),centrality);//Dca cut on 1mm
-      if (trk && TofMatch && dca<1.5 && trk->isHFTTrack()) mHists->addHFTNumer1(momentum.perp(),centrality);
-      if (trk && TofMatch && dca<0.1 && trk->isHFTTrack()) mHists->addHFTNumer2(momentum.perp(),centrality);
+      StThreeVectorF momentum = trk->gMom(pVtx,picoDst->event()->bField());
+
+      bool TofMatch = getTofBeta(trk,pVtx) > 0;
+
+      if (!isGoodQaTrack(trk, momentum, dca)) continue;
+      if (trk && TofMatch && fabs(dca)<1.5) mHists->addTpcDenom1(momentum.perp(),centrality);//Dca cut on 1.5cm
+      if (trk && TofMatch && fabs(dca)<0.1) mHists->addTpcDenom2(momentum.perp(),centrality);//Dca cut on 1mm
+      if (trk && TofMatch && fabs(dca)<1.5 && trk->isHFTTrack()) mHists->addHFTNumer1(momentum.perp(),centrality);
+      if (trk && TofMatch && fabs(dca)<0.1 && trk->isHFTTrack()) mHists->addHFTNumer2(momentum.perp(),centrality);
     } // .. end tracks loop
 
 
     for (int idx = 0; idx < aKaonPion->GetEntries(); ++idx)
     {
-      // this is an example of how to get the kaonPion pairs and their corresponsing tracks
-      StKaonPion const* kp = (StKaonPion*)aKaonPion->At(idx);
+      StKaonPion const* kp = (StKaonPion*)aKaonPion[idx];
 
       if (!isGoodPair(kp)) continue;
 
@@ -202,9 +196,11 @@ bool StPicoD0AnaMaker::isGoodEvent(StPicoEvent const * const picoEvent) const
       sqrt(TMath::Power(picoEvent->primaryVertex().x(),2)+TMath::Power(picoEvent->primaryVertex().y(),2))<=  anaCuts::Vrcut;
 }
 //-----------------------------------------------------------------------------
-bool StPicoD0AnaMaker::isGoodTpcTrack(StPicoTrack const * const trk, StThreeVectorF const momentum, const double dca) const
+bool StPicoD0AnaMaker::isGoodQaTrack(StPicoTrack const * const trk, StThreeVectorF const momentum, const double dca) const
 {
-  return trk->gPt() > 0.15 && trk->nHitsFit() >= 25 && trk->nHitsDedx() >= 12 && TMath::Abs(dca)<1.5 && momentum.pseudoRapidity() < 0.4 ;
+  return trk->gPt() > anaCuts::qaGPt && trk->nHitsFit() >= anaCuts::qaNHitsFit &&
+    trk->nHitsDedx() >= anaCuts::qaNHitsDedx && fabs(dca) < anaCuts::qaDca &&
+    momentum.pseudoRapidity() < anaCuts::qaEta;
 }
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isGoodTrack(StPicoTrack const * const trk) const

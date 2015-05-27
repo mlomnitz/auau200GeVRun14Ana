@@ -26,6 +26,13 @@ namespace anaCuts
    float const Verror = 1.0e-5; // 
    float const Vrcut = 2.0; // 
 
+   // QA tracks cuts
+   float const qaGPt = 0.15;
+   int const qaNHitsFit = 25;
+   int const qaNHitsDedx = 12;
+   float const qaDca = 1.5;
+   float const qaEta = 0.4;
+
    //tracking
    float const minPt = 1.2;
    int const nHitsFit = 20;
