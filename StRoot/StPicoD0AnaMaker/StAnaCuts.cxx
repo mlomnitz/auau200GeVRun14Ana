@@ -15,6 +15,10 @@ namespace anaCuts
    std::string const prescalesFilesDirectoryName = "./run14AuAu200GeVPrescales";
    //event
    UShort_t const triggerWord = 0x1F; //first five bits see http://rnc.lbl.gov/~xdong/SoftHadron/picoDst.html
+   float const vz = 6.0;// cm.
+   float const vzVpdVz = 3.0; // 3 cm.
+   float const Verror = 1.0e-5; // 
+   float const Vrcut = 2.0; // 
 
    //tracking
    float const minPt = 1.2;

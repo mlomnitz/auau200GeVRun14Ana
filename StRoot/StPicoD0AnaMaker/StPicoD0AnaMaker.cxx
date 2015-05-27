@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include "TFile.h"
+#include "TMath.h"
 #include "TClonesArray.h"
 #include "TTree.h"
 #include "TNtuple.h"
@@ -23,12 +24,17 @@
 #include "StPicoD0AnaMaker.h"
 #include "StPicoD0AnaHists.h"
 #include "StAnaCuts.h"
+#include "StRoot/StRefMultCorr/StRefMultCorr.h"
+// #include "StRoot/StRefMultCorr/CentralityMaker.h"
+// #include "StRoot/StEventPlane/StEventPlane.h"
 
 ClassImp(StPicoD0AnaMaker)
 
 StPicoD0AnaMaker::StPicoD0AnaMaker(char const * name, TString const inputFilesList,
-                                   TString const outFileBaseName, StPicoDstMaker* picoDstMaker):
-   StMaker(name), mPicoDstMaker(picoDstMaker), mPicoD0Event(NULL),
+                                   TString const outFileBaseName, StPicoDstMaker* picoDstMaker, StRefMultCorr* grefmultCorrUtil):
+//                                   TString const outFileBaseName, StPicoDstMaker* picoDstMaker, StRefMultCorr* grefmultCorrUtil, StEventPlane*  eventPlaneMaker):
+   StMaker(name), mPicoDstMaker(picoDstMaker), mPicoD0Event(NULL), mgrefmultCorrUtil(grefmultCorrUtil),
+   // StMaker(name), mPicoDstMaker(picoDstMaker), mPicoD0Event(NULL), mgrefmultCorrUtil(grefmultCorrUtil), meventPlane(eventPlaneMaker),
    mInputFilesList(inputFilesList), mOutFileBaseName(outFileBaseName), mChain(NULL), mEventCounter(0),
    mHists(NULL)
 {}
@@ -60,6 +66,10 @@ Int_t StPicoD0AnaMaker::Init()
    // -------------- USER VARIABLES -------------------------
    mHists = new StPicoD0AnaHists(mOutFileBaseName);
 
+//   mgrefmultCorrUtil =grefmultCorrUtil; 
+//   StRefMultCorr* mgrefmultCorrUtil  = CentralityMaker::instance()->getgRefMultCorr() ;
+   StRefMultCorr* mgrefmultCorrUtil = new StRefMultCorr("grefmult");
+
    return kStOK;
 }
 //-----------------------------------------------------------------------------
@@ -76,159 +86,217 @@ Int_t StPicoD0AnaMaker::Finish()
 //-----------------------------------------------------------------------------
 Int_t StPicoD0AnaMaker::Make()
 {
-   readNextEvent();
+  readNextEvent();
 
-   if (!mPicoDstMaker)
-   {
-      LOG_WARN << " StPicoD0AnaMaker - No PicoDstMaker! Skip! " << endm;
+  if (!mPicoDstMaker)
+  {
+    LOG_WARN << " StPicoD0AnaMaker - No PicoDstMaker! Skip! " << endm;
+    return kStWarn;
+  }
+
+  StPicoDst const* picoDst = mPicoDstMaker->picoDst();
+
+  if (!picoDst)
+  {
+    LOG_WARN << "StPicoD0AnaMaker - No PicoDst! Skip! " << endm;
+    return kStWarn;
+  }
+
+  if (mPicoD0Event->runId() != picoDst->event()->runId() ||
+      mPicoD0Event->eventId() != picoDst->event()->eventId())
+  {
+    LOG_ERROR << " StPicoD0AnaMaker - !!!!!!!!!!!! ATTENTION !!!!!!!!!!!!!" << endm;
+    LOG_ERROR << " StPicoD0AnaMaker - SOMETHING TERRIBLE JUST HAPPENED. StPicoEvent and StPicoD0Event are not in sync." << endm;
+    exit(1);
+  }
+
+  // -------------- USER ANALYSIS -------------------------
+
+  mHists->addEventBeforeCut(picoDst->event());
+  if (isGoodEvent(picoDst->event()))
+  {
+
+    TClonesArray const * aKaonPion = mPicoD0Event->kaonPionArray();
+    if(aKaonPion->GetEntries()) mHists->addEvent(picoDst->event());
+
+    StThreeVectorF const pVtx = picoDst->event()->primaryVertex();
+    StThreeVectorF const pVtxErr = picoDst->event()->primaryVertexError();
+
+    double magn = picoDst->event()->bField();
+
+    if(!mgrefmultCorrUtil) {  
+      LOG_WARN << " No mgrefmultCorrUtil! Skip! " << endl;
       return kStWarn;
-   }
+    }
+    mgrefmultCorrUtil->init(picoDst->event()->runId());
+    mgrefmultCorrUtil->initEvent(picoDst->event()->grefMult(),pVtx.z(),picoDst->event()->ZDCx()) ;
+    //  mgrefmultCorrUtil->print();
+    int centrality  = mgrefmultCorrUtil->getCentralityBin9();
+    const double reweight = mgrefmultCorrUtil->getWeight();
+    const double refmultCor = mgrefmultCorrUtil->getRefMultCorr();
+    mHists->addCent(refmultCor,centrality,reweight);
+//    cout<<"**************************************"<<endl;
+//    cout<<"centrality(From StRefMultCorr)="<<centrality<<endl;
 
-   StPicoDst const* picoDst = mPicoDstMaker->picoDst();
+    //Basiclly add some QA plots
+    UInt_t nTracks = picoDst->numberOfTracks();
+    unsigned int nHftTracks = 0;
+    for (unsigned short iTrack = 0; iTrack < nTracks; ++iTrack)
+    { 
+      StPicoTrack* trk = picoDst->track(iTrack);
+      if (!trk) continue;
+      StDcaGeometry dcaG;
+      dcaG.set(trk->params(),trk->errMatrix());
+      StPhysicalHelixD helix = dcaG.helix();
+      double dca = helix.geometricSignedDistance(pVtx);
+      StThreeVectorF momentum = trk->gMom(pVtx,magn);
+      //StThreeVectorF momentum = trk->gMom();
+      bool TofMatch =kFALSE;
+      int tofIndex = trk->bTofPidTraitsIndex(); 
+      if(tofIndex >=0 )  mPicoBTofPidTraits = picoDst->btofPidTraits(tofIndex);    
+      if(tofIndex>=0 && mPicoBTofPidTraits && mPicoBTofPidTraits->btofMatchFlag()>0)  TofMatch=kTRUE;
+      if (!isGoodTpcTrack(trk, momentum, dca)) continue;
+      if (trk && TofMatch && dca<1.5) mHists->addTpcDenom1(momentum.perp(),centrality);//Dca cut on 1.5cm
+      if (trk && TofMatch && dca<0.1) mHists->addTpcDenom2(momentum.perp(),centrality);//Dca cut on 1mm
+      if (trk && TofMatch && dca<1.5 && trk->isHFTTrack()) mHists->addHFTNumer1(momentum.perp(),centrality);
+      if (trk && TofMatch && dca<0.1 && trk->isHFTTrack()) mHists->addHFTNumer2(momentum.perp(),centrality);
+    } // .. end tracks loop
 
-   if (!picoDst)
-   {
-      LOG_WARN << "StPicoD0AnaMaker - No PicoDst! Skip! " << endm;
-      return kStWarn;
-   }
+//    cout<<meventPlane->getCentrality()<<endl;
+//    cout<<meventPlane->getEventPlane()<<endl;
+//    cout<<meventPlane->getResolutionRandom()<<endl;
 
-   if (mPicoD0Event->runId() != picoDst->event()->runId() ||
-         mPicoD0Event->eventId() != picoDst->event()->eventId())
-   {
-      LOG_ERROR << " StPicoD0AnaMaker - !!!!!!!!!!!! ATTENTION !!!!!!!!!!!!!" << endm;
-      LOG_ERROR << " StPicoD0AnaMaker - SOMETHING TERRIBLE JUST HAPPENED. StPicoEvent and StPicoD0Event are not in sync." << endm;
-      exit(1);
-   }
+    for (int idx = 0; idx < aKaonPion->GetEntries(); ++idx)
+    {
+      // this is an example of how to get the kaonPion pairs and their corresponsing tracks
+      StKaonPion const* kp = (StKaonPion*)aKaonPion->At(idx);
 
-   // -------------- USER ANALYSIS -------------------------
+      if (!isGoodPair(kp)) continue;
 
-   if (isGoodEvent(picoDst->event()))
-   {
+      StPicoTrack const* kaon = picoDst->track(kp->kaonIdx());
+      StPicoTrack const* pion = picoDst->track(kp->pionIdx());
 
-      TClonesArray const * aKaonPion = mPicoD0Event->kaonPionArray();
-      if(aKaonPion->GetEntries()) mHists->addEvent(picoDst->event());
+      if (!isGoodTrack(kaon) || !isGoodTrack(pion)) continue;
 
-      StThreeVectorF const pVtx = picoDst->event()->primaryVertex();
+      bool tpcPion = isTpcPion(pion);
+      bool tpcKaon = isTpcKaon(kaon);
+      float pBeta = getTofBeta(pion,&pVtx);
+      float kBeta = getTofBeta(kaon,&pVtx);
+      bool pTofAvailable = pBeta>0;
+      bool kTofAvailable = kBeta>0;
+      bool tofPion = isTofPion(pion,pBeta);
+      bool tofKaon = isTofKaon(kaon,kBeta);
 
-      for (int idx = 0; idx < aKaonPion->GetEntries(); ++idx)
+      bool goodPion = (pTofAvailable && tofPion) || (!pTofAvailable && tpcPion);
+      bool goodKaon = (kTofAvailable && tofKaon) || (!kTofAvailable && tpcKaon);
+      bool tof = goodPion && goodKaon;
+      bool tpc = tpcPion && tpcKaon;
+
+      if (tpc || tof)
       {
-         // this is an example of how to get the kaonPion pairs and their corresponsing tracks
-         StKaonPion const* kp = (StKaonPion*)aKaonPion->At(idx);
+        bool unlike = kaon->charge() * pion->charge() < 0 ? true : false;
+        mHists->addKaonPion(kp, unlike, tpc, tof, centrality, reweight);
+      }
 
-         if (!isGoodPair(kp)) continue;
+    } // end of kaonPion loop
+  } // end of isGoodEvent
 
-         StPicoTrack const* kaon = picoDst->track(kp->kaonIdx());
-         StPicoTrack const* pion = picoDst->track(kp->pionIdx());
-
-         if (!isGoodTrack(kaon) || !isGoodTrack(pion)) continue;
-
-         bool tpcPion = isTpcPion(pion);
-         bool tpcKaon = isTpcKaon(kaon);
-         float pBeta = getTofBeta(pion,&pVtx);
-         float kBeta = getTofBeta(kaon,&pVtx);
-         bool pTofAvailable = pBeta>0;
-         bool kTofAvailable = kBeta>0;
-         bool tofPion = isTofPion(pion,pBeta);
-         bool tofKaon = isTofKaon(kaon,kBeta);
-
-         bool goodPion = (pTofAvailable && tofPion) || (!pTofAvailable && tpcPion);
-         bool goodKaon = (kTofAvailable && tofKaon) || (!kTofAvailable && tpcKaon);
-         bool tof = goodPion && goodKaon;
-         bool tpc = tpcPion && tpcKaon;
-
-         if (tpc || tof)
-         {
-            bool unlike = kaon->charge() * pion->charge() < 0 ? true : false;
-            mHists->addKaonPion(kp, unlike, tpc, tof);
-         }
-
-      } // end of kaonPion loop
-   } // end of isGoodEvent
-
-   return kStOK;
+  return kStOK;
 }
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isGoodEvent(StPicoEvent const * const picoEvent) const
 {
-   return picoEvent->triggerWord() & anaCuts::triggerWord;
+//  return picoEvent->triggerWord() & anaCuts::triggerWord;
+    return (picoEvent->triggerWord() & anaCuts::triggerWord) && 
+      fabs(picoEvent->primaryVertex().z()) < anaCuts::vz &&
+      fabs(picoEvent->primaryVertex().z() - picoEvent->vzVpd()) < anaCuts::vzVpdVz &&
+      !( fabs(picoEvent->primaryVertex().x()) < anaCuts::Verror && fabs(picoEvent->primaryVertex().y()) < anaCuts::Verror && fabs(picoEvent->primaryVertex().z()) < anaCuts::Verror) && 
+      sqrt(TMath::Power(picoEvent->primaryVertex().x(),2)+TMath::Power(picoEvent->primaryVertex().y(),2))<=  anaCuts::Vrcut;
+
+
+}
+//-----------------------------------------------------------------------------
+bool StPicoD0AnaMaker::isGoodTpcTrack(StPicoTrack const * const trk, StThreeVectorF const momentum, const double dca) const
+{
+  return trk->gPt() > 0.15 && trk->nHitsFit() >= 25 && trk->nHitsDedx() >= 12 && TMath::Abs(dca)<1.5 && momentum.pseudoRapidity() < 0.4 ;
 }
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isGoodTrack(StPicoTrack const * const trk) const
 {
-   return trk->gPt() > anaCuts::minPt && trk->nHitsFit() >= anaCuts::nHitsFit;
+  return trk->gPt() > anaCuts::minPt && trk->nHitsFit() >= anaCuts::nHitsFit;
 }
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isTpcPion(StPicoTrack const * const trk) const
 {
-   return fabs(trk->nSigmaPion()) < anaCuts::nSigmaPion;
+  return fabs(trk->nSigmaPion()) < anaCuts::nSigmaPion;
 }
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isTpcKaon(StPicoTrack const * const trk) const
 {
-   return fabs(trk->nSigmaKaon()) < anaCuts::nSigmaKaon;
+  return fabs(trk->nSigmaKaon()) < anaCuts::nSigmaKaon;
 }
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isGoodPair(StKaonPion const* const kp) const
 {
-   return cos(kp->pointingAngle()) > anaCuts::cosTheta &&
-          kp->pionDca() > anaCuts::pDca && kp->kaonDca() > anaCuts::kDca &&
-          kp->dcaDaughters() < anaCuts::dcaDaughters;
+  return cos(kp->pointingAngle()) > anaCuts::cosTheta &&
+    kp->pionDca() > anaCuts::pDca && kp->kaonDca() > anaCuts::kDca &&
+    kp->dcaDaughters() < anaCuts::dcaDaughters;
 }
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isTofKaon(StPicoTrack const * const trk, float beta) const
 {
-   bool tofKaon = false;
+  bool tofKaon = false;
 
-   if(beta>0)
-   {
-     double ptot = trk->dcaGeometry().momentum().mag();
-     float beta_k = ptot/sqrt(ptot*ptot+M_KAON_PLUS*M_KAON_PLUS);
-     tofKaon = fabs(1/beta - 1/beta_k) < anaCuts::kTofBetaDiff ? true : false;
-   }
-   
-   return tofKaon;
+  if(beta>0)
+  {
+    double ptot = trk->dcaGeometry().momentum().mag();
+    float beta_k = ptot/sqrt(ptot*ptot+M_KAON_PLUS*M_KAON_PLUS);
+    tofKaon = fabs(1/beta - 1/beta_k) < anaCuts::kTofBetaDiff ? true : false;
+  }
+
+  return tofKaon;
 }
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isTofPion(StPicoTrack const * const trk, float beta) const
 {
-   bool tofPion = false;
+  bool tofPion = false;
 
-   if(beta>0)
-   {
-     double ptot = trk->dcaGeometry().momentum().mag();
-     float beta_pi = ptot/sqrt(ptot*ptot+M_PION_PLUS*M_PION_PLUS);
-     tofPion = fabs(1/beta - 1/beta_pi) < anaCuts::pTofBetaDiff ? true : false;
-   }
-   
-   return tofPion;
+  if(beta>0)
+  {
+    double ptot = trk->dcaGeometry().momentum().mag();
+    float beta_pi = ptot/sqrt(ptot*ptot+M_PION_PLUS*M_PION_PLUS);
+    tofPion = fabs(1/beta - 1/beta_pi) < anaCuts::pTofBetaDiff ? true : false;
+  }
+
+  return tofPion;
 }
 //-----------------------------------------------------------------------------
 float StPicoD0AnaMaker::getTofBeta(StPicoTrack const * const trk, StThreeVectorF const* const pVtx) const
 {
-   int index2tof = trk->bTofPidTraitsIndex();
+  int index2tof = trk->bTofPidTraitsIndex();
 
-   float beta = std::numeric_limits<float>::quiet_NaN();
+  float beta = std::numeric_limits<float>::quiet_NaN();
 
-   if(index2tof >= 0)
-   {
-      StPicoBTofPidTraits *tofPid = mPicoDstMaker->picoDst()->btofPidTraits(index2tof);
+  if(index2tof >= 0)
+  {
+    StPicoBTofPidTraits *tofPid = mPicoDstMaker->picoDst()->btofPidTraits(index2tof);
 
-      if(tofPid)
+    if(tofPid)
+    {
+      beta = tofPid->btofBeta();
+
+      if (beta < 1e-4)
       {
-         beta = tofPid->btofBeta();
+        StThreeVectorF const btofHitPos = tofPid->btofHitPos();
 
-         if (beta < 1e-4)
-         {
-            StThreeVectorF const btofHitPos = tofPid->btofHitPos();
-
-            StPhysicalHelixD helix = trk->helix();
-            float L = tofPathLength(pVtx, &btofHitPos, helix.curvature());
-            float tof = tofPid->btof();
-            if (tof > 0) beta = L / (tof * (C_C_LIGHT / 1.e9));
-            else beta = std::numeric_limits<float>::quiet_NaN();
-         }
+        StPhysicalHelixD helix = trk->helix();
+        float L = tofPathLength(pVtx, &btofHitPos, helix.curvature());
+        float tof = tofPid->btof();
+        if (tof > 0) beta = L / (tof * (C_C_LIGHT / 1.e9));
+        else beta = std::numeric_limits<float>::quiet_NaN();
       }
-   }
+    }
+  }
 
-   return beta;
+  return beta;
 }
