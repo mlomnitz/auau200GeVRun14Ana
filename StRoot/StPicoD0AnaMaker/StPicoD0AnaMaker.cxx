@@ -130,7 +130,6 @@ Int_t StPicoD0AnaMaker::Make()
 
     //Basiclly add some QA plots
     UInt_t nTracks = picoDst->numberOfTracks();
-    unsigned int nHftTracks = 0;
 
     for (unsigned short iTrack = 0; iTrack < nTracks; ++iTrack)
     { 
