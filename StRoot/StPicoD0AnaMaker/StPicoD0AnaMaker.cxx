@@ -25,14 +25,16 @@
 #include "StPicoD0AnaHists.h"
 #include "StAnaCuts.h"
 #include "StRoot/StRefMultCorr/StRefMultCorr.h"
-#include "StRoot/StRefMultCorr/CentralityMaker.h"
-#include "StRoot/StEventPlane/StEventPlane.h"
+// #include "StRoot/StRefMultCorr/CentralityMaker.h"
+// #include "StRoot/StEventPlane/StEventPlane.h"
 
 ClassImp(StPicoD0AnaMaker)
 
 StPicoD0AnaMaker::StPicoD0AnaMaker(char const * name, TString const inputFilesList,
-                                   TString const outFileBaseName, StPicoDstMaker* picoDstMaker, StRefMultCorr* grefmultCorrUtil, StEventPlane*  eventPlaneMaker):
-   StMaker(name), mPicoDstMaker(picoDstMaker), mPicoD0Event(NULL), mgrefmultCorrUtil(grefmultCorrUtil), meventPlane(eventPlaneMaker),
+                                   TString const outFileBaseName, StPicoDstMaker* picoDstMaker, StRefMultCorr* grefmultCorrUtil):
+//                                   TString const outFileBaseName, StPicoDstMaker* picoDstMaker, StRefMultCorr* grefmultCorrUtil, StEventPlane*  eventPlaneMaker):
+   StMaker(name), mPicoDstMaker(picoDstMaker), mPicoD0Event(NULL), mgrefmultCorrUtil(grefmultCorrUtil),
+   // StMaker(name), mPicoDstMaker(picoDstMaker), mPicoD0Event(NULL), mgrefmultCorrUtil(grefmultCorrUtil), meventPlane(eventPlaneMaker),
    mInputFilesList(inputFilesList), mOutFileBaseName(outFileBaseName), mChain(NULL), mEventCounter(0),
    mHists(NULL)
 {}
@@ -147,8 +149,8 @@ Int_t StPicoD0AnaMaker::Make()
       dcaG.set(trk->params(),trk->errMatrix());
       StPhysicalHelixD helix = dcaG.helix();
       double dca = helix.geometricSignedDistance(pVtx);
-      //StThreeVectorF momentum = trk->gMom(pVtx,magn);
-      StThreeVectorF momentum = trk->gMom();
+      StThreeVectorF momentum = trk->gMom(pVtx,magn);
+      //StThreeVectorF momentum = trk->gMom();
       bool TofMatch =kFALSE;
       int tofIndex = trk->bTofPidTraitsIndex(); 
       if(tofIndex >=0 )  mPicoBTofPidTraits = picoDst->btofPidTraits(tofIndex);    
