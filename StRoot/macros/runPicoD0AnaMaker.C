@@ -19,7 +19,7 @@ void runPicoD0AnaMaker(TString d0list, TString outFileName, TString badRunListFi
   gSystem->Load("StPicoD0EventMaker");
   gSystem->Load("StPicoD0AnaMaker");
   gSystem->Load("StRefMultCorr");
-  gSystem->Load("StEventPlane");
+  // gSystem->Load("StEventPlane");
 
   chain = new StChain();
 
@@ -30,8 +30,9 @@ void runPicoD0AnaMaker(TString d0list, TString outFileName, TString badRunListFi
   gSystem->Exec(command.Data());
   StPicoDstMaker* picoDstMaker = new StPicoDstMaker(0, "correspondingPico.list", "picoDstMaker");
   StRefMultCorr* grefmultCorrUtil  = CentralityMaker::instance()->getgRefMultCorr();
-  StEventPlane*  eventPlaneMaker = new StEventPlane("eventPlaneMaker",picoDstMaker,grefmultCorrUtil);
-  StPicoD0AnaMaker*  picoD0AnaMaker = new StPicoD0AnaMaker("picoD0AnaMaker", d0list, outFileName.Data(), picoDstMaker, grefmultCorrUtil, eventPlaneMaker);
+  // StEventPlane*  eventPlaneMaker = new StEventPlane("eventPlaneMaker",picoDstMaker,grefmultCorrUtil);
+  // StPicoD0AnaMaker*  picoD0AnaMaker = new StPicoD0AnaMaker("picoD0AnaMaker", d0list, outFileName.Data(), picoDstMaker, grefmultCorrUtil, eventPlaneMaker);
+  StPicoD0AnaMaker*  picoD0AnaMaker = new StPicoD0AnaMaker("picoD0AnaMaker", d0list, outFileName.Data(), picoDstMaker, grefmultCorrUtil);
   grefmultCorrUtil->setVzForWeight(6, -6.0, 6.0);
   grefmultCorrUtil->readScaleForWeight("StRoot/StRefMultCorr/macros/weight_grefmult_vpd30_vpd5_Run14.txt");
   for(Int_t i=0;i<6;i++){
