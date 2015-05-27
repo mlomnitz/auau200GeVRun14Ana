@@ -12,31 +12,35 @@
 #include "Rtypes.h"
 #include <string>
 
+#include "StAnaCuts.h"
+
 namespace anaCuts
 {
-   extern std::string const prescalesFilesDirectoryName;
+   // path to lists of triggers prescales
+   // lists are obtained from http://www.star.bnl.gov/protected/common/common2014/trigger2014/plots_au200gev/
+   std::string const prescalesFilesDirectoryName = "./run14AuAu200GeVPrescales";
    //event
-   extern UShort_t const triggerWord;
-   extern float const vz;
-   extern float const vzVpdVz;
-   extern float const Verror;
-   extern float const Vrcut;
+   UShort_t const triggerWord = 0x1F; //first five bits see http://rnc.lbl.gov/~xdong/SoftHadron/picoDst.html
+   float const vz = 6.0;// cm.
+   float const vzVpdVz = 3.0; // 3 cm.
+   float const Verror = 1.0e-5; // 
+   float const Vrcut = 2.0; // 
 
    //tracking
-   extern float const minPt;
-   extern int const nHitsFit;
+   float const minPt = 1.2;
+   int const nHitsFit = 20;
 
    //pions
-   extern float const nSigmaPion;
-   extern float const pTofBetaDiff;
+   float const nSigmaPion = 3.0;
+   float const pTofBetaDiff = 0.03;
 
    //kaons
-   extern float const nSigmaKaon;
-   extern float const kTofBetaDiff;
+   float const nSigmaKaon = 2.0;
+   float const kTofBetaDiff = 0.03;
 
-   extern float const cosTheta;
-   extern float const dcaDaughters;
-   extern float const kDca;
-   extern float const pDca;
+   float const cosTheta = 0.995;
+   float const dcaDaughters = 0.0050;
+   float const kDca = 0.008; // minimum
+   float const pDca = 0.008;
 }
 #endif
