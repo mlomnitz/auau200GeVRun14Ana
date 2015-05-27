@@ -134,13 +134,13 @@ Int_t StPicoD0AnaMaker::Make()
 
     for (unsigned short iTrack = 0; iTrack < nTracks; ++iTrack)
     { 
-      StPicoTrack* trk = picoDst->track(iTrack);
+      StPicoTrack const* trk = picoDst->track(iTrack);
       if (!trk) continue;
       StPhysicalHelixD helix = trk->helix();
       double dca = helix.geometricSignedDistance(pVtx);
       StThreeVectorF momentum = trk->gMom(pVtx,picoDst->event()->bField());
 
-      bool TofMatch = getTofBeta(trk,pVtx) > 0;
+      bool TofMatch = getTofBeta(trk,&pVtx) > 0;
 
       if (!isGoodQaTrack(trk, momentum, dca)) continue;
       if (trk && TofMatch && fabs(dca)<1.5) mHists->addTpcDenom1(momentum.perp(),centrality);//Dca cut on 1.5cm
@@ -152,7 +152,7 @@ Int_t StPicoD0AnaMaker::Make()
 
     for (int idx = 0; idx < aKaonPion->GetEntries(); ++idx)
     {
-      StKaonPion const* kp = (StKaonPion*)aKaonPion[idx];
+      StKaonPion const* kp = (StKaonPion*)aKaonPion->UncheckedAt(idx);
 
       if (!isGoodPair(kp)) continue;
 
