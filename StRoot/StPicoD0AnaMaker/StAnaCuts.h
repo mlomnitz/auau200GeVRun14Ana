@@ -17,6 +17,10 @@ namespace anaCuts
    extern std::string const prescalesFilesDirectoryName;
    //event
    extern UShort_t const triggerWord;
+   extern float const vz;
+   extern float const vzVpdVz;
+   extern float const Verror;
+   extern float const Vrcut;
 
    //tracking
    extern float const minPt;

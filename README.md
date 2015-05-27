@@ -10,6 +10,8 @@ RHIC year 2014 Run, with Heavy Flavor Tracker
 ### Presentations:  
 #### STAR Protected:  
 - [Introduction to data production and pipeline](http://www.star.bnl.gov/protected/heavy/mstftsm/run14/talks/2015-04-02.pdf), Mustafa, HF PWG, 2014-04-02  
+- [D0 Production for Run14 AuAu200 GeV](https://drupal.star.bnl.gov/STAR/system/files/2015May14_Run14_200GeV_D0_HF.pdf), Guannan, HF PWG, 2014-05-14  
+- [D0 analysis status](https://drupal.star.bnl.gov/STAR/system/files/2015May18_Run14_200GeV_D0_SoftHadron.pdf), Guannan, Soft Hadron, 2014-05-18  
 
 - - -
 ### Preliminary results:
