@@ -25,16 +25,12 @@
 #include "StPicoD0AnaHists.h"
 #include "StAnaCuts.h"
 #include "StRoot/StRefMultCorr/StRefMultCorr.h"
-// #include "StRoot/StRefMultCorr/CentralityMaker.h"
-// #include "StRoot/StEventPlane/StEventPlane.h"
 
 ClassImp(StPicoD0AnaMaker)
 
 StPicoD0AnaMaker::StPicoD0AnaMaker(char const * name, TString const inputFilesList,
                                    TString const outFileBaseName, StPicoDstMaker* picoDstMaker, StRefMultCorr* grefmultCorrUtil):
-//                                   TString const outFileBaseName, StPicoDstMaker* picoDstMaker, StRefMultCorr* grefmultCorrUtil, StEventPlane*  eventPlaneMaker):
-   StMaker(name), mPicoDstMaker(picoDstMaker), mPicoD0Event(NULL), mgrefmultCorrUtil(grefmultCorrUtil),
-   // StMaker(name), mPicoDstMaker(picoDstMaker), mPicoD0Event(NULL), mgrefmultCorrUtil(grefmultCorrUtil), meventPlane(eventPlaneMaker),
+   StMaker(name), mPicoDstMaker(picoDstMaker), mPicoD0Event(NULL), mGRefMultCorrUtil(grefmultCorrUtil),
    mInputFilesList(inputFilesList), mOutFileBaseName(outFileBaseName), mChain(NULL), mEventCounter(0),
    mHists(NULL)
 {}
@@ -66,16 +62,14 @@ Int_t StPicoD0AnaMaker::Init()
    // -------------- USER VARIABLES -------------------------
    mHists = new StPicoD0AnaHists(mOutFileBaseName);
 
-//   mgrefmultCorrUtil =grefmultCorrUtil; 
-//   StRefMultCorr* mgrefmultCorrUtil  = CentralityMaker::instance()->getgRefMultCorr() ;
-   StRefMultCorr* mgrefmultCorrUtil = new StRefMultCorr("grefmult");
+   StRefMultCorr* mGRefMultCorrUtil = new StRefMultCorr("grefmult");
 
    return kStOK;
 }
 //-----------------------------------------------------------------------------
 StPicoD0AnaMaker::~StPicoD0AnaMaker()
 {
-   /*  */
+  delete mGRefMultCorrUtil;
 }
 //-----------------------------------------------------------------------------
 Int_t StPicoD0AnaMaker::Finish()
@@ -115,7 +109,6 @@ Int_t StPicoD0AnaMaker::Make()
   mHists->addEventBeforeCut(picoDst->event());
   if (isGoodEvent(picoDst->event()))
   {
-
     TClonesArray const * aKaonPion = mPicoD0Event->kaonPionArray();
     if(aKaonPion->GetEntries()) mHists->addEvent(picoDst->event());
 
@@ -124,23 +117,22 @@ Int_t StPicoD0AnaMaker::Make()
 
     double magn = picoDst->event()->bField();
 
-    if(!mgrefmultCorrUtil) {  
-      LOG_WARN << " No mgrefmultCorrUtil! Skip! " << endl;
+    if(!mGRefMultCorrUtil) {  
+      LOG_WARN << " No mGRefMultCorrUtil! Skip! " << endl;
       return kStWarn;
     }
-    mgrefmultCorrUtil->init(picoDst->event()->runId());
-    mgrefmultCorrUtil->initEvent(picoDst->event()->grefMult(),pVtx.z(),picoDst->event()->ZDCx()) ;
-    //  mgrefmultCorrUtil->print();
-    int centrality  = mgrefmultCorrUtil->getCentralityBin9();
-    const double reweight = mgrefmultCorrUtil->getWeight();
-    const double refmultCor = mgrefmultCorrUtil->getRefMultCorr();
+    mGRefMultCorrUtil->init(picoDst->event()->runId());
+    mGRefMultCorrUtil->initEvent(picoDst->event()->grefMult(),pVtx.z(),picoDst->event()->ZDCx()) ;
+
+    int centrality  = mGRefMultCorrUtil->getCentralityBin9();
+    const double reweight = mGRefMultCorrUtil->getWeight();
+    const double refmultCor = mGRefMultCorrUtil->getRefMultCorr();
     mHists->addCent(refmultCor,centrality,reweight);
-//    cout<<"**************************************"<<endl;
-//    cout<<"centrality(From StRefMultCorr)="<<centrality<<endl;
 
     //Basiclly add some QA plots
     UInt_t nTracks = picoDst->numberOfTracks();
     unsigned int nHftTracks = 0;
+
     for (unsigned short iTrack = 0; iTrack < nTracks; ++iTrack)
     { 
       StPicoTrack* trk = picoDst->track(iTrack);
@@ -162,9 +154,6 @@ Int_t StPicoD0AnaMaker::Make()
       if (trk && TofMatch && dca<0.1 && trk->isHFTTrack()) mHists->addHFTNumer2(momentum.perp(),centrality);
     } // .. end tracks loop
 
-//    cout<<meventPlane->getCentrality()<<endl;
-//    cout<<meventPlane->getEventPlane()<<endl;
-//    cout<<meventPlane->getResolutionRandom()<<endl;
 
     for (int idx = 0; idx < aKaonPion->GetEntries(); ++idx)
     {
@@ -206,14 +195,11 @@ Int_t StPicoD0AnaMaker::Make()
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isGoodEvent(StPicoEvent const * const picoEvent) const
 {
-//  return picoEvent->triggerWord() & anaCuts::triggerWord;
     return (picoEvent->triggerWord() & anaCuts::triggerWord) && 
       fabs(picoEvent->primaryVertex().z()) < anaCuts::vz &&
       fabs(picoEvent->primaryVertex().z() - picoEvent->vzVpd()) < anaCuts::vzVpdVz &&
       !( fabs(picoEvent->primaryVertex().x()) < anaCuts::Verror && fabs(picoEvent->primaryVertex().y()) < anaCuts::Verror && fabs(picoEvent->primaryVertex().z()) < anaCuts::Verror) && 
       sqrt(TMath::Power(picoEvent->primaryVertex().x(),2)+TMath::Power(picoEvent->primaryVertex().y(),2))<=  anaCuts::Vrcut;
-
-
 }
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isGoodTpcTrack(StPicoTrack const * const trk, StThreeVectorF const momentum, const double dca) const
