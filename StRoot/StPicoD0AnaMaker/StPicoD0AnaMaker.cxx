@@ -158,7 +158,7 @@ Int_t StPicoD0AnaMaker::Make()
       StPicoTrack const* kaon = picoDst->track(kp->kaonIdx());
       StPicoTrack const* pion = picoDst->track(kp->pionIdx());
 
-      if (!isGoodTrack(kaon) || !isGoodTrack(pion)) continue;
+      if (!isGoodTrack(kaon,kp) || !isGoodTrack(pion,kp)) continue;
 
       bool tpcPion = isTpcPion(pion);
       bool tpcKaon = isTpcKaon(kaon);
@@ -202,9 +202,13 @@ bool StPicoD0AnaMaker::isGoodQaTrack(StPicoTrack const * const trk, StThreeVecto
     momentum.pseudoRapidity() < anaCuts::qaEta;
 }
 //-----------------------------------------------------------------------------
-bool StPicoD0AnaMaker::isGoodTrack(StPicoTrack const * const trk) const
+bool StPicoD0AnaMaker::isGoodTrack(StPicoTrack const * const trk, StKaonPion const * kp) const
 {
-  return trk->gPt() > anaCuts::minPt && trk->nHitsFit() >= anaCuts::nHitsFit;
+  float minPtDaughter = anaCuts::mP0MinPt + anaCuts::mP1MinPt*kp->pt();
+  if(minPtDaughter < anaCuts::mMinMinPt) minPtDaughter = anaCuts::mMinMinPt;
+  if(minPtDaughter > anaCuts::mMaxMinPt) minPtDaughter = anaCuts::mMaxMinPt;
+
+  return trk->gPt() > minPtDaughter && trk->nHitsFit() >= anaCuts::nHitsFit;
 }
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isTpcPion(StPicoTrack const * const trk) const

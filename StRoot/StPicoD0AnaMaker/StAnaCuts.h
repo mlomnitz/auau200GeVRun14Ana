@@ -34,6 +34,11 @@ namespace anaCuts
    float const qaEta = 0.4;
 
    //tracking
+   float const mMinMinPt = 0.7;
+   float const mMaxMinPt = 1.2;
+   float const mP0MinPt = 0.3;
+   float const mP1MinPt = 0.3;
+
    float const minPt = 1.2;
    int const nHitsFit = 20;
 
