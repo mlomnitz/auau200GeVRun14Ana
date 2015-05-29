@@ -162,6 +162,10 @@ Int_t StPicoD0AnaMaker::Make()
 
       bool tpcPion = isTpcPion(pion);
       bool tpcKaon = isTpcKaon(kaon);
+
+      bool unlike = kaon->charge() * pion->charge() < 0 ? true : false;
+      if(unlike && tpcPion && tpcKaon && isGoodNtPair(kp)) mHists->addToNtuple(kp,kaon,pion,centrality);
+
       float pBeta = getTofBeta(pion,&pVtx);
       float kBeta = getTofBeta(kaon,&pVtx);
       bool pTofAvailable = pBeta>0;
@@ -176,7 +180,6 @@ Int_t StPicoD0AnaMaker::Make()
 
       if (tpc || tof)
       {
-        bool unlike = kaon->charge() * pion->charge() < 0 ? true : false;
         mHists->addKaonPion(kp, unlike, tpc, tof, centrality, reweight);
       }
 
@@ -222,6 +225,12 @@ bool StPicoD0AnaMaker::isGoodPair(StKaonPion const* const kp) const
   return cos(kp->pointingAngle()) > anaCuts::cosTheta &&
     kp->pionDca() > anaCuts::pDca && kp->kaonDca() > anaCuts::kDca &&
     kp->dcaDaughters() < anaCuts::dcaDaughters;
+}
+//-----------------------------------------------------------------------------
+bool StPicoD0AnaMaker::isGoodNtPair(StKaonPion const* const kp) const
+{
+  return kp->pt() > anaCuts::ntPt && cos(kp->pointingAngle()) > anaCuts::ntCosTheta &&
+    kp->dcaDaughters() < anaCuts::ntDcaDaughters;
 }
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isTofKaon(StPicoTrack const * const trk, float beta) const

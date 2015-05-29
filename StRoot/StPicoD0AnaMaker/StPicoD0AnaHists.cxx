@@ -2,9 +2,11 @@
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TH3F.h"
+#include "TNtuple.h"
 #include "TFile.h"
 #include "TString.h"
 #include "../StPicoDstMaker/StPicoEvent.h"
+#include "../StPicoDstMaker/StPicoTrack.h"
 #include "../StPicoPrescales/StPicoPrescales.h"
 #include "../StPicoD0EventMaker/StKaonPion.h"
 #include "StAnaCuts.h"
@@ -45,6 +47,7 @@ StPicoD0AnaHists::StPicoD0AnaHists(TString fileBaseName) : mPrescales(NULL), mOu
   mh2Tpc2PtCent  = new TH2F("mh2Tpc2PtCent","Tpc tacks;p_{T}(GeV/c);cent",120,0,12,10,-1.5,8.5);//Dca 0.1cm
   mh2HFT1PtCent  = new TH2F("mh2HFT1PtCent","HFT tacks;p_{T}(GeV/c);cent",120,0,12,10,-1.5,8.5);//Dca 1.5cm
   mh2HFT2PtCent  = new TH2F("mh2HFT2PtCent","HFT tacks;p_{T}(GeV/c);cent",120,0,12,10,-1.5,8.5);//Dca 1.5cm
+  mNtuple = new TNtuple("nt","","cent:dcaKP:dcaK:dcaP:ptK:ptP:m:pt:dca:theta:cosThetaStar");
 }
 StPicoD0AnaHists::~StPicoD0AnaHists()
 {
@@ -110,6 +113,12 @@ void StPicoD0AnaHists::addKaonPion(StKaonPion const* const kp, bool unlike, bool
     if(tof) mh3InvariantMassVsPtVsCentTofLike->Fill(kp->pt(),centrality,kp->m(),reweight);
   }
 }
+void StPicoD0AnaHists::addToNtuple(StKaonPion const* const kp, StPicoTrack const* const kaon,StPicoTrack const* const pion, int const centrality)
+{
+  mNtuple->Fill(centrality,kp->dcaDaughters(),kp->kaonDca(),kp->pionDca(),
+                kaon->gPt(),pion->gPt(),kp->m(),kp->pt(),kp->decayLength(),
+                kp->pointingAngle(),kp->cosThetaStar());
+}
 //---------------------------------------------------------------------
 void StPicoD0AnaHists::closeFile()
 {
@@ -134,6 +143,7 @@ void StPicoD0AnaHists::closeFile()
   mh2Tpc2PtCent->Write();
   mh2HFT1PtCent->Write();
   mh2HFT2PtCent->Write();
+  mNtuple->Write();
 
   mOutFile->Close();
 }

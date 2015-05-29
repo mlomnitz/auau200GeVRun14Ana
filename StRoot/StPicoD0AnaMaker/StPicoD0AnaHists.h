@@ -14,11 +14,13 @@
 class TH1F;
 class TH2F;
 class TH3F;
+class TNtuple;
 class TFile;
 class TString;
 class StPicoPrescales;
 class StPicoEvent;
 class StKaonPion;
+class StPicoTrack;
 
 
 class StPicoD0AnaHists: public TObject
@@ -30,6 +32,7 @@ class StPicoD0AnaHists: public TObject
    void addEventBeforeCut(StPicoEvent const *);
    void addCent(const double refmultCor,int centrality, const double reweight);
    void addKaonPion(StKaonPion const*, bool unlike, bool tpc, bool tof, int centrality, const double reweight);
+   void addToNtuple(StKaonPion const*, StPicoTrack const* kaon,StPicoTrack const* pion, int const centrality);
    void addTpcDenom1(double pt, int centrality);
    void addTpcDenom2(double pt, int centrality);
    void addHFTNumer1(double pt, int centrality);
@@ -61,6 +64,7 @@ class StPicoD0AnaHists: public TObject
    TH2F* mh2Tpc2PtCent;
    TH2F* mh2HFT1PtCent;
    TH2F* mh2HFT2PtCent;
+   TNtuple* mNtuple;
 
    ClassDef(StPicoD0AnaHists, 1)
 };

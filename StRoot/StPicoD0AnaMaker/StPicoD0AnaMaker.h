@@ -51,6 +51,7 @@ class StPicoD0AnaMaker : public StMaker
     bool isTofPion(StPicoTrack const* const, float beta) const;
     bool isTofKaon(StPicoTrack const* const, float beta) const;
     bool isGoodPair(StKaonPion const*) const;
+    bool isGoodNtPair(StKaonPion const*) const;
     float getTofBeta(StPicoTrack const*,StThreeVectorF const * pVtx) const;
 
     StPicoDstMaker* mPicoDstMaker;
