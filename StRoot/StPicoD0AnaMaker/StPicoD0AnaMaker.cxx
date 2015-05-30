@@ -212,11 +212,7 @@ bool StPicoD0AnaMaker::isGoodQaTrack(StPicoTrack const * const trk, StThreeVecto
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isGoodTrack(StPicoTrack const * const trk, StKaonPion const * kp) const
 {
-  float minPtDaughter = anaCuts::mP0MinPt + anaCuts::mP1MinPt*kp->pt();
-  if(minPtDaughter < anaCuts::mMinMinPt) minPtDaughter = anaCuts::mMinMinPt;
-  if(minPtDaughter > anaCuts::mMaxMinPt) minPtDaughter = anaCuts::mMaxMinPt;
-
-  return trk->gPt() > minPtDaughter && trk->nHitsFit() >= anaCuts::nHitsFit;
+  return trk->gPt() > anaCuts::minPt && trk->nHitsFit() >= anaCuts::nHitsFit;
 }
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isTpcPion(StPicoTrack const * const trk) const
@@ -231,9 +227,12 @@ bool StPicoD0AnaMaker::isTpcKaon(StPicoTrack const * const trk) const
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isGoodPair(StKaonPion const* const kp) const
 {
-  return cos(kp->pointingAngle()) > anaCuts::cosTheta &&
-    kp->pionDca() > anaCuts::pDca && kp->kaonDca() > anaCuts::kDca &&
-    kp->dcaDaughters() < anaCuts::dcaDaughters;
+  int tmpIndex=getD0PtIndex(kp);
+  return cos(kp->pointingAngle()) > anaCuts::cosTheta[tmpIndex] &&
+    kp->pionDca() > anaCuts::pDca[tmpIndex] && kp->kaonDca() > anaCuts::kDca[tmpIndex] &&
+    kp->dcaDaughters() < anaCuts::dcaDaughters[tmpIndex] &&
+    kp->decayLength() > anaCuts::decayLength[tmpIndex] &&
+    ((kp->decayLength())*sin(kp->pointingAngle())) < anaCuts::dcaV0ToPv[tmpIndex];
 }
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isTofKaon(StPicoTrack const * const trk, float beta) const
