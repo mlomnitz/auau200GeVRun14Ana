@@ -186,6 +186,14 @@ Int_t StPicoD0AnaMaker::Make()
   return kStOK;
 }
 //-----------------------------------------------------------------------------
+int StPicoD0AnaMaker::getD0PtIndex(StKaonPion const * kp) const
+{
+  for(int i=0; i < anaCuts::nPtBins; i++) {
+    if( (kp->pt() >= anaCuts::PtEdge[i]) && (kp->pt() < anaCuts::PtEdge[i+1]) )
+     return i; 
+  }
+}
+//-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isGoodEvent(StPicoEvent const * const picoEvent) const
 {
     return (picoEvent->triggerWord() & anaCuts::triggerWord) && 
