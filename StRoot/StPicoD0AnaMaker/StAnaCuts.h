@@ -38,6 +38,8 @@ namespace anaCuts
    float const mMaxMinPt = 1.2;
    float const mP0MinPt = 0.3;
    float const mP1MinPt = 0.3;
+   int   const nPtBins = 5;
+   float const PtEdge[nPtBins+1] = {0., 1., 2., 3., 5., 12.};
 
    float const minPt = 1.2;
    int const nHitsFit = 20;
