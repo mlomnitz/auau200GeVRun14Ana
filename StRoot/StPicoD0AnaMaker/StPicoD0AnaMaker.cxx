@@ -158,7 +158,7 @@ Int_t StPicoD0AnaMaker::Make()
       StPicoTrack const* kaon = picoDst->track(kp->kaonIdx());
       StPicoTrack const* pion = picoDst->track(kp->pionIdx());
 
-      if (!isGoodTrack(kaon) || !isGoodTrack(pion)) continue;
+      if (!isGoodTrack(kaon,kp) || !isGoodTrack(pion,kp)) continue;
 
       bool tpcPion = isTpcPion(pion);
       bool tpcKaon = isTpcKaon(kaon);
@@ -186,6 +186,14 @@ Int_t StPicoD0AnaMaker::Make()
   return kStOK;
 }
 //-----------------------------------------------------------------------------
+int StPicoD0AnaMaker::getD0PtIndex(StKaonPion const * kp) const
+{
+  for(int i=0; i < anaCuts::nPtBins; i++) {
+    if( (kp->pt() >= anaCuts::PtEdge[i]) && (kp->pt() < anaCuts::PtEdge[i+1]) )
+     return i; 
+  }
+}
+//-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isGoodEvent(StPicoEvent const * const picoEvent) const
 {
     return (picoEvent->triggerWord() & anaCuts::triggerWord) && 
@@ -202,7 +210,7 @@ bool StPicoD0AnaMaker::isGoodQaTrack(StPicoTrack const * const trk, StThreeVecto
     momentum.pseudoRapidity() < anaCuts::qaEta;
 }
 //-----------------------------------------------------------------------------
-bool StPicoD0AnaMaker::isGoodTrack(StPicoTrack const * const trk) const
+bool StPicoD0AnaMaker::isGoodTrack(StPicoTrack const * const trk, StKaonPion const * kp) const
 {
   return trk->gPt() > anaCuts::minPt && trk->nHitsFit() >= anaCuts::nHitsFit;
 }
@@ -219,9 +227,12 @@ bool StPicoD0AnaMaker::isTpcKaon(StPicoTrack const * const trk) const
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isGoodPair(StKaonPion const* const kp) const
 {
-  return cos(kp->pointingAngle()) > anaCuts::cosTheta &&
-    kp->pionDca() > anaCuts::pDca && kp->kaonDca() > anaCuts::kDca &&
-    kp->dcaDaughters() < anaCuts::dcaDaughters;
+  int tmpIndex=getD0PtIndex(kp);
+  return cos(kp->pointingAngle()) > anaCuts::cosTheta[tmpIndex] &&
+    kp->pionDca() > anaCuts::pDca[tmpIndex] && kp->kaonDca() > anaCuts::kDca[tmpIndex] &&
+    kp->dcaDaughters() < anaCuts::dcaDaughters[tmpIndex] &&
+    kp->decayLength() > anaCuts::decayLength[tmpIndex] &&
+    ((kp->decayLength())*sin(kp->pointingAngle())) < anaCuts::dcaV0ToPv[tmpIndex];
 }
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isTofKaon(StPicoTrack const * const trk, float beta) const
