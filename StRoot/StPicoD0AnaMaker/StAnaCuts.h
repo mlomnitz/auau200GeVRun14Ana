@@ -34,12 +34,12 @@ namespace anaCuts
    float const qaEta = 0.4;
 
    //ntuples cuts
-   float const ntPt = 5.0;
-   float const ntCosTheta = 0.8;
+   float const ntPt = 4.0;
+   float const ntCosTheta = 0.5;
    float const ntDcaDaughters = 0.0100;
 
    //tracking
-   float const minPt = 1.2;
+   float const minPt = 0.6;
    int const nHitsFit = 20;
 
    //pions

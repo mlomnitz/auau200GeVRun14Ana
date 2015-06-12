@@ -153,8 +153,6 @@ Int_t StPicoD0AnaMaker::Make()
     {
       StKaonPion const* kp = (StKaonPion*)aKaonPion->UncheckedAt(idx);
 
-      if (!isGoodPair(kp)) continue;
-
       StPicoTrack const* kaon = picoDst->track(kp->kaonIdx());
       StPicoTrack const* pion = picoDst->track(kp->pionIdx());
 
@@ -166,6 +164,7 @@ Int_t StPicoD0AnaMaker::Make()
       bool unlike = kaon->charge() * pion->charge() < 0 ? true : false;
       if(unlike && tpcPion && tpcKaon && isGoodNtPair(kp)) mHists->addToNtuple(kp,kaon,pion,centrality);
 
+      if (!isGoodPair(kp)) continue;
       float pBeta = getTofBeta(pion,&pVtx);
       float kBeta = getTofBeta(kaon,&pVtx);
       bool pTofAvailable = pBeta>0;
