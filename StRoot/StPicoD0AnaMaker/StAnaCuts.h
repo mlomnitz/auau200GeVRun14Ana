@@ -12,8 +12,6 @@
 #include "Rtypes.h"
 #include <string>
 
-#include "StAnaCuts.h"
-
 namespace anaCuts
 {
    // path to lists of triggers prescales
