@@ -77,9 +77,14 @@ int main(int argc, char **argv)
    TH1D* hftTpc010 = new TH1D("hftTpc010", "", 60, 0, 12);
    TH1D* hftTpc4080 = new TH1D("hftTpc4080", "", 60, 0, 12);
 
+   Long64_t nEntries = t->GetEntries();
+   cout << "nEntries = " << nEntries << endl;
+
    for (Long64_t i = 0; i < t->GetEntries(); ++i)
    {
       t->GetEntry(i);
+
+      if (i && i % 1000000 == 0) cout << static_cast<float>(i) / nEntries << endl;
 
       if (!(t->cent >= 7 || t->cent < 4)) continue;
 
