@@ -14,6 +14,8 @@ namespace anaCuts
    int   const nPtBins = 5;
    float const PtEdge[nPtBins+1] = {0., 1., 2., 3., 5., 10.};
 
+   float const rapidity = 1.0;
+
    float const dcaV0ToPv[nPtBins] = {62, 47, 40, 41, 42};
    float const decayLength[nPtBins] = {149, 205, 216, 233, 282};
    float const cosTheta[nPtBins] = {0.0000, 0.0000, 0.0000, 0.0000, 0.0000};

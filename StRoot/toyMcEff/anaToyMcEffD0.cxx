@@ -44,12 +44,13 @@ int getD0PtIndex(float const pt)
    return bin;
 }
 
-bool isGoodPair(float const pt, float const cosTheta, float const pDca, float const kDca,
+bool isGoodPair(float const pt, float const y, float const cosTheta, float const pDca, float const kDca,
                 float const dca12, float const decayLength, float const dcaV0ToPv)
 {
    int tmpIndex = getD0PtIndex(pt);
 
-   return cosTheta > anaCuts::cosTheta[tmpIndex] &&
+   return fabs(y) < anaCuts::rapidity &&
+          cosTheta > anaCuts::cosTheta[tmpIndex] &&
           pDca > anaCuts::pDca[tmpIndex] && kDca > anaCuts::kDca[tmpIndex] &&
           dca12 < anaCuts::dcaDaughters[tmpIndex] &&
           decayLength > anaCuts::decayLength[tmpIndex] &&
@@ -86,12 +87,14 @@ int main(int argc, char **argv)
 
       if (i && i % 1000000 == 0) cout << static_cast<float>(i) / nEntries << endl;
 
+      if (fabs(t->y) > anaCuts::rapidity) continue;
+
       if (!(t->cent >= 7 || t->cent < 4)) continue;
 
       if (t->cent >= 7) noCuts010->Fill(t->rPt);
       else if (t->cent < 4) noCuts4080->Fill(t->rPt);
 
-      bool passTopologicalCuts = isGoodPair(t->rPt, t->cosTheta, t->pRDca, t->kRDca, t->dca12, t->decayLength, t->dcaD0ToPv);
+      bool passTopologicalCuts = isGoodPair(t->rPt, t->rY, t->cosTheta, t->pRDca, t->kRDca, t->dca12, t->decayLength, t->dcaD0ToPv);
       if (!passTopologicalCuts) continue;
 
       bool passHft = t->kHft > 0 && t->pHft > 0;
