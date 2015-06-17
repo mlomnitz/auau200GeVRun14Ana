@@ -95,8 +95,6 @@ int main(int argc, char **argv)
       else if (t->cent < 4) noCuts4080->Fill(t->rPt);
 
       bool passTopologicalCuts = isGoodPair(t->rPt, t->rY, t->cosTheta, t->pRDca, t->kRDca, t->dca12, t->decayLength, t->dcaD0ToPv);
-      if (!passTopologicalCuts) continue;
-
       bool passHft = t->kHft > 0 && t->pHft > 0;
       bool passTpc = t->reco > 0;
 
