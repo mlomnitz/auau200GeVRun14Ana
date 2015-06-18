@@ -16,11 +16,11 @@ namespace anaCuts
 
    float const rapidity = 1.0;
 
-   float const dcaV0ToPv[nPtBins] = {62, 47, 40, 41, 42};
-   float const decayLength[nPtBins] = {149, 205, 216, 233, 282};
-   float const cosTheta[nPtBins] = {0.0000, 0.0000, 0.0000, 0.0000, 0.0000};
-   float const dcaDaughters[nPtBins] = {82, 70, 56, 65, 65};
-   float const kDca[nPtBins] = {123, 97, 91, 75, 53};
-   float const pDca[nPtBins] = {109,108,100, 74, 67};
+   float const dcaV0ToPv[nPtBins] = {61, 49, 38, 38, 40};
+   float const decayLength[nPtBins] = {145, 181, 212, 247, 259};
+   float const cosTheta[nPtBins] = {0.0000, 0.0000, 0.0000, 0.0000, 0.0000};//0.995
+   float const dcaDaughters[nPtBins] = {84, 66, 57, 50, 60}; //0.0050;
+   float const kDca[nPtBins] = {103, 91, 95, 79, 58};//0.008, // minimum
+   float const pDca[nPtBins] = {110, 111, 86, 81, 62};//0.008
 }
 #endif
