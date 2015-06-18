@@ -44,6 +44,11 @@ int getD0PtIndex(float const pt)
    return bin;
 }
 
+bool isGoodTrack(float const pt, float const eta)
+{
+  return pt > anaCuts::pt && fabs(eta) < anaCuts::eta;
+}
+
 bool isGoodPair(float const pt, float const y, float const cosTheta, float const pDca, float const kDca,
                 float const dca12, float const decayLength, float const dcaV0ToPv)
 {
@@ -91,9 +96,11 @@ int main(int argc, char **argv)
 
       if (!(t->cent >= 7 || t->cent < 4)) continue;
 
+      // fill denominator histograms
       if (t->cent >= 7) noCuts010->Fill(t->rPt);
       else if (t->cent < 4) noCuts4080->Fill(t->rPt);
 
+      if(!isGoodTrack(t->kRPt,t->kREta) || !isGoodTrack(t->pRPt,t->pREta)) continue;
       bool passTopologicalCuts = isGoodPair(t->rPt, t->rY, t->cosTheta, t->pRDca, t->kRDca, t->dca12, t->decayLength, t->dcaD0ToPv);
       bool passHft = t->kHft > 0 && t->pHft > 0;
       bool passTpc = t->reco > 0;

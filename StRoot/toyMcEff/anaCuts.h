@@ -14,6 +14,9 @@ namespace anaCuts
    int   const nPtBins = 5;
    float const PtEdge[nPtBins+1] = {0., 1., 2., 3., 5., 10.};
 
+   float const pt = 0.6;
+   float const eta = 1.0;
+
    float const rapidity = 1.0;
 
    float const dcaV0ToPv[nPtBins] = {61, 49, 38, 38, 40};
