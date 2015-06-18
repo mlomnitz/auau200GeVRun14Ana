@@ -79,7 +79,7 @@ string outFileName = "D0.root";
 std::pair<int, int> const decayChannels(747, 807);
 std::pair<float, float> const momentumRange(0.3, 12);
 
-float const acceptanceEta = 1.5;
+float const acceptanceEta = 1.0;
 float const sigmaPos0 = 15.2;
 float const pxlLayer1Thickness = 0.00486;
 float const sigmaVertexCent[nCent] = {31., 18.1, 12.8, 9.3, 7.2, 5.9, 5., 4.6, 4.};
