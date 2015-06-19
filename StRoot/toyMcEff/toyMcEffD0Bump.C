@@ -211,7 +211,7 @@ void decayAndFill(int const kf, int const decayChannel, TLorentzVector* b, doubl
    TLorentzVector kMisPidMom = kRMom;
    TLorentzVector pMisPidMom = pRMom;
    kMisPidMom.SetVectM(kRMom.Vect(), M_PION_PLUS);
-   pMisPidMom.SetVectM(kRMom.Vect(), M_KAON_PLUS);
+   pMisPidMom.SetVectM(pRMom.Vect(), M_KAON_PLUS);
    TLorentzVector const rMisPidMom = kMisPidMom + pMisPidMom;
 
    // save
