@@ -207,6 +207,13 @@ void decayAndFill(int const kf, int const decayChannel, TLorentzVector* b, doubl
   kRMomRest.Boost(-beta);
   float const cosThetaStar = rMom.Vect().Unit().Dot(kRMomRest.Vect().Unit());
 
+  // misPID
+  TLorentzVector kMisPidMom = kRMom;
+  TLorentzVector pMisPidMom = pRMom;
+  kMisPidMom.SetVectM(kRMom.Vect(),M_PION_PLUS);
+  pMisPidMom.SetVectM(kRMom.Vect(),M_KAON_PLUS);
+  TLorentzVector const rMisPidMom = kMisPidMom + pMisPidMom;
+
   // save
   float arr[100];
   int iArr = 0;
@@ -228,6 +235,7 @@ void decayAndFill(int const kf, int const decayChannel, TLorentzVector* b, doubl
   arr[iArr++] = v00.Z();
 
   arr[iArr++] = rMom.M();
+  arr[iArr++] = rMisPidMom.M();
   arr[iArr++] = rMom.Perp();
   arr[iArr++] = rMom.PseudoRapidity();
   arr[iArr++] = rMom.Rapidity();
@@ -379,7 +387,7 @@ void bookObjects()
   TH1::AddDirectory(false);
   nt = new TNtuple("nt", "", "decayChannel:cent:vx:vy:vz:"
       "pid:w:m:pt:eta:y:phi:v0x:v0y:v0z:" // MC D0
-      "rM:rPt:rEta:rY:rPhi:reco:" // Rc D0
+      "rM:misPidM:rPt:rEta:rY:rPhi:reco:" // Rc D0
       "dca12:decayLength:dcaD0ToPv:cosTheta:angle12:cosThetaStar:" // Rc pair
       "kM:kPt:kEta:kY:kPhi:kDca:" // MC Kaon
       "kRM:kRPt:kREta:kRY:kRPhi:kRVx:kRVy:kRVz:kRDca:" // Rc Kaon
