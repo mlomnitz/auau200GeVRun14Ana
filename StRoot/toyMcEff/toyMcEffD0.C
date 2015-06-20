@@ -140,6 +140,7 @@ void decayAndFill(int const kf, TLorentzVector* b, double const weight, TClonesA
             break;
          case 211:
             ptl0->Momentum(pMom);
+            break;
          default:
             break;
       }

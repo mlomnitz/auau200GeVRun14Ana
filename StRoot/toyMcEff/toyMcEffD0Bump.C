@@ -166,6 +166,7 @@ void decayAndFill(int const kf, int const decayChannel, TLorentzVector* b, doubl
             break;
          case 211:
             ptl0->Momentum(pMom);
+            break;
          default:
             break;
       }
