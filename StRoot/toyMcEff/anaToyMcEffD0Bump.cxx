@@ -19,17 +19,23 @@
 
 #include "TChain.h"
 #include "TF1.h"
+#include "TGraphErrors.h"
 #include "TH1F.h"
 #include "TH1D.h"
 #include "TStyle.h"
 #include "TCanvas.h"
 #include "TProfile.h"
 #include "TTree.h"
+#include "TRandom.h"
 #include "TNtuple.h"
 #endif
 
 #include "d0BumpNt.h"
 #include "anaCuts.h"
+
+
+TGraphErrors* grDoubleMisPID = NULL;
+TF1*          fDoubleMisPID = NULL;
 
 using namespace std;
 
@@ -61,8 +67,20 @@ bool isGoodPair(float const pt, float const cosTheta, float const pDca, float co
           dcaV0ToPv < anaCuts::dcaV0ToPv[tmpIndex];
 }
 
+bool isMisPid(float const pt)
+{
+  float const eff = pt > 0.5 ? fDoubleMisPID->Eval(pt) : grDoubleMisPID->Eval(pt);
+  return gRandom->Rndm() <= eff; 
+}
+
 int main(int argc, char **argv)
 {
+   gRandom->SetSeed();
+
+   TFile* fMisPid = new TFile("doubleCountingFit.root");
+   grDoubleMisPID = (TGraphErrors*)fMisPid->Get("grD0R")->Clone("grDoubleMisPID");
+   fDoubleMisPID = (TF1*)fMisPid->Get("f1")->Clone("fDoubleMisPID");
+
    d0BumpNt* t = new d0BumpNt();
 
    TFile* fOut = new TFile("D0Bump.hists.root", "recreate");
@@ -106,51 +124,53 @@ int main(int argc, char **argv)
       if (!isGoodTrack(t->kRPt, t->kREta) || !isGoodTrack(t->pRPt, t->pREta)) continue;
       bool passTopologicalCuts = isGoodPair(t->rPt, t->cosTheta, t->pRDca, t->kRDca, t->dca12, t->decayLength, t->dcaD0ToPv);
 
+      bool misPid = isMisPid(t->rPt);
+
       switch( static_cast<int>(t->decayChannel) )
       {
         case 763:
           h763->Fill(t->rM, t->w);
-          h763MisPid->Fill(t->misPidM, t->w);
+          if(misPid) h763MisPid->Fill(t->misPidM, t->w);
           if(passTopologicalCuts)
           {
             h763x->Fill(t->rM, t->w);
-            h763xMisPid->Fill(t->misPidM, t->w);
+            if(misPid) h763xMisPid->Fill(t->misPidM, t->w);
           }
           break;
         case 785:
           h785->Fill(t->rM, t->w);
-          h785MisPid->Fill(t->misPidM, t->w);
+          if(misPid) h785MisPid->Fill(t->misPidM, t->w);
           if(passTopologicalCuts)
           {
             h785x->Fill(t->rM, t->w);
-            h785xMisPid->Fill(t->misPidM, t->w);
+            if(misPid) h785xMisPid->Fill(t->misPidM, t->w);
           }
           break;
         case 765:
           h765->Fill(t->rM, t->w);
-          h765MisPid->Fill(t->misPidM, t->w);
+          if(misPid) h765MisPid->Fill(t->misPidM, t->w);
           if(passTopologicalCuts)
           {
             h765x->Fill(t->rM, t->w);
-            h765xMisPid->Fill(t->misPidM, t->w);
+            if(misPid) h765xMisPid->Fill(t->misPidM, t->w);
           }
           break;
         case 764:
           h764->Fill(t->rM, t->w);
-          h764MisPid->Fill(t->misPidM, t->w);
+          if(misPid) h764MisPid->Fill(t->misPidM, t->w);
           if(passTopologicalCuts)
           {
             h764x->Fill(t->rM, t->w);
-            h764xMisPid->Fill(t->misPidM, t->w);
+            if(misPid) h764xMisPid->Fill(t->misPidM, t->w);
           }
           break;
         case 719:
           h719->Fill(t->rM, t->w);
-          h719MisPid->Fill(t->misPidM, t->w);
+          if(misPid) h719MisPid->Fill(t->misPidM, t->w);
           if(passTopologicalCuts)
           {
             h719x->Fill(t->rM, t->w);
-            h719xMisPid->Fill(t->misPidM, t->w);
+            if(misPid) h719xMisPid->Fill(t->misPidM, t->w);
           }
           break;
         default:
