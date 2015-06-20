@@ -1,5 +1,5 @@
-OBJS = d0Nt.o anaToyMcEffD0.o
-EXE = anaToyMcEffD0
+OBJS = d0BumpNt.o anaToyMcEffD0Bump.o
+EXE = anaToyMcEffD0Bump
 
 ROOTCFLAGS    = $(shell root-config --cflags)
 ROOTLIBS      = $(shell root-config --libs)
