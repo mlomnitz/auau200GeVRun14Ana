@@ -107,6 +107,7 @@ void toyMcEffD0Bump(int npart = 100)
    cout << "Decay channel  = " << 785 << " : D0 --> K- pi+ pi0" << endl;
    cout << "Decay channel  = " << 765 << " : D0 --> K- rho+ --> K- pi+ pi0" << endl;
    cout << "Decay channel  = " << 764 << " : D0 --> K*- pi+  --> K- pi0 pi+" << endl;
+   cout << "Decay channel  = " << 719 << " : D+ --> K- pi+ pi+" << endl;
 
    TLorentzVector* b_d = new TLorentzVector;
    TClonesArray ptl("TParticle", 10);
@@ -132,6 +133,9 @@ void toyMcEffD0Bump(int npart = 100)
       setDecayChannels(764);
       decayAndFill(421, 764, b_d, fWeightFunction->Eval(b_d->Perp()), ptl);
       decayAndFill(-421, 764, b_d, fWeightFunction->Eval(b_d->Perp()), ptl);
+
+      // D+ 
+      b_d->SetVectM(b_d->Vect(),M_D_PLUS);
 
       setDecayChannels(719);
       decayAndFill(411, 719, b_d, fWeightFunction->Eval(b_d->Perp()), ptl);
