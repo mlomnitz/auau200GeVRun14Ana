@@ -146,7 +146,7 @@ void decayAndFill(int const kf, TLorentzVector* b, double const weight, TClonesA
    }
    daughters.Clear();
 
-   void fill(kMom,pMom,v00);
+   fill(kMom,pMom,v00);
 }
 void fill(TLorentzVector const& kMom, TLorentzVector const& piMom, TVector3 const& v00)
 {

@@ -172,7 +172,7 @@ void decayAndFill(int const kf, int const decayChannel, TLorentzVector* b, doubl
    }
    daughters.Clear();
 
-   void fill(kMom,pMom,v00);
+   fill(kMom,pMom,v00);
 }
 
 void fill(TLorentzVector const& kMom, TLorentzVector const& piMom, TVector3 const& v00)
