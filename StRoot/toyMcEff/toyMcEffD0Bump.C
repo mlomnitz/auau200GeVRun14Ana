@@ -76,7 +76,7 @@ TH1D* h1DcaZ[nCent][nPtBins];
 TH1D* h1DcaXY[nCent][nPtBins];
 
 string outFileName = "D0Bump.root";
-std::pair<int, int> const decayChannels(747, 807);
+std::pair<int, int> const decayChannels(673, 807);
 std::pair<float, float> const momentumRange(0.3, 12);
 
 float const acceptanceEta = 1.0;
@@ -132,6 +132,10 @@ void toyMcEffD0Bump(int npart = 100)
       setDecayChannels(764);
       decayAndFill(421, 764, b_d, fWeightFunction->Eval(b_d->Perp()), ptl);
       decayAndFill(-421, 764, b_d, fWeightFunction->Eval(b_d->Perp()), ptl);
+
+      setDecayChannels(719);
+      decayAndFill(411, 719, b_d, fWeightFunction->Eval(b_d->Perp()), ptl);
+      decayAndFill(-411, 719, b_d, fWeightFunction->Eval(b_d->Perp()), ptl);
    }
 
    write();
@@ -149,7 +153,8 @@ void decayAndFill(int const kf, int const decayChannel, TLorentzVector* b, doubl
    pydecay->ImportParticles(&daughters);
 
    TLorentzVector kMom;
-   TLorentzVector pMom;
+   TLorentzVector pi1Mom;
+   TLorentzVector pi2Mom;
    TVector3 v00;
 
    int nTrk = daughters.GetEntriesFast();
@@ -165,7 +170,8 @@ void decayAndFill(int const kf, int const decayChannel, TLorentzVector* b, doubl
             v00.SetXYZ(ptl0->Vx() * 1000., ptl0->Vy() * 1000., ptl0->Vz() * 1000.); // converted to μm
             break;
          case 211:
-            ptl0->Momentum(pMom);
+            if(!pi1Mom.P()) ptl0->Momentum(pi1Mom);
+            else ptl0->Momentum(pi2Mom);
             break;
          default:
             break;
@@ -173,7 +179,8 @@ void decayAndFill(int const kf, int const decayChannel, TLorentzVector* b, doubl
    }
    daughters.Clear();
 
-   fill(kf,decayChannel, b,weight,kMom,pMom,v00);
+   fill(kf,decayChannel, b,weight,kMom,pi1Mom,v00);
+   if(decayChannel==719) fill(kf,decayChannel,b,weight,kMom,pi2Mom,v00);
 }
 
 void fill(int const kf, int const decayChannel, TLorentzVector* b, double weight, TLorentzVector const& kMom, TLorentzVector const& pMom, TVector3 const& v00)
