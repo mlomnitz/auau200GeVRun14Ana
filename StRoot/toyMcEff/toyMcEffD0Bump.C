@@ -39,6 +39,7 @@ using namespace std;
 
 void setDecayChannels(int const mdme);
 void decayAndFill(int const kf, int const decayChennel, TLorentzVector* b, double const weight, TClonesArray& daughters);
+void fill(TLorentzVector const& kMom, TLorentzVector const& piMom, TVector3 const& v00);
 void getKinematics(TLorentzVector& b, double const mass);
 TLorentzVector smearMom(TLorentzVector const& b, TF1 const * const fMomResolution);
 TVector3 smearPos(TLorentzVector const& mom, TLorentzVector const& rMom, TVector3 const& pos);
@@ -114,7 +115,7 @@ void toyMcEffD0Bump(int npart = 100)
       if (!(ipart % 100000))
          cout << "____________ ipart = " << ipart << " ________________" << endl;
 
-      getKinematics(*b_d, M_D_PLUS);
+      getKinematics(*b_d, M_D_0);
 
       setDecayChannels(763);
       decayAndFill(421, 763, b_d, fWeightFunction->Eval(b_d->Perp()), ptl);
@@ -171,6 +172,11 @@ void decayAndFill(int const kf, int const decayChannel, TLorentzVector* b, doubl
    }
    daughters.Clear();
 
+   void fill(kMom,pMom,v00);
+}
+
+void fill(TLorentzVector const& kMom, TLorentzVector const& piMom, TVector3 const& v00)
+{
    // smear momentum
    TLorentzVector const kRMom = smearMom(kMom, fKaonMomResolution);
    TLorentzVector const pRMom = smearMom(pMom, fPionMomResolution);
