@@ -75,7 +75,7 @@ TH1D* hHftRatio[nCent];
 TH1D* h1DcaZ[nCent][nPtBins];
 TH1D* h1DcaXY[nCent][nPtBins];
 
-string outFileName = "D0Bump.root";
+string outFileName = "D0Bump.toyMc.root";
 std::pair<int, int> const decayChannels(673, 807);
 std::pair<float, float> const momentumRange(0.3, 12);
 

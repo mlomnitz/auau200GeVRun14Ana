@@ -1,3 +1,15 @@
+/* *********************************************************************
+ *
+ *  Analysis code to read D0 *.toyMc.root files.
+ *
+ *  Authors:
+ *            **Mustafa Mustafa (mmustafa@lbl.gov)
+ *
+ *  ** Code Maintainer
+ *
+ * *********************************************************************
+*/
+
 #ifdef __CINT__
 
 #pragma link off all globals;
