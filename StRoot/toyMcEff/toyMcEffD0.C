@@ -267,10 +267,11 @@ void getKinematics(TLorentzVector& b, double const mass)
    float const y = gRandom->Uniform(-acceptanceRapidity, acceptanceRapidity);
    float const phi = TMath::TwoPi() * gRandom->Rndm();
 
-   float const momMag = mass * sinh(y);
-   float const eta = atanh(pt/momMag);
+   float const mT = sqrt(mass*mass+pt*pt);
+   float const pz = mT * sinh(y);
+   float const E = mT * cosh(y);
 
-   b.SetPtEtaPhiM(pt, eta, phi, mass);
+   b.SetPxPyPzE(pt * cos(phi), pt * sin(phi) , pz, E);
 }
 
 float dca(TVector3 const& p, TVector3 const& pos, TVector3 const& vertex)
