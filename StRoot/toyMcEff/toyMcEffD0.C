@@ -80,7 +80,7 @@ string outFileName = "D0.toyMc.root";
 std::pair<int, int> const decayChannels(747, 807);
 std::pair<float, float> const momentumRange(0.3, 12);
 
-float const acceptanceEta = 1.0;
+float const acceptanceRapidity = 1.0;
 float const sigmaPos0 = 15.2;
 float const pxlLayer1Thickness = 0.00486;
 float const sigmaVertexCent[nCent] = {31., 18.1, 12.8, 9.3, 7.2, 5.9, 5., 4.6, 4.};
@@ -264,10 +264,13 @@ void fill(int const kf, TLorentzVector* b, double weight, TLorentzVector const& 
 void getKinematics(TLorentzVector& b, double const mass)
 {
    float const pt = gRandom->Uniform(momentumRange.first, momentumRange.second);
-   float const eta = gRandom->Uniform(-acceptanceEta, acceptanceEta);
+   float const y = gRandom->Uniform(-acceptanceRapidity, acceptanceRapidity);
    float const phi = TMath::TwoPi() * gRandom->Rndm();
 
-   b.SetXYZM(pt * cos(phi), pt * sin(phi), pt * sinh(eta), mass);
+   float const momMag = mass * sinh(y);
+   float const eta = atanh(pt/momMag);
+
+   b.SetPtEtaPhiM(pt, eta, phi, mass);
 }
 
 float dca(TVector3 const& p, TVector3 const& pos, TVector3 const& vertex)
