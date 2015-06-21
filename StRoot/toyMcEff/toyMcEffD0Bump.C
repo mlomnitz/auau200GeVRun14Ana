@@ -79,7 +79,7 @@ string outFileName = "D0Bump.toyMc.root";
 std::pair<int, int> const decayChannels(673, 807);
 std::pair<float, float> const momentumRange(0.3, 12);
 
-float const acceptanceEta = 1.0;
+float const acceptanceRapidity = 1.0;
 float const sigmaPos0 = 15.2;
 float const pxlLayer1Thickness = 0.00486;
 float const sigmaVertexCent[nCent] = {31., 18.1, 12.8, 9.3, 7.2, 5.9, 5., 4.6, 4.};
@@ -310,10 +310,14 @@ void fill(int const kf, int const decayChannel, TLorentzVector* b, double weight
 void getKinematics(TLorentzVector& b, double const mass)
 {
    float const pt = gRandom->Uniform(momentumRange.first, momentumRange.second);
-   float const eta = gRandom->Uniform(-acceptanceEta, acceptanceEta);
+   float const y = gRandom->Uniform(-acceptanceRapidity, acceptanceRapidity);
    float const phi = TMath::TwoPi() * gRandom->Rndm();
 
-   b.SetXYZM(pt * cos(phi), pt * sin(phi), pt * sinh(eta), mass);
+   float const mT = sqrt(mass*mass+pt*pt);
+   float const pz = mT * sinh(y);
+   float const E = mT * cosh(y);
+
+   b.SetPxPyPzE(pt * cos(phi), pt * sin(phi) , pz, E);
 }
 
 float dca(TVector3 const& p, TVector3 const& pos, TVector3 const& vertex)
