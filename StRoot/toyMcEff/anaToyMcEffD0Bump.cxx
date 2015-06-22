@@ -32,6 +32,7 @@
 #include "TF1.h"
 #include "TGraphErrors.h"
 #include "TH1F.h"
+#include "TH2F.h"
 #include "TH1D.h"
 #include "TStyle.h"
 #include "TCanvas.h"
@@ -96,29 +97,29 @@ int main(int argc, char **argv)
 
    TFile* fOut = new TFile("D0Bump.hists.root", "recreate");
 
-   TH1F* h763 = new TH1F("h763","",160,0.5,2.1);
-   TH1F* h785 = new TH1F("h785","",160,0.5,2.1);
-   TH1F* h765 = new TH1F("h765","",160,0.5,2.1);
-   TH1F* h764 = new TH1F("h764","",160,0.5,2.1);
-   TH1F* h719 = new TH1F("h719","",160,0.5,2.1);
+   TH2F* h763 = new TH2F("h763","",160,0.5,2.1,100,0,10);
+   TH2F* h785 = new TH2F("h785","",160,0.5,2.1,100,0,10);
+   TH2F* h765 = new TH2F("h765","",160,0.5,2.1,100,0,10);
+   TH2F* h764 = new TH2F("h764","",160,0.5,2.1,100,0,10);
+   TH2F* h719 = new TH2F("h719","",160,0.5,2.1,100,0,10);
 
-   TH1F* h763MisPid = new TH1F("h763MisPid","",160,0.5,2.1);
-   TH1F* h785MisPid = new TH1F("h785MisPid","",160,0.5,2.1);
-   TH1F* h765MisPid = new TH1F("h765MisPid","",160,0.5,2.1);
-   TH1F* h764MisPid = new TH1F("h764MisPid","",160,0.5,2.1);
-   TH1F* h719MisPid = new TH1F("h719MisPid","",160,0.5,2.1);
+   TH2F* h763MisPid = new TH2F("h763MisPid","",160,0.5,2.1,100,0,10);
+   TH2F* h785MisPid = new TH2F("h785MisPid","",160,0.5,2.1,100,0,10);
+   TH2F* h765MisPid = new TH2F("h765MisPid","",160,0.5,2.1,100,0,10);
+   TH2F* h764MisPid = new TH2F("h764MisPid","",160,0.5,2.1,100,0,10);
+   TH2F* h719MisPid = new TH2F("h719MisPid","",160,0.5,2.1,100,0,10);
 
-   TH1F* h763x = new TH1F("h763x","",160,0.5,2.1);
-   TH1F* h785x = new TH1F("h785x","",160,0.5,2.1);
-   TH1F* h765x = new TH1F("h765x","",160,0.5,2.1);
-   TH1F* h764x = new TH1F("h764x","",160,0.5,2.1);
-   TH1F* h719x = new TH1F("h719x","",160,0.5,2.1);
+   TH2F* h763x = new TH2F("h763x","",160,0.5,2.1,100,0,10);
+   TH2F* h785x = new TH2F("h785x","",160,0.5,2.1,100,0,10);
+   TH2F* h765x = new TH2F("h765x","",160,0.5,2.1,100,0,10);
+   TH2F* h764x = new TH2F("h764x","",160,0.5,2.1,100,0,10);
+   TH2F* h719x = new TH2F("h719x","",160,0.5,2.1,100,0,10);
 
-   TH1F* h763xMisPid = new TH1F("h763xMisPid","",160,0.5,2.1);
-   TH1F* h785xMisPid = new TH1F("h785xMisPid","",160,0.5,2.1);
-   TH1F* h765xMisPid = new TH1F("h765xMisPid","",160,0.5,2.1);
-   TH1F* h764xMisPid = new TH1F("h764xMisPid","",160,0.5,2.1);
-   TH1F* h719xMisPid = new TH1F("h719xMisPid","",160,0.5,2.1);
+   TH2F* h763xMisPid = new TH2F("h763xMisPid","",160,0.5,2.1,100,0,10);
+   TH2F* h785xMisPid = new TH2F("h785xMisPid","",160,0.5,2.1,100,0,10);
+   TH2F* h765xMisPid = new TH2F("h765xMisPid","",160,0.5,2.1,100,0,10);
+   TH2F* h764xMisPid = new TH2F("h764xMisPid","",160,0.5,2.1,100,0,10);
+   TH2F* h719xMisPid = new TH2F("h719xMisPid","",160,0.5,2.1,100,0,10);
 
    Long64_t nEntries = t->GetEntries();
    cout << "nEntries = " << nEntries << endl;
@@ -140,48 +141,48 @@ int main(int argc, char **argv)
       switch( static_cast<int>(t->decayChannel) )
       {
         case 763:
-          h763->Fill(t->rM, t->w);
-          if(misPid) h763MisPid->Fill(t->misPidM, t->w);
+          h763->Fill(t->rM, t->rPt, t->w);
+          if(misPid) h763MisPid->Fill(t->misPidM, t->rPt, t->w);
           if(passTopologicalCuts)
           {
-            h763x->Fill(t->rM, t->w);
-            if(misPid) h763xMisPid->Fill(t->misPidM, t->w);
+            h763x->Fill(t->rM, t->rPt, t->w);
+            if(misPid) h763xMisPid->Fill(t->misPidM, t->rPt, t->w);
           }
           break;
         case 785:
-          h785->Fill(t->rM, t->w);
-          if(misPid) h785MisPid->Fill(t->misPidM, t->w);
+          h785->Fill(t->rM, t->rPt, t->w);
+          if(misPid) h785MisPid->Fill(t->misPidM, t->rPt, t->w);
           if(passTopologicalCuts)
           {
-            h785x->Fill(t->rM, t->w);
-            if(misPid) h785xMisPid->Fill(t->misPidM, t->w);
+            h785x->Fill(t->rM, t->rPt, t->w);
+            if(misPid) h785xMisPid->Fill(t->misPidM, t->rPt, t->w);
           }
           break;
         case 765:
-          h765->Fill(t->rM, t->w);
-          if(misPid) h765MisPid->Fill(t->misPidM, t->w);
+          h765->Fill(t->rM, t->rPt, t->w);
+          if(misPid) h765MisPid->Fill(t->misPidM, t->rPt, t->w);
           if(passTopologicalCuts)
           {
-            h765x->Fill(t->rM, t->w);
-            if(misPid) h765xMisPid->Fill(t->misPidM, t->w);
+            h765x->Fill(t->rM, t->rPt, t->w);
+            if(misPid) h765xMisPid->Fill(t->misPidM, t->rPt, t->w);
           }
           break;
         case 764:
-          h764->Fill(t->rM, t->w);
-          if(misPid) h764MisPid->Fill(t->misPidM, t->w);
+          h764->Fill(t->rM, t->rPt, t->w);
+          if(misPid) h764MisPid->Fill(t->misPidM, t->rPt, t->w);
           if(passTopologicalCuts)
           {
-            h764x->Fill(t->rM, t->w);
-            if(misPid) h764xMisPid->Fill(t->misPidM, t->w);
+            h764x->Fill(t->rM, t->rPt, t->w);
+            if(misPid) h764xMisPid->Fill(t->misPidM, t->rPt, t->w);
           }
           break;
         case 719:
-          h719->Fill(t->rM, t->w);
-          if(misPid) h719MisPid->Fill(t->misPidM, t->w);
+          h719->Fill(t->rM, t->rPt, t->w);
+          if(misPid) h719MisPid->Fill(t->misPidM, t->rPt, t->w);
           if(passTopologicalCuts)
           {
-            h719x->Fill(t->rM, t->w);
-            if(misPid) h719xMisPid->Fill(t->misPidM, t->w);
+            h719x->Fill(t->rM, t->rPt, t->w);
+            if(misPid) h719xMisPid->Fill(t->misPidM, t->rPt, t->w);
           }
           break;
         default:
