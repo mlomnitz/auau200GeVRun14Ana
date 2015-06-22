@@ -1,3 +1,15 @@
+/* *********************************************************************
+ *
+ * Table of charm quark fragmentation ratios. 
+ * Reference: ZEUS Collaboration - arXiv:hep-ex/0508019 - Table 4.
+ *
+ *  Authors:
+ *            **Mustafa Mustafa (mmustafa@lbl.gov)
+ *
+ *  ** Code Maintainer
+ *
+ * *********************************************************************
+*/
 #include <iostream>
 #include <utility>
 
@@ -15,7 +27,7 @@ void printFragmentationRatios()
 
 namespace fragmentationRatios
 {
-  std::pair<double,double> const charmToDPlusMinus = make_pair(0.217,0.014);
+  std::pair<double,double> const charmToDPlusMinus = make_pair(0.217,0.014); // value +- error
   std::pair<double,double> const charmToDZero      = make_pair(0.523,0.021);
   std::pair<double,double> const charmToDs         = make_pair(0.095, 0.008);
   std::pair<double,double> const charmToLambdaC    = make_pair(0.144,0.022);
