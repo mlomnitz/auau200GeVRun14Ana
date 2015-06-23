@@ -134,9 +134,9 @@ int main(int argc, char **argv)
       if (fabs(t->y) > anaCuts::rapidity || fabs(t->rY)> anaCuts::rapidity) continue;
 
       if (!isGoodTrack(t->kRPt, t->kREta) || !isGoodTrack(t->pRPt, t->pREta)) continue;
-      bool passTopologicalCuts = isGoodPair(t->rPt, t->cosTheta, t->pRDca, t->kRDca, t->dca12, t->decayLength, t->dcaD0ToPv);
+      bool const passTopologicalCuts = isGoodPair(t->rPt, t->cosTheta, t->pRDca, t->kRDca, t->dca12, t->decayLength, t->dcaD0ToPv);
 
-      bool misPid = isMisPid(t->rPt);
+      bool const misPid = isMisPid(t->rPt);
 
       switch( static_cast<int>(t->decayChannel) )
       {
