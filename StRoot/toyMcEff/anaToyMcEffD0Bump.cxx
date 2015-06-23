@@ -110,12 +110,12 @@ public:
      h2CosThetaVsPt->Fill(t->rPt,t->cosTheta);
      h2DcaToPvVsPt->Fill(t->rPt,t->dcaD0ToPv);
 
-     h2Mass->Fill(t->rM, t->rPt, t->w);
-     if (misPid) h2MassMisPid->Fill(t->misPidM, t->rPt, t->w);
+     h2Mass->Fill(t->rPt, t->rM, t->w);
+     if (misPid) h2MassMisPid->Fill(t->rPt, t->misPidM, t->w);
      if (passTopologicalCuts)
      {
-       h2MassX->Fill(t->rM, t->rPt, t->w);
-       if (misPid) h2MassMisPidX->Fill(t->misPidM, t->rPt, t->w);
+       h2MassX->Fill(t->rPt, t->rM, t->w);
+       if (misPid) h2MassMisPidX->Fill(t->rPt, t->misPidM, t->w);
      }
    }
 
