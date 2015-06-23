@@ -99,6 +99,12 @@ void toyMcEffD0Bump(int npart = 100)
    TPythia6::Instance()->SetMDME(581, 1, 1); // ρ+ --> π+ π0
    TPythia6::Instance()->SetMDME(582, 1, 0); // ρ+ --> π+ gamma
 
+   TPythia6::Instance()->SetMDME(556, 1, 1); // ρ0 --> π+ π-
+   TPythia6::Instance()->SetMDME(557, 1, 0); // ρ0 --> π0 γ
+   TPythia6::Instance()->SetMDME(558, 1, 0); // ρ0 --> η  γ                                                           
+   TPythia6::Instance()->SetMDME(559, 1, 0); // ρ0 --> μ- μ+                                                             
+   TPythia6::Instance()->SetMDME(560, 1, 0); // ρ0 --> e- e+                                                              
+
    TPythia6::Instance()->SetMDME(636, 1, 0); // K*- --> K0 pi-
    TPythia6::Instance()->SetMDME(637, 1, 1); // K*- --> K- π0
    TPythia6::Instance()->SetMDME(638, 1, 0); // K*- --> K- γ
@@ -107,6 +113,7 @@ void toyMcEffD0Bump(int npart = 100)
    cout << "Decay channel  = " << 785 << " : D0 --> K- pi+ pi0" << endl;
    cout << "Decay channel  = " << 765 << " : D0 --> K- rho+ --> K- pi+ pi0" << endl;
    cout << "Decay channel  = " << 764 << " : D0 --> K*- pi+  --> K- pi0 pi+" << endl;
+   cout << "Decay channel  = " << 786 << " : D0 --> K- pi+ rho0 --> K- pi+ pi+ pi-" <<endl;
    cout << "Decay channel  = " << 719 << " : D+ --> K- pi+ pi+" << endl;
 
    TLorentzVector* b_d = new TLorentzVector;
@@ -133,6 +140,10 @@ void toyMcEffD0Bump(int npart = 100)
       setDecayChannels(764);
       decayAndFill(421, 764, b_d, fWeightFunction->Eval(b_d->Perp()), ptl);
       decayAndFill(-421, 764, b_d, fWeightFunction->Eval(b_d->Perp()), ptl);
+
+      setDecayChannels(786);
+      decayAndFill(421, 786, b_d, fWeightFunction->Eval(b_d->Perp()), ptl);
+      decayAndFill(-421, 786, b_d, fWeightFunction->Eval(b_d->Perp()), ptl);
 
       // D+ 
       b_d->SetVectM(b_d->Vect(),M_D_PLUS);
@@ -184,7 +195,7 @@ void decayAndFill(int const kf, int const decayChannel, TLorentzVector* b, doubl
    daughters.Clear();
 
    fill(kf,decayChannel, b,weight,kMom,pi1Mom,v00);
-   if(decayChannel==719) fill(kf,decayChannel,b,weight,kMom,pi2Mom,v00);
+   if((decayChannel==719 || decayChannel==786)) fill(kf,decayChannel,b,weight,kMom,pi2Mom,v00);
 }
 
 void fill(int const kf, int const decayChannel, TLorentzVector* b, double weight, TLorentzVector const& kMom, TLorentzVector const& pMom, TVector3 const& v00)
