@@ -89,16 +89,27 @@ class hists
 {
 public:
 
-   hists(int decayChannel, std::string title): h2Mass(NULL), h2MassMisPid(NULL), h2MassX(NULL), h2MassMisPidX(NULL)
+   hists(int decayChannel, std::string title): h2Mass(NULL), h2MassMisPid(NULL), h2MassX(NULL), h2MassMisPidX(NULL),
+                                               h2KDcaVsPt(NULL), h2PiDcaVsPt(NULL), h2CosThetaVsPt(NULL), h2DcaToPvVsPt(NULL)
    {
       h2Mass = new TH2F(Form("h%i", decayChannel), Form("%s without cuts", title.c_str()), 100, 0, 10, 160, 0.5, 2.1);
       h2MassMisPid = new TH2F(Form("h%iMisPid", decayChannel), Form("%s misPid", title.c_str()), 100, 0, 10, 160, 0.5, 2.1);
       h2MassX = new TH2F(Form("h%ix", decayChannel), Form("%s with cuts", title.c_str()), 100, 0, 10, 160, 0.5, 2.1);
       h2MassMisPidX = new TH2F(Form("h%ixMisPid", decayChannel), Form("%s misPid with wuts", title.c_str()), 100, 0, 10, 160, 0.5, 2.1);
+
+      h2KDcaVsPt = new TH2F(Form("hKDcaVsPt%i",decayChannel),"",100,0,10,2000,-10000,10000);
+      h2PiDcaVsPt = new TH2F(Form("hPiDcaVsPt%i",decayChannel),"",100,0,10,2000,-10000,10000);
+      h2CosThetaVsPt = new TH2F(Form("hCosThetaVsPt%i",decayChannel),"",100,0,10,2000,-1.,1.);
+      h2DcaToPvVsPt = new TH2F(Form("hDcaToPv%i",decayChannel),"",100,0,10,2000,0,20000);
    }
 
    void fill(d0BumpNt const* const t, bool passTopologicalCuts, bool misPid)
    {
+     h2KDcaVsPt->Fill(t->rPt,t->kRDca);
+     h2PiDcaVsPt->Fill(t->rPt,t->pRDca);
+     h2CosThetaVsPt->Fill(t->rPt,t->cosTheta);
+     h2DcaToPvVsPt->Fill(t->rPt,t->dcaD0ToPv);
+
      h2Mass->Fill(t->rM, t->rPt, t->w);
      if (misPid) h2MassMisPid->Fill(t->misPidM, t->rPt, t->w);
      if (passTopologicalCuts)
@@ -115,6 +126,10 @@ public:
       h2MassMisPid->Write();
       h2MassX->Write();
       h2MassMisPidX->Write();
+      h2KDcaVsPt->Write();
+      h2PiDcaVsPt->Write();
+      h2CosThetaVsPt->Write();
+      h2DcaToPvVsPt->Write();
    }
 
 private:
@@ -122,6 +137,10 @@ private:
    TH2F* h2MassMisPid;
    TH2F* h2MassX; // X means topological cuts applied.
    TH2F* h2MassMisPidX;
+   TH2F* h2KDcaVsPt;
+   TH2F* h2PiDcaVsPt;
+   TH2F* h2CosThetaVsPt;
+   TH2F* h2DcaToPvVsPt;
 };
 
 int main(int argc, char **argv)
