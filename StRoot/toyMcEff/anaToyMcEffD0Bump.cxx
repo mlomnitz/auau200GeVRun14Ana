@@ -97,8 +97,8 @@ public:
       h2MassX = new TH2F(Form("h%ix", decayChannel), Form("%s with cuts", title.c_str()), 100, 0, 10, 160, 0.5, 2.1);
       h2MassMisPidX = new TH2F(Form("h%ixMisPid", decayChannel), Form("%s misPid with wuts", title.c_str()), 100, 0, 10, 160, 0.5, 2.1);
 
-      h2KDcaVsPt = new TH2F(Form("hKDcaVsPt%i",decayChannel),"",100,0,10,2000,-10000,10000);
-      h2PiDcaVsPt = new TH2F(Form("hPiDcaVsPt%i",decayChannel),"",100,0,10,2000,-10000,10000);
+      h2KDcaVsPt = new TH2F(Form("hKDcaVsPt%i",decayChannel),"",100,0,10,2000,0,20000);
+      h2PiDcaVsPt = new TH2F(Form("hPiDcaVsPt%i",decayChannel),"",100,0,10,2000,0,20000);
       h2CosThetaVsPt = new TH2F(Form("hCosThetaVsPt%i",decayChannel),"",100,0,10,2000,-1.,1.);
       h2DcaToPvVsPt = new TH2F(Form("hDcaToPv%i",decayChannel),"",100,0,10,2000,0,20000);
    }
