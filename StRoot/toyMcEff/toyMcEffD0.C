@@ -103,7 +103,7 @@ void toyMcEffD0(int npart = 100)
       if (!(ipart % 100000))
          cout << "____________ ipart = " << ipart << " ________________" << endl;
 
-      getKinematics(*b_d, M_D_PLUS);
+      getKinematics(*b_d, M_D_0);
 
       decayAndFill(421, b_d, fWeightFunction->Eval(b_d->Perp()), ptl);
       decayAndFill(-421, b_d, fWeightFunction->Eval(b_d->Perp()), ptl);
