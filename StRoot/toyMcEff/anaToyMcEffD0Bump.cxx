@@ -89,6 +89,13 @@ int main(int argc, char **argv)
 {
    gRandom->SetSeed();
 
+   cout << "Decay channel  = " << 763 << " : D0 --> K- pi+" << endl;
+   cout << "Decay channel  = " << 785 << " : D0 --> K- pi+ pi0" << endl;
+   cout << "Decay channel  = " << 765 << " : D0 --> K- rho+ --> K- pi+ pi0" << endl;
+   cout << "Decay channel  = " << 764 << " : D0 --> K*- pi+  --> K- pi0 pi+" << endl;
+   cout << "Decay channel  = " << 786 << " : D0 --> K- pi+ rho0 --> K- pi+ pi+ pi-" <<endl;
+   cout << "Decay channel  = " << 719 << " : D+ --> K- pi+ pi+" << endl;
+
    TFile* fMisPid = new TFile("doubleCountingFit.root");
    grDoubleMisPID = (TGraphErrors*)fMisPid->Get("grD0R")->Clone("grDoubleMisPID");
    fDoubleMisPID = (TF1*)fMisPid->Get("f1")->Clone("fDoubleMisPID");
@@ -101,24 +108,28 @@ int main(int argc, char **argv)
    TH2F* h785 = new TH2F("h785","",160,0.5,2.1,100,0,10);
    TH2F* h765 = new TH2F("h765","",160,0.5,2.1,100,0,10);
    TH2F* h764 = new TH2F("h764","",160,0.5,2.1,100,0,10);
+   TH2F* h786 = new TH2F("h786","",160,0.5,2.1,100,0,10);
    TH2F* h719 = new TH2F("h719","",160,0.5,2.1,100,0,10);
 
    TH2F* h763MisPid = new TH2F("h763MisPid","",160,0.5,2.1,100,0,10);
    TH2F* h785MisPid = new TH2F("h785MisPid","",160,0.5,2.1,100,0,10);
    TH2F* h765MisPid = new TH2F("h765MisPid","",160,0.5,2.1,100,0,10);
    TH2F* h764MisPid = new TH2F("h764MisPid","",160,0.5,2.1,100,0,10);
+   TH2F* h786MisPid = new TH2F("h786MisPid","",160,0.5,2.1,100,0,10);
    TH2F* h719MisPid = new TH2F("h719MisPid","",160,0.5,2.1,100,0,10);
 
    TH2F* h763x = new TH2F("h763x","",160,0.5,2.1,100,0,10);
    TH2F* h785x = new TH2F("h785x","",160,0.5,2.1,100,0,10);
    TH2F* h765x = new TH2F("h765x","",160,0.5,2.1,100,0,10);
    TH2F* h764x = new TH2F("h764x","",160,0.5,2.1,100,0,10);
+   TH2F* h786x = new TH2F("h786x","",160,0.5,2.1,100,0,10);
    TH2F* h719x = new TH2F("h719x","",160,0.5,2.1,100,0,10);
 
    TH2F* h763xMisPid = new TH2F("h763xMisPid","",160,0.5,2.1,100,0,10);
    TH2F* h785xMisPid = new TH2F("h785xMisPid","",160,0.5,2.1,100,0,10);
    TH2F* h765xMisPid = new TH2F("h765xMisPid","",160,0.5,2.1,100,0,10);
    TH2F* h764xMisPid = new TH2F("h764xMisPid","",160,0.5,2.1,100,0,10);
+   TH2F* h786xMisPid = new TH2F("h786xMisPid","",160,0.5,2.1,100,0,10);
    TH2F* h719xMisPid = new TH2F("h719xMisPid","",160,0.5,2.1,100,0,10);
 
    Long64_t nEntries = t->GetEntries();
@@ -176,6 +187,14 @@ int main(int argc, char **argv)
             if(misPid) h764xMisPid->Fill(t->misPidM, t->rPt, t->w);
           }
           break;
+        case 786:
+          h786->Fill(t->rM, t->rPt, t->w);
+          if(misPid) h786MisPid->Fill(t->misPidM, t->rPt, t->w);
+          if(passTopologicalCuts)
+          {
+            h786x->Fill(t->rM, t->rPt, t->w);
+            if(misPid) h786xMisPid->Fill(t->misPidM, t->rPt, t->w);
+          }
         case 719:
           h719->Fill(t->rM, t->rPt, t->w);
           if(misPid) h719MisPid->Fill(t->misPidM, t->rPt, t->w);
@@ -197,24 +216,28 @@ int main(int argc, char **argv)
    h785->Write();
    h765->Write();
    h764->Write();
+   h786->Write();
    h719->Write();
 
    h763MisPid->Write();
    h785MisPid->Write();
    h765MisPid->Write();
    h764MisPid->Write();
+   h786MisPid->Write();
    h719MisPid->Write();
 
    h763x->Write();
    h785x->Write();
    h765x->Write();
    h764x->Write();
+   h786x->Write();
    h719x->Write();
 
    h763xMisPid->Write();
    h785xMisPid->Write();
    h765xMisPid->Write();
    h764xMisPid->Write();
+   h786xMisPid->Write();
    h719xMisPid->Write();
 
    fOut->Close();
