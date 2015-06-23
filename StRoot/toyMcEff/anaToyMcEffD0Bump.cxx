@@ -81,19 +81,59 @@ bool isGoodPair(float const pt, float const cosTheta, float const pDca, float co
 
 bool isMisPid(float const pt)
 {
-  float const eff = pt > 0.5 ? fDoubleMisPID->Eval(pt) : grDoubleMisPID->Eval(pt);
-  return gRandom->Rndm() <= eff; 
+   float const eff = pt > 0.5 ? fDoubleMisPID->Eval(pt) : grDoubleMisPID->Eval(pt);
+   return gRandom->Rndm() <= eff;
 }
+
+class hists
+{
+public:
+
+   hists(int decayChannel, std::string title): h2Mass(NULL), h2MassMisPid(NULL), h2MassX(NULL), h2MassMisPidX(NULL)
+   {
+      h2Mass = new TH2F(Form("h%i", decayChannel), Form("%s without cuts", title.c_str()), 100, 0, 10, 160, 0.5, 2.1);
+      h2MassMisPid = new TH2F(Form("h%iMisPid", decayChannel), Form("%s misPid", title.c_str()), 100, 0, 10, 160, 0.5, 2.1);
+      h2MassX = new TH2F(Form("h%ix", decayChannel), Form("%s with cuts", title.c_str()), 100, 0, 10, 160, 0.5, 2.1);
+      h2MassMisPidX = new TH2F(Form("h%ixMisPid", decayChannel), Form("%s misPid with wuts", title.c_str()), 100, 0, 10, 160, 0.5, 2.1);
+   }
+
+   void fill(d0BumpNt const* const t, bool passTopologicalCuts, bool misPid)
+   {
+     h2Mass->Fill(t->rM, t->rPt, t->w);
+     if (misPid) h2MassMisPid->Fill(t->misPidM, t->rPt, t->w);
+     if (passTopologicalCuts)
+     {
+       h2MassX->Fill(t->rM, t->rPt, t->w);
+       if (misPid) h2MassMisPidX->Fill(t->misPidM, t->rPt, t->w);
+     }
+   }
+
+   void write(TFile* fOut)
+   {
+      fOut->cd();
+      h2Mass->Write();
+      h2MassMisPid->Write();
+      h2MassX->Write();
+      h2MassMisPidX->Write();
+   }
+
+private:
+   TH2F* h2Mass;
+   TH2F* h2MassMisPid;
+   TH2F* h2MassX; // X means topological cuts applied.
+   TH2F* h2MassMisPidX;
+};
 
 int main(int argc, char **argv)
 {
+   TH1::AddDirectory(false);
    gRandom->SetSeed();
 
    cout << "Decay channel  = " << 763 << " : D0 --> K- pi+" << endl;
    cout << "Decay channel  = " << 785 << " : D0 --> K- pi+ pi0" << endl;
    cout << "Decay channel  = " << 765 << " : D0 --> K- rho+ --> K- pi+ pi0" << endl;
    cout << "Decay channel  = " << 764 << " : D0 --> K*- pi+  --> K- pi0 pi+" << endl;
-   cout << "Decay channel  = " << 786 << " : D0 --> K- pi+ rho0 --> K- pi+ pi+ pi-" <<endl;
+   cout << "Decay channel  = " << 786 << " : D0 --> K- pi+ rho0 --> K- pi+ pi+ pi-" << endl;
    cout << "Decay channel  = " << 719 << " : D+ --> K- pi+ pi+" << endl;
 
    TFile* fMisPid = new TFile("doubleCountingFit.root");
@@ -103,34 +143,12 @@ int main(int argc, char **argv)
    d0BumpNt* t = new d0BumpNt();
 
    TFile* fOut = new TFile("D0Bump.hists.root", "recreate");
-
-   TH2F* h763 = new TH2F("h763","",160,0.5,2.1,100,0,10);
-   TH2F* h785 = new TH2F("h785","",160,0.5,2.1,100,0,10);
-   TH2F* h765 = new TH2F("h765","",160,0.5,2.1,100,0,10);
-   TH2F* h764 = new TH2F("h764","",160,0.5,2.1,100,0,10);
-   TH2F* h786 = new TH2F("h786","",160,0.5,2.1,100,0,10);
-   TH2F* h719 = new TH2F("h719","",160,0.5,2.1,100,0,10);
-
-   TH2F* h763MisPid = new TH2F("h763MisPid","",160,0.5,2.1,100,0,10);
-   TH2F* h785MisPid = new TH2F("h785MisPid","",160,0.5,2.1,100,0,10);
-   TH2F* h765MisPid = new TH2F("h765MisPid","",160,0.5,2.1,100,0,10);
-   TH2F* h764MisPid = new TH2F("h764MisPid","",160,0.5,2.1,100,0,10);
-   TH2F* h786MisPid = new TH2F("h786MisPid","",160,0.5,2.1,100,0,10);
-   TH2F* h719MisPid = new TH2F("h719MisPid","",160,0.5,2.1,100,0,10);
-
-   TH2F* h763x = new TH2F("h763x","",160,0.5,2.1,100,0,10);
-   TH2F* h785x = new TH2F("h785x","",160,0.5,2.1,100,0,10);
-   TH2F* h765x = new TH2F("h765x","",160,0.5,2.1,100,0,10);
-   TH2F* h764x = new TH2F("h764x","",160,0.5,2.1,100,0,10);
-   TH2F* h786x = new TH2F("h786x","",160,0.5,2.1,100,0,10);
-   TH2F* h719x = new TH2F("h719x","",160,0.5,2.1,100,0,10);
-
-   TH2F* h763xMisPid = new TH2F("h763xMisPid","",160,0.5,2.1,100,0,10);
-   TH2F* h785xMisPid = new TH2F("h785xMisPid","",160,0.5,2.1,100,0,10);
-   TH2F* h765xMisPid = new TH2F("h765xMisPid","",160,0.5,2.1,100,0,10);
-   TH2F* h764xMisPid = new TH2F("h764xMisPid","",160,0.5,2.1,100,0,10);
-   TH2F* h786xMisPid = new TH2F("h786xMisPid","",160,0.5,2.1,100,0,10);
-   TH2F* h719xMisPid = new TH2F("h719xMisPid","",160,0.5,2.1,100,0,10);
+   hists hists763(763, "D0 --> K- pi+");
+   hists hists785(785, "D0 --> K- pi+ pi0");
+   hists hists765(765, "D0 --> K- rho+ --> K- pi+ pi0");
+   hists hists764(764, "D0 --> K*- pi+  --> K- pi0 pi+");
+   hists hists786(786, "D0 --> K- pi+ rho0 --> K- pi+ pi+ pi-");
+   hists hists719(719, "D+ --> K- pi+ pi+");
 
    Long64_t nEntries = t->GetEntries();
    cout << "nEntries = " << nEntries << endl;
@@ -141,104 +159,45 @@ int main(int argc, char **argv)
 
       if (i && i % 1000000 == 0) cout << static_cast<float>(i) / nEntries << endl;
 
-      if ( t->cent < 4 || t->cent >6 ) continue;
-      if (fabs(t->y) > anaCuts::rapidity || fabs(t->rY)> anaCuts::rapidity) continue;
+      if (t->cent < 4 || t->cent > 6) continue;
+      if (fabs(t->y) > anaCuts::rapidity || fabs(t->rY) > anaCuts::rapidity) continue;
 
       if (!isGoodTrack(t->kRPt, t->kREta) || !isGoodTrack(t->pRPt, t->pREta)) continue;
       bool const passTopologicalCuts = isGoodPair(t->rPt, t->cosTheta, t->pRDca, t->kRDca, t->dca12, t->decayLength, t->dcaD0ToPv);
 
       bool const misPid = isMisPid(t->rPt);
 
-      switch( static_cast<int>(t->decayChannel) )
+      switch (static_cast<int>(t->decayChannel))
       {
-        case 763:
-          h763->Fill(t->rM, t->rPt, t->w);
-          if(misPid) h763MisPid->Fill(t->misPidM, t->rPt, t->w);
-          if(passTopologicalCuts)
-          {
-            h763x->Fill(t->rM, t->rPt, t->w);
-            if(misPid) h763xMisPid->Fill(t->misPidM, t->rPt, t->w);
-          }
-          break;
-        case 785:
-          h785->Fill(t->rM, t->rPt, t->w);
-          if(misPid) h785MisPid->Fill(t->misPidM, t->rPt, t->w);
-          if(passTopologicalCuts)
-          {
-            h785x->Fill(t->rM, t->rPt, t->w);
-            if(misPid) h785xMisPid->Fill(t->misPidM, t->rPt, t->w);
-          }
-          break;
-        case 765:
-          h765->Fill(t->rM, t->rPt, t->w);
-          if(misPid) h765MisPid->Fill(t->misPidM, t->rPt, t->w);
-          if(passTopologicalCuts)
-          {
-            h765x->Fill(t->rM, t->rPt, t->w);
-            if(misPid) h765xMisPid->Fill(t->misPidM, t->rPt, t->w);
-          }
-          break;
-        case 764:
-          h764->Fill(t->rM, t->rPt, t->w);
-          if(misPid) h764MisPid->Fill(t->misPidM, t->rPt, t->w);
-          if(passTopologicalCuts)
-          {
-            h764x->Fill(t->rM, t->rPt, t->w);
-            if(misPid) h764xMisPid->Fill(t->misPidM, t->rPt, t->w);
-          }
-          break;
-        case 786:
-          h786->Fill(t->rM, t->rPt, t->w);
-          if(misPid) h786MisPid->Fill(t->misPidM, t->rPt, t->w);
-          if(passTopologicalCuts)
-          {
-            h786x->Fill(t->rM, t->rPt, t->w);
-            if(misPid) h786xMisPid->Fill(t->misPidM, t->rPt, t->w);
-          }
-        case 719:
-          h719->Fill(t->rM, t->rPt, t->w);
-          if(misPid) h719MisPid->Fill(t->misPidM, t->rPt, t->w);
-          if(passTopologicalCuts)
-          {
-            h719x->Fill(t->rM, t->rPt, t->w);
-            if(misPid) h719xMisPid->Fill(t->misPidM, t->rPt, t->w);
-          }
-          break;
-        default:
-          cout<<"Uknown decayChannel!"<<endl;
-          break;
+         case 763:
+            hists763.fill(t,passTopologicalCuts,misPid);
+            break;
+         case 785:
+            hists785.fill(t,passTopologicalCuts,misPid);
+            break;
+         case 765:
+            hists765.fill(t,passTopologicalCuts,misPid);
+            break;
+         case 764:
+            hists764.fill(t,passTopologicalCuts,misPid);
+            break;
+         case 786:
+            hists786.fill(t,passTopologicalCuts,misPid);
+            break;
+         case 719:
+            hists719.fill(t,passTopologicalCuts,misPid);
+            break;
+         default:
+            cout << "Uknown decayChannel!" << endl;
+            break;
       }
 
    } // end event looping
 
-   fOut->cd();
-   h763->Write();
-   h785->Write();
-   h765->Write();
-   h764->Write();
-   h786->Write();
-   h719->Write();
-
-   h763MisPid->Write();
-   h785MisPid->Write();
-   h765MisPid->Write();
-   h764MisPid->Write();
-   h786MisPid->Write();
-   h719MisPid->Write();
-
-   h763x->Write();
-   h785x->Write();
-   h765x->Write();
-   h764x->Write();
-   h786x->Write();
-   h719x->Write();
-
-   h763xMisPid->Write();
-   h785xMisPid->Write();
-   h765xMisPid->Write();
-   h764xMisPid->Write();
-   h786xMisPid->Write();
-   h719xMisPid->Write();
-
-   fOut->Close();
+   hists763.write(fOut);
+   hists785.write(fOut);
+   hists765.write(fOut);
+   hists764.write(fOut);
+   hists786.write(fOut);
+   hists719.write(fOut);
 }
