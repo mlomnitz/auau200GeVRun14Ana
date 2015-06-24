@@ -101,6 +101,16 @@ public:
       h2PiDcaVsPt = new TH2F(Form("hPiDcaVsPt%i",decayChannel),"",100,0,10,2000,0,20000);
       h2CosThetaVsPt = new TH2F(Form("hCosThetaVsPt%i",decayChannel),"",100,0,10,2000,-1.,1.);
       h2DcaToPvVsPt = new TH2F(Form("hDcaToPv%i",decayChannel),"",100,0,10,2000,0,20000);
+
+      h2Mass->Sumw2();
+      h2MassMisPid->Sumw2();
+      h2MassX->Sumw2();
+      h2MassMisPidX->Sumw2();
+
+      h2KDcaVsPt->Sumw2();
+      h2PiDcaVsPt->Sumw2();
+      h2CosThetaVsPt->Sumw2();
+      h2DcaToPvVsPt->Sumw2();
    }
 
    void fill(d0BumpNt const* const t, bool passTopologicalCuts, bool misPid)
