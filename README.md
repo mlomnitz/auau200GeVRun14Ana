@@ -21,6 +21,7 @@ RHIC year 2014 Run, with Heavy Flavor Tracker
 - [KF vs. Minuit vertex impact on D<sup>0</sup> reconstruction](https://drupal.star.bnl.gov/STAR/system/files/2015June12_Run14_200GeV_D0_Kf.pdf), Guannan, HF PWG, 2015-06-11  
 - [D<sup>0</sup> Production and R_cp correction](http://www.star.bnl.gov/protected/heavy/mstftsm/run14/talks/2015-06-11-HF-PWG.pdf), Mustafa, HF PWG, 2015-06-11  
 - [D<sup>0</sup> R_cp correction](http://rnc.lbl.gov/~xdong/SoftHadron/presentations/20150615/2015-06-15-Soft-Hadron.pdf), Mustafa, Soft Hadron, 2015-06-15  
+- [D<sup>0</sup> Bump - Forgeround Cocktail](http://rnc.lbl.gov/~xdong/SoftHadron/softhadron.html), Mustafam HF PWG, 2015-06-22  
 
 - - -
 ### Preliminary results:
