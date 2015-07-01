@@ -133,7 +133,6 @@ Int_t StPicoD0AnaMaker::Make()
 
       //Basiclly add some QA plots
       UInt_t nTracks = picoDst->numberOfTracks();
-      //  cout<<"mem: begin: nTracks="<<nTracks<<" ,"<<mem.Used()<<" prog size "<<mem.ProgSize()<<endl;
       for (unsigned short iTrack = 0; iTrack < nTracks; ++iTrack)
       {
          StPicoTrack const* trk = picoDst->track(iTrack);
@@ -207,7 +206,6 @@ Int_t StPicoD0AnaMaker::Make()
 
       } // end of kaonPion loop
    } // end of isGoodEvent
-   //      cout<<"Lomnitz: end******* event:"<<mem.Used()<<" prog size "<<mem.ProgSize()<<endl;
 
    return kStOK;
 }
@@ -234,17 +232,15 @@ bool StPicoD0AnaMaker::isGoodEvent(StPicoEvent const * const picoEvent) const
 bool StPicoD0AnaMaker::isGoodQaTrack(StPicoTrack const * const trk, StThreeVectorF const momentum, const double dca) const
 {
    return trk->gPt() > anaCuts::qaGPt && trk->nHitsFit() >= anaCuts::qaNHitsFit;
-   // trk->nHitsDedx() >= anaCuts::qaNHitsDedx && fabs(dca) < anaCuts::qaDca &&
-   // momentum.pseudoRapidity() < anaCuts::qaEta;
 }
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isGoodTrack(StPicoTrack const * const trk, StKaonPion const * kp) const
 {
    StThreeVectorF mom = trk->gMom(mPicoDstMaker->picoDst()->event()->primaryVertex(), mPicoDstMaker->picoDst()->event()->bField());
+
    return trk->gPt() > anaCuts::minPt &&
           trk->nHitsFit() >= anaCuts::nHitsFit &&
           fabs(mom.pseudoRapidity()) <= anaCuts::Eta;
-   //    1;
 }
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isTpcPion(StPicoTrack const * const trk) const
