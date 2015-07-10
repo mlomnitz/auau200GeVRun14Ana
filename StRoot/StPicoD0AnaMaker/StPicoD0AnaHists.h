@@ -9,7 +9,6 @@
  * **************************************************
  */
 
-#include "TObject.h"
 #include "StAnaCuts.h"
 #include "THnSparse.h" 
 #include "THn.h" 
@@ -25,7 +24,7 @@ class StKaonPion;
 class TNtuple;
 
 
-class StPicoD0AnaHists: public TObject
+class StPicoD0AnaHists
 {
   public:
    StPicoD0AnaHists(TString fileBaseName);
@@ -89,7 +88,5 @@ class StPicoD0AnaHists: public TObject
    TH3F* mh3DcaZPtCent;
 
    //TNtuple* nt;
-
-   ClassDef(StPicoD0AnaHists, 1)
 };
 #endif

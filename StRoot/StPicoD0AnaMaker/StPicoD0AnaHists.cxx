@@ -14,8 +14,6 @@
 
 #include "StPicoD0AnaHists.h"
 
-ClassImp(StPicoD0AnaHists)
-
 //-----------------------------------------------------------------------
 StPicoD0AnaHists::StPicoD0AnaHists(TString fileBaseName) : mPrescales(NULL), mOutFile(NULL),
    mh2InvariantMassVsPt(NULL), mh2InvariantMassVsPtLike(NULL), mh2InvariantMassVsPtTof(NULL), mh2InvariantMassVsPtTofLike(NULL),
