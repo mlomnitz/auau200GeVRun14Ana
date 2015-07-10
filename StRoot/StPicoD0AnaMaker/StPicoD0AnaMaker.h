@@ -19,6 +19,7 @@
 class TString;
 class TFile;
 class TNtuple;
+class StPicoEvent;
 class StPicoD0Event;
 class StKaonPion;
 class StPicoTrack;
