@@ -69,8 +69,8 @@ class StPicoD0AnaHists: public TObject
    //HFT ratio QA
    TH2F* mh2Tpc1PtCent;
    TH2F* mh2Tpc1PhiVz;
-   TH2F* mh2HFT1PhiVz;
    TH2F* mh2HFT1PtCent;
+   TH2F* mh2HFT1PhiVz;
    TH2F* mh2Tpc1PtCentPartEtaVz[anaCuts::nParticles][anaCuts::nEtas][anaCuts::nVzs];
    TH2F* mh2Tpc1PtCentPartPhi[anaCuts::nParticles][anaCuts::nPhis];
    TH2F* mh2Tpc1PtCentPartZdcx[anaCuts::nParticles][anaCuts::nZdcxs];
