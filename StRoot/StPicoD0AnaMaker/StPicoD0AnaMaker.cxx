@@ -182,7 +182,7 @@ Int_t StPicoD0AnaMaker::Make()
          StPicoTrack const* kaon = picoDst->track(kp->kaonIdx());
          StPicoTrack const* pion = picoDst->track(kp->pionIdx());
 
-         if (!isGoodTrack(kaon, kp) || !isGoodTrack(pion, kp)) continue;
+         if (!isGoodTrack(kaon) || !isGoodTrack(pion)) continue;
 
          bool tpcPion = isTpcPion(pion);
          bool tpcKaon = isTpcKaon(kaon);
@@ -234,7 +234,7 @@ bool StPicoD0AnaMaker::isGoodQaTrack(StPicoTrack const * const trk, StThreeVecto
    return trk->gPt() > anaCuts::qaGPt && trk->nHitsFit() >= anaCuts::qaNHitsFit;
 }
 //-----------------------------------------------------------------------------
-bool StPicoD0AnaMaker::isGoodTrack(StPicoTrack const * const trk, StKaonPion const * kp) const
+bool StPicoD0AnaMaker::isGoodTrack(StPicoTrack const * const trk) const
 {
    StThreeVectorF mom = trk->gMom(mPicoDstMaker->picoDst()->event()->primaryVertex(), mPicoDstMaker->picoDst()->event()->bField());
 
