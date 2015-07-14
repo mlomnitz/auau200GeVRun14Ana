@@ -150,10 +150,7 @@ Int_t StPicoD0AnaMaker::Make()
 
          StThreeVectorF dcaPoint = helix.at(helix.pathLength(pVtx.x(), pVtx.y()));
          float dcaZ = dcaPoint.z() - pVtx.z();
-         StThreeVectorF dcaP = helix.momentumAt(pVtx.x(), pVtx.y());
-         float dcaXy = ((dcaPoint - pVtx).x() * dcaP.y() - (dcaPoint - pVtx).y() * dcaP.x()) / dcaP.perp();
-
-         // mHists->addQaNtuple(picoDst->event()->runId(), dca, pVtx.z(), momentum.perp(), momentum.pseudoRapidity(), momentum.phi(), centrality, refmultCor, picoDst->event()->ZDCx(), tofMatchFlag, hftMatchFlag);
+         double dcaXy = helix.geometricSignedDistance(pVtx.x(),pVtx.y());
 
          bool isPion = kFALSE;
          bool isKaon = kFALSE;
