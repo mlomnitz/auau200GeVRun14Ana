@@ -9,7 +9,6 @@
  * **************************************************
  */
 
-#include "TObject.h"
 #include "StAnaCuts.h"
 #include "THnSparse.h" 
 #include "THn.h" 
@@ -25,7 +24,7 @@ class StKaonPion;
 class TNtuple;
 
 
-class StPicoD0AnaHists: public TObject
+class StPicoD0AnaHists
 {
   public:
    StPicoD0AnaHists(TString fileBaseName);
@@ -69,8 +68,8 @@ class StPicoD0AnaHists: public TObject
    //HFT ratio QA
    TH2F* mh2Tpc1PtCent;
    TH2F* mh2Tpc1PhiVz;
-   TH2F* mh2HFT1PhiVz;
    TH2F* mh2HFT1PtCent;
+   TH2F* mh2HFT1PhiVz;
    TH2F* mh2Tpc1PtCentPartEtaVz[anaCuts::nParticles][anaCuts::nEtas][anaCuts::nVzs];
    TH2F* mh2Tpc1PtCentPartPhi[anaCuts::nParticles][anaCuts::nPhis];
    TH2F* mh2Tpc1PtCentPartZdcx[anaCuts::nParticles][anaCuts::nZdcxs];
@@ -89,7 +88,5 @@ class StPicoD0AnaHists: public TObject
    TH3F* mh3DcaZPtCent;
 
    //TNtuple* nt;
-
-   ClassDef(StPicoD0AnaHists, 1)
 };
 #endif
