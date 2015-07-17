@@ -127,7 +127,7 @@ Int_t StPicoD0AnaMaker::Make()
       mGRefMultCorrUtil->initEvent(picoDst->event()->grefMult(), pVtx.z(), picoDst->event()->ZDCx()) ;
       if (mGRefMultCorrUtil->isBadRun(picoDst->event()->runId()))
       {
-         LOG_WARN << "This is a bad run from mGRefMultCorrUtil! Skip! " << endl;
+         //cout<<"This is a bad run from mGRefMultCorrUtil! Skip! " << endl;
          return kStOK;
       }
 
