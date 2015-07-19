@@ -13,21 +13,21 @@ RHIC year 2014 Run, with Heavy Flavor Tracker
 - - -
 ### Presentations:  
 #### STAR Protected:  
-- [Introduction to data production and pipeline I](http://www.star.bnl.gov/protected/heavy/mstftsm/run14/talks/2015-04-02.pdf), Mustafa, HF PWG, 2015-04-02  
-- [D<sup>0</sup> Production for Run14 AuAu200 GeV](https://drupal.star.bnl.gov/STAR/system/files/2015May14_Run14_200GeV_D0_HF.pdf), Guannan, HF PWG, 2015-05-14  
-- [D<sup>0</sup> Analysis Status](https://drupal.star.bnl.gov/STAR/system/files/2015May18_Run14_200GeV_D0_SoftHadron.pdf), Guannan, Soft Hadron, 2015-05-18  
-- [Pico Heavy Flavor Analysis Library](https://drupal.star.bnl.gov/STAR/system/files/2016-06-01-Jochen-Mustafa_0.pdf), Mustafa, HF PWG, 2015-06-01  
-- [D<sup>0</sup> Reconstruction in Run14 Au+Au 200 GeV](https://drupal.star.bnl.gov/STAR/system/files/2015June2_Run14_200GeV_D0_STARCollMeeting.pdf), Guannan, STAR Collaboration Meeting, 2015-06-02  
-- [KF vs. Minuit vertex impact on D<sup>0</sup> reconstruction](https://drupal.star.bnl.gov/STAR/system/files/2015June12_Run14_200GeV_D0_Kf.pdf), Guannan, HF PWG, 2015-06-11  
-- [D<sup>0</sup> Production and R_cp correction](http://www.star.bnl.gov/protected/heavy/mstftsm/run14/talks/2015-06-11-HF-PWG.pdf), Mustafa, HF PWG, 2015-06-11  
-- [D<sup>0</sup> R_cp correction](http://rnc.lbl.gov/~xdong/SoftHadron/presentations/20150615/2015-06-15-Soft-Hadron.pdf), Mustafa, Soft Hadron, 2015-06-15  
-- [D<sup>0</sup> NMF extraction](http://www.star.bnl.gov/protected/heavy/mstftsm/run14/talks/2015-06-18-PWG.pdf), Mustafa, HF PWG, 2015-06-18
-- [D<sup>0</sup> Bump - Forgeround Cocktail](http://rnc.lbl.gov/~xdong/SoftHadron/presentations/20150622/2015-06-22-Soft-Hadron.pdf), Mustafa, Soft Hadron, 2015-06-22  
-- [Pico Mixed Event Maker, D<sup>0</sup> Case Study](http://rnc.lbl.gov/~xdong/SoftHadron/presentations/20150622/SofHadron_2015-06-22.pdf), Michael, Soft Hadron, 2015-06-22  
-- [D0 input distributions for data-driven simulation](https://drupal.star.bnl.gov/STAR/system/files/2015July13_Run14_HFTRatio_Phi_and_Statistics_MixedEvent.pdf), Guannan, Soft Hadron, 2015-07-13  
-- [Fast Simulator distributions/ Event Mixing](https://drupal.star.bnl.gov/STAR/system/files/2015July16_Run14_HFTRatio_Phi_and_Statistics_MixedEvent.pdf), Guannan, HF PWG, 2015-07-16  
-- [Pico Mixed Event Maker](http://www.star.bnl.gov/protected/heavy/mlomnitz/PicoMixedEvent/PicoMixedEvent.pdf), Michael, HF PWG, 2015-07-16  
-- [D<sup>0</sup> Bump](http://www.star.bnl.gov/protected/heavy/mstftsm/run14/talks/2015-06-22-Soft-Hadron.pdf), Mustafa, HF PWG, 2015-07-16  
+1. [Introduction to data production and pipeline I](http://www.star.bnl.gov/protected/heavy/mstftsm/run14/talks/2015-04-02.pdf), Mustafa, HF PWG, 2015-04-02  
+2. [D<sup>0</sup> Production for Run14 AuAu200 GeV](https://drupal.star.bnl.gov/STAR/system/files/2015May14_Run14_200GeV_D0_HF.pdf), Guannan, HF PWG, 2015-05-14  
+3. [D<sup>0</sup> Analysis Status](https://drupal.star.bnl.gov/STAR/system/files/2015May18_Run14_200GeV_D0_SoftHadron.pdf), Guannan, Soft Hadron, 2015-05-18  
+4. [Pico Heavy Flavor Analysis Library](https://drupal.star.bnl.gov/STAR/system/files/2016-06-01-Jochen-Mustafa_0.pdf), Mustafa, HF PWG, 2015-06-01  
+5. [D<sup>0</sup> Reconstruction in Run14 Au+Au 200 GeV](https://drupal.star.bnl.gov/STAR/system/files/2015June2_Run14_200GeV_D0_STARCollMeeting.pdf), Guannan, STAR Collaboration Meeting, 2015-06-02  
+6. [KF vs. Minuit vertex impact on D<sup>0</sup> reconstruction](https://drupal.star.bnl.gov/STAR/system/files/2015June12_Run14_200GeV_D0_Kf.pdf), Guannan, HF PWG, 2015-06-11  
+7. [D<sup>0</sup> Production and R_cp correction](http://www.star.bnl.gov/protected/heavy/mstftsm/run14/talks/2015-06-11-HF-PWG.pdf), Mustafa, HF PWG, 2015-06-11  
+8. [D<sup>0</sup> R_cp correction](http://rnc.lbl.gov/~xdong/SoftHadron/presentations/20150615/2015-06-15-Soft-Hadron.pdf), Mustafa, Soft Hadron, 2015-06-15  
+9. [D<sup>0</sup> NMF extraction](http://www.star.bnl.gov/protected/heavy/mstftsm/run14/talks/2015-06-18-PWG.pdf), Mustafa, HF PWG, 2015-06-18
+10. [D<sup>0</sup> Bump - Forgeround Cocktail](http://rnc.lbl.gov/~xdong/SoftHadron/presentations/20150622/2015-06-22-Soft-Hadron.pdf), Mustafa, Soft Hadron, 2015-06-22  
+11. [Pico Mixed Event Maker, D<sup>0</sup> Case Study](http://rnc.lbl.gov/~xdong/SoftHadron/presentations/20150622/SofHadron_2015-06-22.pdf), Michael, Soft Hadron, 2015-06-22  
+12. [D0 input distributions for data-driven simulation](https://drupal.star.bnl.gov/STAR/system/files/2015July13_Run14_HFTRatio_Phi_and_Statistics_MixedEvent.pdf), Guannan, Soft Hadron, 2015-07-13  
+13. [Fast Simulator distributions/ Event Mixing](https://drupal.star.bnl.gov/STAR/system/files/2015July16_Run14_HFTRatio_Phi_and_Statistics_MixedEvent.pdf), Guannan, HF PWG, 2015-07-16  
+14. [Pico Mixed Event Maker](http://www.star.bnl.gov/protected/heavy/mlomnitz/PicoMixedEvent/PicoMixedEvent.pdf), Michael, HF PWG, 2015-07-16  
+15. [D<sup>0</sup> Bump](http://www.star.bnl.gov/protected/heavy/mstftsm/run14/talks/2015-06-22-Soft-Hadron.pdf), Mustafa, HF PWG, 2015-07-16  
 
 - - -
 ### Preliminary results:
