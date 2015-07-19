@@ -125,6 +125,11 @@ Int_t StPicoD0AnaMaker::Make()
       }
       mGRefMultCorrUtil->init(picoDst->event()->runId());
       mGRefMultCorrUtil->initEvent(picoDst->event()->grefMult(), pVtx.z(), picoDst->event()->ZDCx()) ;
+      if (mGRefMultCorrUtil->isBadRun(picoDst->event()->runId()))
+      {
+         //cout<<"This is a bad run from mGRefMultCorrUtil! Skip! " << endl;
+         return kStOK;
+      }
 
       int centrality  = mGRefMultCorrUtil->getCentralityBin9();
       const double reweight = mGRefMultCorrUtil->getWeight();
@@ -150,7 +155,7 @@ Int_t StPicoD0AnaMaker::Make()
 
          StThreeVectorF dcaPoint = helix.at(helix.pathLength(pVtx.x(), pVtx.y()));
          float dcaZ = dcaPoint.z() - pVtx.z();
-         double dcaXy = helix.geometricSignedDistance(pVtx.x(),pVtx.y());
+         double dcaXy = helix.geometricSignedDistance(pVtx.x(), pVtx.y());
 
          bool isPion = kFALSE;
          bool isKaon = kFALSE;
