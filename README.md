@@ -25,6 +25,9 @@ RHIC year 2014 Run, with Heavy Flavor Tracker
 - [D<sup>0</sup> Bump - Forgeround Cocktail](http://rnc.lbl.gov/~xdong/SoftHadron/presentations/20150622/2015-06-22-Soft-Hadron.pdf), Mustafa, Soft Hadron, 2015-06-22  
 - [Pico Mixed Event Maker, D<sup>0</sup> Case Study](http://rnc.lbl.gov/~xdong/SoftHadron/presentations/20150622/SofHadron_2015-06-22.pdf), Michael, Soft Hadron, 2015-06-22  
 - [D0 input distributions for data-driven simulation](https://drupal.star.bnl.gov/STAR/system/files/2015July13_Run14_HFTRatio_Phi_and_Statistics_MixedEvent.pdf), Guannan, Soft Hadron, 2015-07-13  
+- [Fast Simulator distributions/ Event Mixing](https://drupal.star.bnl.gov/STAR/system/files/2015July16_Run14_HFTRatio_Phi_and_Statistics_MixedEvent.pdf), Guannan, HF PWG, 2015-07-16  
+- [Pico Mixed Event Maker](http://www.star.bnl.gov/protected/heavy/mlomnitz/PicoMixedEvent/PicoMixedEvent.pdf), Michael, HF PWG, 2015-07-16  
+- [D<sup>0</sup> Bump](http://www.star.bnl.gov/protected/heavy/mstftsm/run14/talks/2015-06-22-Soft-Hadron.pdf), Mustafa, HF PWG, 2015-07-16  
 
 - - -
 ### Preliminary results:
