@@ -63,7 +63,6 @@ Int_t StPicoD0AnaMaker::Init()
 
    // -------------- USER VARIABLES -------------------------
    mHists = new StPicoD0AnaHists(mOutFileBaseName);
-   mGRefMultCorrUtil = new StRefMultCorr("grefmult");
 
    return kStOK;
 }
