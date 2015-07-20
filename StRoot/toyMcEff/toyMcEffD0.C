@@ -195,7 +195,7 @@ void fill(int const kf, TLorentzVector* b, double weight, TLorentzVector const& 
    // save
    float arr[100];
    int iArr = 0;
-   arr[iArr++] = cent;
+   arr[iArr++] = centrality;
    arr[iArr++] = vertex.X();
    arr[iArr++] = vertex.Y();
    arr[iArr++] = vertex.Z();
@@ -219,7 +219,7 @@ void fill(int const kf, TLorentzVector* b, double weight, TLorentzVector const& 
    arr[iArr++] = rDecayPoint.X();
    arr[iArr++] = rDecayPoint.Y();
    arr[iArr++] = rDecayPoint.Z();
-   arr[iArr++] = reconstructD0(cent, rMom);
+   arr[iArr++] = reconstructD0(centrality, rMom);
 
    arr[iArr++] = dca12;
    arr[iArr++] = decayLength;
@@ -262,8 +262,8 @@ void fill(int const kf, TLorentzVector* b, double weight, TLorentzVector const& 
    arr[iArr++] = pRPos.Z();
    arr[iArr++] = pRDca;
 
-   arr[iArr++] = matchHft(cent, kRMom);
-   arr[iArr++] = matchHft(cent, pRMom);
+   arr[iArr++] = matchHft(centrality, kRMom);
+   arr[iArr++] = matchHft(centrality, pRMom);
 
    nt->Fill(arr);
 }
