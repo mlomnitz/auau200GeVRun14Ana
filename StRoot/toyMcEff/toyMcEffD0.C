@@ -152,38 +152,39 @@ void decayAndFill(int const kf, TLorentzVector* b, double const weight, TClonesA
    fill(kf,b,weight,kMom,pMom,v00);
 }
 
-void fill(int const kf, TLorentzVector* b, double weight, TLorentzVector const& kMom, TLorentzVector const& pMom, TVector3 const& v00)
+void fill(int const kf, TLorentzVector* b, double weight, TLorentzVector const& kMom, TLorentzVector const& pMom, TVector3 v00)
 {
-   // smear momentum
-   TLorentzVector const kRMom = smearMom(kMom, fKaonMomResolution);
-   TLorentzVector const pRMom = smearMom(pMom, fPionMomResolution);
-
    int const centrality = floor(nCent * gRandom->Rndm());
-   // smear position
-   TVector3 const kRPos = smearPosData(centrality, kRMom, v00);
-   TVector3 const pRPos = smearPosData(centrality, pRMom, v00);
-   // TVector3 const kRPos = smearPos(kMom, kRMom, v00);
-   // TVector3 const pRPos = smearPos(pMom, pRMom, v00);
 
    TVector3 const vertex = getVertex(centrality);
    // smear primary vertex
    // float const sigmaVertex = sigmaVertexCent[cent];
    // TVector3 const vertex(gRandom->Gaus(0, sigmaVertex), gRandom->Gaus(0, sigmaVertex), gRandom->Gaus(0, sigmaVertex));
    
-   TVector3 const decayPoint = v00 + vertex;
+   v00 += vertex;
+
+   // smear position
+   TVector3 const kRPos = smearPosData(centrality, kRMom, v00);
+   TVector3 const pRPos = smearPosData(centrality, pRMom, v00);
+   // TVector3 const kRPos = smearPos(kMom, kRMom, v00);
+   // TVector3 const pRPos = smearPos(pMom, pRMom, v00);
+   
+   // smear momentum
+   TLorentzVector const kRMom = smearMom(kMom, fKaonMomResolution);
+   TLorentzVector const pRMom = smearMom(pMom, fPionMomResolution);
 
    // reconstruct
    TLorentzVector const rMom = kRMom + pRMom;
-   float const kDca = dca(kMom.Vect(), decayPoint, vertex);
-   float const pDca = dca(pMom.Vect(), decayPoint, vertex);
+   float const kDca = dca(kMom.Vect(), v00, vertex);
+   float const pDca = dca(pMom.Vect(), v00, vertex);
    float const kRDca = dca(kRMom.Vect(), kRPos, vertex);
    float const pRDca = dca(pRMom.Vect(), pRPos, vertex);
 
-   TVector3 rDecayPoint;
-   float const dca12 = dca1To2(kRMom.Vect(), kRPos, pRMom.Vect(), pRPos, rDecayPoint);
-   float const decayLength = (rDecayPoint - vertex).Mag();
-   float const dcaD0ToPv = dca(rMom.Vect(), rDecayPoint, vertex);
-   float const cosTheta = (rDecayPoint - vertex).Unit().Dot(rMom.Vect().Unit());
+   TVector3 v0;
+   float const dca12 = dca1To2(kRMom.Vect(), kRPos, pRMom.Vect(), pRPos, v0);
+   float const decayLength = (v0 - vertex).Mag();
+   float const dcaD0ToPv = dca(rMom.Vect(), v0, vertex);
+   float const cosTheta = (v0 - vertex).Unit().Dot(rMom.Vect().Unit());
    float const angle12 = kRMom.Vect().Angle(pRMom.Vect());
 
    TLorentzVector kRMomRest = kRMom;
@@ -207,18 +208,18 @@ void fill(int const kf, TLorentzVector* b, double weight, TLorentzVector const& 
    arr[iArr++] = b->PseudoRapidity();
    arr[iArr++] = b->Rapidity();
    arr[iArr++] = b->Phi();
-   arr[iArr++] = decayPoint.X();
-   arr[iArr++] = decayPoint.Y();
-   arr[iArr++] = decayPoint.Z();
+   arr[iArr++] = v00.X();
+   arr[iArr++] = v00.Y();
+   arr[iArr++] = v00.Z();
 
    arr[iArr++] = rMom.M();
    arr[iArr++] = rMom.Perp();
    arr[iArr++] = rMom.PseudoRapidity();
    arr[iArr++] = rMom.Rapidity();
    arr[iArr++] = rMom.Phi();
-   arr[iArr++] = rDecayPoint.X();
-   arr[iArr++] = rDecayPoint.Y();
-   arr[iArr++] = rDecayPoint.Z();
+   arr[iArr++] = v0.X();
+   arr[iArr++] = v0.Y();
+   arr[iArr++] = v0.Z();
    arr[iArr++] = reconstructD0(centrality, rMom);
 
    arr[iArr++] = dca12;
