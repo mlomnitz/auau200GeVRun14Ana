@@ -160,8 +160,8 @@ void fill(int const kf, TLorentzVector* b, double weight, TLorentzVector const& 
 
    int const centrality = floor(nCent * gRandom->Rndm());
    // smear position
-   TVector3 const kRPos = smearPosData(cent, kRMom, v00);
-   TVector3 const pRPos = smearPosData(cent, pRMom, v00);
+   TVector3 const kRPos = smearPosData(centrality, kRMom, v00);
+   TVector3 const pRPos = smearPosData(centrality, pRMom, v00);
    // TVector3 const kRPos = smearPos(kMom, kRMom, v00);
    // TVector3 const pRPos = smearPos(pMom, pRMom, v00);
 
