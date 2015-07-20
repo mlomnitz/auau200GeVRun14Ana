@@ -15,6 +15,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <string>
 
 #include "TFile.h"
 #include "TH1F.h"
@@ -44,39 +45,46 @@ void fill(int const kf, TLorentzVector* b, double weight, TLorentzVector const& 
 void getKinematics(TLorentzVector& b, double const mass);
 TLorentzVector smearMom(TLorentzVector const& b, TF1 const * const fMomResolution);
 TVector3 smearPos(TLorentzVector const& mom, TLorentzVector const& rMom, TVector3 const& pos);
-TVector3 smearPosData(int const cent, TLorentzVector const& rMom, TVector3 const& pos);
+TVector3 smearPosData(int const particle, double const eta, double const vz, double const phi,  int const cent, TLorentzVector const& rMom, TVector3 const& pos);
 float dca(TVector3 const& p, TVector3 const& pos, TVector3 const& vertex);
 float dca1To2(TVector3 const& p1, TVector3 const& pos1, TVector3 const& p2, TVector3 const& pos2, TVector3& v0);
 TVector3 getVertex(int centrality);
-bool matchHft(int const centrality, TLorentzVector const& mom);
+bool matchHft(int const particle, double const eta, double const vz, double const phi, int const centrality, TLorentzVector const& mom)
 bool reconstructD0(int const centrality, TLorentzVector const& mom);
 void bookObjects();
 void write();
 int getptIndex(double);
+int getEtaIndex(double);
+int getVzIndex(double);
+int getPhiIndex(double);
 
-TPythia6Decayer* pydecay;
-TNtuple* nt;
-TFile* result;
+TPythia6Decayer* pydecay = NULL;
+TNtuple* nt = NULL;
+TFile* result = NULL;
 
 TF1* fKaonMomResolution = NULL;
 TF1* fPionMomResolution = NULL;
 TF1* fWeightFunction = NULL;
 TGraph* grEff[3];
-const Int_t nCent = 9;
-const Int_t nPtBins = 35;
-const Double_t ptEdge[nPtBins + 1] = { 0.0, 0.2, 0.4,  0.6,  0.8,
-                                       1.0, 1.2, 1.4,  1.6,  1.8,
+
+int const nParticles = 2;
+int const nEtas = 10;
+int const nPhis = 30;
+int const nVzs = 6;
+int const nCent = 9;
+const int nPtBins = 35;
+TH1D* hHftRatio[nParticles][nEtas][nVzs][nCent];
+TH1D* h1DcaZ[nParticles][nEtas][nVzs][nCent][nPtBins];
+TH1D* h1DcaXY[nParticles][nEtas][nVzs][nCent][nPtBins];
+TH1D* h1Vz[nCent];
+// float const sigmaVertexCent[nCent] = {31., 18.1, 12.8, 9.3, 7.2, 5.9, 5., 4.6, 4.};
+float const sigmaVertexCent[nCent] = {31.,18.,12.8,9.3,7.2,5.9,5.,4.6,4.};
+double const  ptEdge[nPtBins + 1] = { 0.0, 0.2, 0.4,  0.6,  0.8,
                                        2.0, 2.2, 2.4,  2.6,  2.8,
                                        3.0, 3.2, 3.4,  3.6,  3.8,
                                        4.0, 4.2, 4.4,  4.6,  4.8,
                                        5.0, 5.4, 5.8,  6.2,  6.6,
-                                       7.0, 8.0, 9.0, 10.0, 11.0, 12.0,
-                                     };
-
-TH1D* hHftRatio[nCent];
-TH1D* h1DcaZ[nCent][nPtBins];
-TH1D* h1DcaXY[nCent][nPtBins];
-TH1D* h1Vz[nCent];
+                                       7.0, 8.0, 9.0, 10.0, 11.0, 12.0};
 
 string outFileName = "D0.toyMc.root";
 std::pair<int, int> const decayChannels(747, 807);
@@ -85,7 +93,6 @@ std::pair<float, float> const momentumRange(0.3, 12);
 float const acceptanceRapidity = 1.0;
 float const sigmaPos0 = 15.2;
 float const pxlLayer1Thickness = 0.00486;
-float const sigmaVertexCent[nCent] = {31., 18.1, 12.8, 9.3, 7.2, 5.9, 5., 4.6, 4.};
 
 //============== main  program ==================
 void toyMcEffD0(int npart = 100)
@@ -149,7 +156,7 @@ void decayAndFill(int const kf, TLorentzVector* b, double const weight, TClonesA
    }
    daughters.Clear();
 
-   fill(kf,b,weight,kMom,pMom,v00);
+   fill(kf, b, weight, kMom, pMom, v00);
 }
 
 void fill(int const kf, TLorentzVector* b, double weight, TLorentzVector const& kMom, TLorentzVector const& pMom, TVector3 v00)
@@ -160,7 +167,7 @@ void fill(int const kf, TLorentzVector* b, double weight, TLorentzVector const& 
    // smear primary vertex
    // float const sigmaVertex = sigmaVertexCent[cent];
    // TVector3 const vertex(gRandom->Gaus(0, sigmaVertex), gRandom->Gaus(0, sigmaVertex), gRandom->Gaus(0, sigmaVertex));
-   
+
    v00 += vertex;
 
    // smear momentum
@@ -168,11 +175,11 @@ void fill(int const kf, TLorentzVector* b, double weight, TLorentzVector const& 
    TLorentzVector const pRMom = smearMom(pMom, fPionMomResolution);
 
    // smear position
-   TVector3 const kRPos = smearPosData(centrality, kRMom, v00);
-   TVector3 const pRPos = smearPosData(centrality, pRMom, v00);
+   TVector3 const kRPos = smearPosData( 1, kRMom.PseudoRapidity, v00.z(), kRMom.Phi(), centrality, kRMom, v00);
+   TVector3 const pRPos = smearPosData( 0, pRMom.PseudoRapidity, v00.z(), pRMom.Phi(), centrality, pRMom, v00);
    // TVector3 const kRPos = smearPos(kMom, kRMom, v00);
    // TVector3 const pRPos = smearPos(pMom, pRMom, v00);
-   
+
    // reconstruct
    TLorentzVector const rMom = kRMom + pRMom;
    float const kDca = dca(kMom.Vect(), v00, vertex);
@@ -263,8 +270,8 @@ void fill(int const kf, TLorentzVector* b, double weight, TLorentzVector const& 
    arr[iArr++] = pRPos.Z();
    arr[iArr++] = pRDca;
 
-   arr[iArr++] = matchHft(centrality, kRMom);
-   arr[iArr++] = matchHft(centrality, pRMom);
+   arr[iArr++] = matchHft(1, kRMom.PseudoRapidity(), kRPos.Z(), kRMom.Phi(), centrality, kRMom);
+   arr[iArr++] = matchHft(0, pRMom.PseudoRapidity(), pRPos.Z(), pRMom.Phi(), centrality, pRMom);
 
    nt->Fill(arr);
 }
@@ -275,7 +282,7 @@ void getKinematics(TLorentzVector& b, double const mass)
    float const y = gRandom->Uniform(-acceptanceRapidity, acceptanceRapidity);
    float const phi = TMath::TwoPi() * gRandom->Rndm();
 
-   float const mT = sqrt(mass*mass+pt*pt);
+   float const mT = sqrt(mass * mass + pt * pt);
    float const pz = mT * sinh(y);
    float const E = mT * cosh(y);
 
@@ -323,20 +330,15 @@ TVector3 smearPos(TLorentzVector const& mom, TLorentzVector const& rMom, TVector
    return TVector3(gRandom->Gaus(pos.X(), sigmaPos), gRandom->Gaus(pos.Y(), sigmaPos), gRandom->Gaus(pos.Z(), sigmaPos));
 }
 
-int getptIndex(double pT)
+TVector3 smearPosData(int const particle, double const eta, double const vz, double const phi,  int const cent, TLorentzVector const& rMom, TVector3 const& pos)
 {
-   for (int i = 0; i < nPtBins; i++)
-   {
-      if ((pT >= ptEdge[i]) && (pT < ptEdge[i + 1]))
-         return i;
-   }
-}
-
-TVector3 smearPosData(int const cent, TLorentzVector const& rMom, TVector3 const& pos)
-{
+   int particleIndex = particle;
+   int etaIndex = getEtaIndex(eta);
+   int vzIndex = getVzIndex(vz);
+   int phiIndex = getPhiIndex(phi);
    int ptIndex = getptIndex(rMom.Perp());
-   float sigmaPosZ = h1DcaZ[cent][ptIndex]->GetRandom() * 1e4;
-   float sigmaPosXY = h1DcaXY[cent][ptIndex]->GetRandom() * 1e4;
+   float sigmaPosZ = h1DcaZ[particleIndex][etaIndex][vzIndex][cent][ptIndex]->GetRandom() * 1e4;
+   float sigmaPosXY = h1DcaXY[particleIndex][etaIndex][vzIndex][cent][ptIndex]->GetRandom() * 1e4;
 
    TVector3 newPos(pos);
    newPos.SetZ(0);
@@ -348,7 +350,7 @@ TVector3 smearPosData(int const cent, TLorentzVector const& rMom, TVector3 const
 
 TVector3 getVertex(int const centrality)
 {
-  return TVector3(0.,0.,h1Vz[centrality]->GetRandom()*1e4);
+   return TVector3(0., 0., h1Vz[centrality]->GetRandom() * 1e4);
 }
 
 bool reconstructD0(int const centrality, TLorentzVector const& mom)
@@ -362,12 +364,56 @@ bool reconstructD0(int const centrality, TLorentzVector const& mom)
    return gRandom->Rndm() < gr->Eval(mom.Perp());
 }
 
-bool matchHft(int const cent, TLorentzVector const& mom)
+bool matchHft(int const particle, double const eta, double const vz, double const phi, int const centrality, TLorentzVector const& mom)
 {
-   int const bin = hHftRatio[cent]->FindBin(mom.Perp());
-   return gRandom->Rndm() < hHftRatio[cent]->GetBinContent(bin);
+   int particleIndex = particle;
+   int etaIndex = getEtaIndex(eta);
+   int vzIndex = getVzIndex(vz);
+   int phiIndex = getPhiIndex(phi);
+
+   int const iBinCent = hHftRatio[particleIndex][etaIndex][vzIndex][centrality]->FindBin(mom.Perp());
+   return gRandom->Rndm() < hHftRatio[particleIndex][etaIndex][vzIndex][centrality]->GetBinContent(iBinCent);
 }
 
+int getptIndex(double pT)
+{
+   for (int i = 0; i < nPtBins; i++)
+   {
+      if ((pT >= ptEdge[i]) && (pT < ptEdge[i + 1]))
+         return i;
+   }
+   return nPtBins - 1;
+}
+
+int getEtaIndex(double const Eta)
+{
+   for (int i = 0; i < nEtas; i++)
+   {
+      if ((Eta >= EtaEdge[i]) && (Eta < EtaEdge[i + 1]))
+         return i;
+   }
+   return nEtas - 1;
+}
+//---------------------------------------------------------------------
+int getPhiIndex(double const Phi)
+{
+   for (int i = 0; i < nPhis; i++)
+   {
+      if ((Phi >= PhiEdge[i]) && (Phi < PhiEdge[i + 1]))
+         return i;
+   }
+   return nPhis - 1;
+}
+//---------------------------------------------------------------------
+int getVzIndex(double const Vz)
+{
+   for (int i = 0; i < nVzs; i++)
+   {
+      if ((Vz >= VzEdge[i]) && (Vz < VzEdge[i + 1]))
+         return i;
+   }
+   return nVzs - 1;
+}
 //___________
 void bookObjects()
 {
@@ -394,20 +440,33 @@ void bookObjects()
    fWeightFunction = (TF1*)fPP.Get("run12/f1Levy")->Clone("fWeightFunction");
    fPP.Close();
 
-   TFile fHftRatio("HFT_Ratio_VsPt_Centrality.root");
-   TFile fDca("Dca_VsPt_Centrality.root");
+   TFile fHftRatio("HFT_Ratio_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
+   TFile fDca("Dca_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
    TFile fVertex("Run14_After107_Vz_Cent.root");
+
+   for (int iParticle = 0; iParticle < nParticles; ++iParticle)
+   {
+      for (int iEta = 0; iEta < nEtas; ++iEta)
+      {
+         for (int iVz = 0; iVz < nVzs; ++iVz)
+         {
+            for (int ii = 0; ii < nCent; ++ii)
+            {
+               hHftRatio[ii] = (TH1D*)(fHftRatio.Get(Form("mh1HFT1PtCentPartEtaVzRatio_%d_%d_%d_%d", iParticle, iEta, iVz, ii))->Clone(Form("mh1HFT1PtCentPartEtaVzRatio_%d_%d_%d_%d", iParticle, iEta, iVz, ii)));
+      for (int jj = 0; jj < nPtBins; ++jj)
+      {
+         h1DcaXY[iParticle][iEta][iVz][ii][jj] = (TH1D*)((fDca.Get(Form("mh1DcaXyPtCentPartEtaVz_%d_%d_%d_%d_%d",iParticle, iEta, iVz, ii, jj)))->Clone(Form("mh1DcaXyPtCentPartEtaVz_%d_%d_%d_%d_%d",iParticle, iEta, iVz, ii, jj)));
+         h1DcaZ[iParticle][iEta][iVz][ii][jj]  = (TH1D*)((fDca.Get(Form("mh1DcaZPtCentPartEtaVz_%d_%d_%d_%d_%d",iParticle, iEta, iVz, ii, jj)))->Clone(Form("mh1DcaZPtCentPartEtaVz_%d_%d_%d_%d_%d",iParticle, iEta, iVz, ii, jj)));
+      }
+            }
+         }
+      }
+   }
+
 
    for (int ii = 0; ii < nCent; ++ii)
    {
-      hHftRatio[ii] = (TH1D*)(fHftRatio.Get(Form("mh1HFTRatio1_%i", ii))->Clone(Form("mh1HFTRatio1_%i", ii)));
-      h1Vz[ii]      = (TH1D*)(fVertex.Get(Form("mh1Vz_%i",ii))->Clone(Form("mh1Vz_%i",ii)));
-
-      for (int jj = 0; jj < nPtBins; ++jj)
-      {
-         h1DcaXY[ii][jj] = (TH1D*)((fDca.Get(Form("mh3DcaXy_Cent%i_Pt%i", ii, jj)))->Clone(Form("mh3DcaXy_Cent%i_Pt%i", ii, jj)));
-         h1DcaZ[ii][jj]  = (TH1D*)((fDca.Get(Form("mh3DcaZ_Cent%i_Pt%i", ii, jj)))->Clone(Form("mh3DcaZ_Cent%i_Pt%i", ii, jj)));
-      }
+      h1Vz[ii]      = (TH1D*)(fVertex.Get(Form("mh1Vz_%i", ii))->Clone(Form("mh1Vz_%i", ii)));
    }
 
    fHftRatio.Close();
