@@ -71,9 +71,11 @@ class StPicoD0AnaHists
    TH2F* mh2HFT1PtCent;
    TH2F* mh2HFT1PhiVz;
    TH2F* mh2Tpc1PtCentPartEtaVz[anaCuts::nParticles][anaCuts::nEtas][anaCuts::nVzs];
+   TH2F* mh2Tpc1PtCentPartEtaVzPhi[anaCuts::nParticles][anaCuts::nEtas][anaCuts::nVzs][anaCuts::nPhis];
    TH2F* mh2Tpc1PtCentPartPhi[anaCuts::nParticles][anaCuts::nPhis];
    TH2F* mh2Tpc1PtCentPartZdcx[anaCuts::nParticles][anaCuts::nZdcxs];
    TH2F* mh2HFT1PtCentPartEtaVz[anaCuts::nParticles][anaCuts::nEtas][anaCuts::nVzs];
+   TH2F* mh2HFT1PtCentPartEtaVzPhi[anaCuts::nParticles][anaCuts::nEtas][anaCuts::nVzs][anaCuts::nPhis];
    TH2F* mh2HFT1PtCentPartPhi[anaCuts::nParticles][anaCuts::nPhis];
    TH2F* mh2HFT1PtCentPartZdcx[anaCuts::nParticles][anaCuts::nZdcxs];
 
