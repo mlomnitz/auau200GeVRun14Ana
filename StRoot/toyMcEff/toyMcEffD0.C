@@ -47,6 +47,7 @@ TVector3 smearPos(TLorentzVector const& mom, TLorentzVector const& rMom, TVector
 TVector3 smearPosData(int const cent, TLorentzVector const& rMom, TVector3 const& pos);
 float dca(TVector3 const& p, TVector3 const& pos, TVector3 const& vertex);
 float dca1To2(TVector3 const& p1, TVector3 const& pos1, TVector3 const& p2, TVector3 const& pos2, TVector3& v0);
+TVector3 getVertex(int centrality);
 bool matchHft(int const centrality, TLorentzVector const& mom);
 bool reconstructD0(int const centrality, TLorentzVector const& mom);
 void bookObjects();
@@ -75,6 +76,7 @@ const Double_t ptEdge[nPtBins + 1] = { 0.0, 0.2, 0.4,  0.6,  0.8,
 TH1D* hHftRatio[nCent];
 TH1D* h1DcaZ[nCent][nPtBins];
 TH1D* h1DcaXY[nCent][nPtBins];
+TH1D* h1Vz[nCent];
 
 string outFileName = "D0.toyMc.root";
 std::pair<int, int> const decayChannels(747, 807);
@@ -156,30 +158,32 @@ void fill(int const kf, TLorentzVector* b, double weight, TLorentzVector const& 
    TLorentzVector const kRMom = smearMom(kMom, fKaonMomResolution);
    TLorentzVector const pRMom = smearMom(pMom, fPionMomResolution);
 
-   int const cent = floor(nCent * gRandom->Rndm());
+   int const centrality = floor(nCent * gRandom->Rndm());
    // smear position
    TVector3 const kRPos = smearPosData(cent, kRMom, v00);
    TVector3 const pRPos = smearPosData(cent, pRMom, v00);
    // TVector3 const kRPos = smearPos(kMom, kRMom, v00);
    // TVector3 const pRPos = smearPos(pMom, pRMom, v00);
 
+   TVector3 const vertex = getVertex(centrality);
    // smear primary vertex
    // float const sigmaVertex = sigmaVertexCent[cent];
    // TVector3 const vertex(gRandom->Gaus(0, sigmaVertex), gRandom->Gaus(0, sigmaVertex), gRandom->Gaus(0, sigmaVertex));
-   TVector3 const vertex(0., 0., 0.);
+   
+   TVector3 const decayPoint = v00 + vertex;
 
    // reconstruct
    TLorentzVector const rMom = kRMom + pRMom;
-   float const kDca = dca(kMom.Vect(), v00, vertex);
-   float const pDca = dca(pMom.Vect(), v00, vertex);
+   float const kDca = dca(kMom.Vect(), decayPoint, vertex);
+   float const pDca = dca(pMom.Vect(), decayPoint, vertex);
    float const kRDca = dca(kRMom.Vect(), kRPos, vertex);
    float const pRDca = dca(pRMom.Vect(), pRPos, vertex);
 
-   TVector3 v0;
-   float const dca12 = dca1To2(kRMom.Vect(), kRPos, pRMom.Vect(), pRPos, v0);
-   float const decayLength = (v0 - vertex).Mag();
-   float const dcaD0ToPv = dca(rMom.Vect(), v0, vertex);
-   float const cosTheta = (v0 - vertex).Unit().Dot(rMom.Vect().Unit());
+   TVector3 rDecayPoint;
+   float const dca12 = dca1To2(kRMom.Vect(), kRPos, pRMom.Vect(), pRPos, rDecayPoint);
+   float const decayLength = (rDecayPoint - vertex).Mag();
+   float const dcaD0ToPv = dca(rMom.Vect(), rDecayPoint, vertex);
+   float const cosTheta = (rDecayPoint - vertex).Unit().Dot(rMom.Vect().Unit());
    float const angle12 = kRMom.Vect().Angle(pRMom.Vect());
 
    TLorentzVector kRMomRest = kRMom;
@@ -203,15 +207,18 @@ void fill(int const kf, TLorentzVector* b, double weight, TLorentzVector const& 
    arr[iArr++] = b->PseudoRapidity();
    arr[iArr++] = b->Rapidity();
    arr[iArr++] = b->Phi();
-   arr[iArr++] = v00.X();
-   arr[iArr++] = v00.Y();
-   arr[iArr++] = v00.Z();
+   arr[iArr++] = decayPoint.X();
+   arr[iArr++] = decayPoint.Y();
+   arr[iArr++] = decayPoint.Z();
 
    arr[iArr++] = rMom.M();
    arr[iArr++] = rMom.Perp();
    arr[iArr++] = rMom.PseudoRapidity();
    arr[iArr++] = rMom.Rapidity();
    arr[iArr++] = rMom.Phi();
+   arr[iArr++] = rDecayPoint.X();
+   arr[iArr++] = rDecayPoint.Y();
+   arr[iArr++] = rDecayPoint.Z();
    arr[iArr++] = reconstructD0(cent, rMom);
 
    arr[iArr++] = dca12;
@@ -338,6 +345,11 @@ TVector3 smearPosData(int const cent, TLorentzVector const& rMom, TVector3 const
    return TVector3(newPos.X(), newPos.Y(), pos.Z() + sigmaPosZ);
 }
 
+TVector3 getVertex(int const centrality)
+{
+  return TVector3(0.,0.,h1Vz[centrality]->GetRandom()*1e4);
+}
+
 bool reconstructD0(int const centrality, TLorentzVector const& mom)
 {
    TGraph* gr = NULL;
@@ -364,7 +376,7 @@ void bookObjects()
    TH1::AddDirectory(false);
    nt = new TNtuple("nt", "", "cent:vx:vy:vz:"
                     "pid:w:m:pt:eta:y:phi:v0x:v0y:v0z:" // MC D0
-                    "rM:rPt:rEta:rY:rPhi:reco:" // Rc D0
+                    "rM:rPt:rEta:rY:rPhi:rV0x:rV0y:rV0z:reco:" // Rc D0
                     "dca12:decayLength:dcaD0ToPv:cosTheta:angle12:cosThetaStar:" // Rc pair
                     "kM:kPt:kEta:kY:kPhi:kDca:" // MC Kaon
                     "kRM:kRPt:kREta:kRY:kRPhi:kRVx:kRVy:kRVz:kRDca:" // Rc Kaon
@@ -383,17 +395,13 @@ void bookObjects()
 
    TFile fHftRatio("HFT_Ratio_VsPt_Centrality.root");
    TFile fDca("Dca_VsPt_Centrality.root");
+   TFile fVertex("Run14_After107_Vz_Cent.root");
 
-   for (int ii = 0; ii < 9; ++ii)
-   {
-      hHftRatio[ii] = (TH1D*)(fHftRatio.Get(Form("mh1HFTRatio1_%i", ii))->Clone(Form("mh1HFTRatio1_%i", ii)));
-      result->cd();
-      hHftRatio[ii]->Write();
-   }
-
-   result->cd();
    for (int ii = 0; ii < nCent; ++ii)
    {
+      hHftRatio[ii] = (TH1D*)(fHftRatio.Get(Form("mh1HFTRatio1_%i", ii))->Clone(Form("mh1HFTRatio1_%i", ii)));
+      h1Vz[ii]      = (TH1D*)(fVertex.Get(Form("mh1Vz_%i",ii))->Clone(Form("mh1Vz_%i",ii)));
+
       for (int jj = 0; jj < nPtBins; ++jj)
       {
          h1DcaXY[ii][jj] = (TH1D*)((fDca.Get(Form("mh3DcaXy_Cent%i_Pt%i", ii, jj)))->Clone(Form("mh3DcaXy_Cent%i_Pt%i", ii, jj)));
@@ -403,6 +411,7 @@ void bookObjects()
 
    fHftRatio.Close();
    fDca.Close();
+   fVertex.Close();
 
    grEff[0] = new TGraph("eff_4080.csv", "%lg %lg", ",");
    grEff[1] = new TGraph("eff_1040.csv", "%lg %lg", ",");
