@@ -40,7 +40,7 @@ using namespace std;
 
 void setDecayChannels(int const mdme);
 void decayAndFill(int const kf, TLorentzVector* b, double const weight, TClonesArray& daughters);
-void fill(int const kf, TLorentzVector* b, double weight, TLorentzVector const& kMom, TLorentzVector const& piMom, TVector3 const& v00);
+void fill(int const kf, TLorentzVector* b, double weight, TLorentzVector const& kMom, TLorentzVector const& piMom, TVector3 v00);
 void getKinematics(TLorentzVector& b, double const mass);
 TLorentzVector smearMom(TLorentzVector const& b, TF1 const * const fMomResolution);
 TVector3 smearPos(TLorentzVector const& mom, TLorentzVector const& rMom, TVector3 const& pos);
@@ -163,16 +163,16 @@ void fill(int const kf, TLorentzVector* b, double weight, TLorentzVector const& 
    
    v00 += vertex;
 
+   // smear momentum
+   TLorentzVector const kRMom = smearMom(kMom, fKaonMomResolution);
+   TLorentzVector const pRMom = smearMom(pMom, fPionMomResolution);
+
    // smear position
    TVector3 const kRPos = smearPosData(centrality, kRMom, v00);
    TVector3 const pRPos = smearPosData(centrality, pRMom, v00);
    // TVector3 const kRPos = smearPos(kMom, kRMom, v00);
    // TVector3 const pRPos = smearPos(pMom, pRMom, v00);
    
-   // smear momentum
-   TLorentzVector const kRMom = smearMom(kMom, fKaonMomResolution);
-   TLorentzVector const pRMom = smearMom(pMom, fPionMomResolution);
-
    // reconstruct
    TLorentzVector const rMom = kRMom + pRMom;
    float const kDca = dca(kMom.Vect(), v00, vertex);
