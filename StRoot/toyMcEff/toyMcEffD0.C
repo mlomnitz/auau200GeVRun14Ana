@@ -490,7 +490,6 @@ void bookObjects()
    fHftRatio1.Close();
    fDca1.Close();
 
-
    grEff[0] = new TGraph("eff_4080.csv", "%lg %lg", ",");
    grEff[1] = new TGraph("eff_1040.csv", "%lg %lg", ",");
    grEff[2] = new TGraph("eff_010.csv", "%lg %lg", ",");
