@@ -27,7 +27,7 @@
 #include "TClonesArray.h"
 #include "TPythia6.h"
 #include "TPythia6Decayer.h"
-#include "TRandom.h"
+#include "TRandom3.h"
 #include "TParticle.h"
 #include "TLorentzVector.h"
 #include "TVector3.h"
@@ -383,8 +383,14 @@ TVector3 smearPosData(int const particle, double const eta, double const vz, dou
    int iEtaIndex = getEtaIndex(rMom.PseudoRapidity());
    int iVzIndex = getVzIndex(vz);
    int iPtIndex = getPtIndex(rMom.Perp());
-   float sigmaPosZ = h1DcaZ1[iParticleIndex][iEtaIndex][iVzIndex][cent][iPtIndex]->GetRandom() * 1e4;
-   float sigmaPosXY = h1DcaXY1[iParticleIndex][iEtaIndex][iVzIndex][cent][iPtIndex]->GetRandom() * 1e4;
+
+   float sigmaPosZ;
+   float sigmaPosXY;
+
+   if (h1DcaZ1[iParticleIndex][iEtaIndex][iVzIndex][cent][iPtIndex]->GetEntries() == 0) sigmaPosZ = 0.;
+   else sigmaPosZ = h1DcaZ1[iParticleIndex][iEtaIndex][iVzIndex][cent][iPtIndex]->GetRandom() * 1e4;
+   if (h1DcaXY1[iParticleIndex][iEtaIndex][iVzIndex][cent][iPtIndex]->GetEntries() == 0) sigmaPosXY = 0.;
+   else sigmaPosXY = h1DcaXY1[iParticleIndex][iEtaIndex][iVzIndex][cent][iPtIndex]->GetRandom() * 1e4;
 
    TVector3 newPos(pos);
    newPos.SetZ(0);
@@ -396,7 +402,10 @@ TVector3 smearPosData(int const particle, double const eta, double const vz, dou
 
 TVector3 getVertex(int const centrality)
 {
-   return TVector3(0., 0., h1Vz[centrality]->GetRandom() * 1e4);
+   double rdmVz;
+   if (h1Vz[centrality]->GetEntries() == 0) rdmVz = 0.;
+   else rdmVz = h1Vz[centrality]->GetRandom() * 1e4;
+   return TVector3(0., 0., rdmVz);
 }
 
 bool reconstructD0(int const centrality, TLorentzVector const& mom)
