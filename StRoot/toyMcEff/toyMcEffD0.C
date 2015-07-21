@@ -44,13 +44,11 @@ void fill(int const kf, TLorentzVector* b, double weight, TLorentzVector const& 
 void getKinematics(TLorentzVector& b, double const mass);
 TLorentzVector smearMom(TLorentzVector const& b, TF1 const * const fMomResolution);
 TVector3 smearPos(TLorentzVector const& mom, TLorentzVector const& rMom, TVector3 const& pos);
-TVector3 smearPosData(int const cent, TLorentzVector const& rMom, TVector3 const& pos);
-TVector3 smearPosData1(int const particle, double const eta, double const vz, double const phi,  int const cent, TLorentzVector const& rMom, TVector3 const& pos);
+TVector3 smearPosData(int const particle, double const eta, double const vz, double const phi,  int const cent, TLorentzVector const& rMom, TVector3 const& pos);
 float dca(TVector3 const& p, TVector3 const& pos, TVector3 const& vertex);
 float dca1To2(TVector3 const& p1, TVector3 const& pos1, TVector3 const& p2, TVector3 const& pos2, TVector3& v0);
 TVector3 getVertex(int centrality);
-bool matchHft(int const cent, TLorentzVector const& mom);
-bool matchHft1(int const particle, double const eta, double const vz, double const phi, int const cent, TLorentzVector const& mom);
+bool matchHft(int const particle, double const eta, double const vz, double const phi, int const cent, TLorentzVector const& mom);
 bool reconstructD0(int const centrality, TLorentzVector const& mom);
 void bookObjects();
 void write();
@@ -184,10 +182,8 @@ void fill(int const kf, TLorentzVector* b, double weight, TLorentzVector const& 
    TLorentzVector const pRMom = smearMom(pMom, fPionMomResolution);
 
    // smear position
-   TVector3 const kRPos = smearPosData(centrality, kRMom, v00);
-   TVector3 const pRPos = smearPosData(centrality, pRMom, v00);
-   TVector3 const kRPos1 = smearPosData1(1, kRMom.PseudoRapidity(), vertex.z(), kRMom.Phi(), centrality, kRMom, v00);
-   TVector3 const pRPos1 = smearPosData1(0, pRMom.PseudoRapidity(), vertex.z(), pRMom.Phi(), centrality, pRMom, v00);
+   TVector3 const kRPos = smearPosData(1, kRMom.PseudoRapidity(), vertex.z(), kRMom.Phi(), centrality, kRMom, v00);
+   TVector3 const pRPos = smearPosData(0, pRMom.PseudoRapidity(), vertex.z(), pRMom.Phi(), centrality, pRMom, v00);
    // TVector3 const kRPos = smearPos(kMom, kRMom, v00);
    // TVector3 const pRPos = smearPos(pMom, pRMom, v00);
 
@@ -281,10 +277,8 @@ void fill(int const kf, TLorentzVector* b, double weight, TLorentzVector const& 
    arr[iArr++] = pRPos.Z();
    arr[iArr++] = pRDca;
 
-   arr[iArr++] = matchHft(centrality, kRMom);
-   arr[iArr++] = matchHft(centrality, pRMom);
-   arr[iArr++] = matchHft1(1, kRMom.PseudoRapidity(), vertex.z(), kRMom.Phi(), centrality, kRMom);
-   arr[iArr++] = matchHft1(0, pRMom.PseudoRapidity(), vertex.z(), pRMom.Phi(), centrality, pRMom);
+   arr[iArr++] = matchHft(1, kRMom.PseudoRapidity(), vertex.z(), kRMom.Phi(), centrality, kRMom);
+   arr[iArr++] = matchHft(0, pRMom.PseudoRapidity(), vertex.z(), pRMom.Phi(), centrality, pRMom);
 
    nt->Fill(arr);
 }
@@ -383,21 +377,7 @@ int getPhiIndex(double Phi)
    return nPhis - 1 ;
 }
 
-TVector3 smearPosData(int const cent, TLorentzVector const& rMom, TVector3 const& pos)
-{
-   int ptIndex = getPtIndex(rMom.Perp());
-   float sigmaPosZ = h1DcaZ[cent][ptIndex]->GetRandom() * 1e4;
-   float sigmaPosXY = h1DcaXY[cent][ptIndex]->GetRandom() * 1e4;
-
-   TVector3 newPos(pos);
-   newPos.SetZ(0);
-   TVector3 momPerp(-rMom.Vect().Y(), rMom.Vect().X(), 0.0);
-   newPos += momPerp.Unit() * sigmaPosXY;
-
-   return TVector3(newPos.X(), newPos.Y(), pos.Z() + sigmaPosZ);
-}
-
-TVector3 smearPosData1(int const particle, double const eta, double const vz, double const phi,  int const cent, TLorentzVector const& rMom, TVector3 const& pos)
+TVector3 smearPosData(int const particle, double const eta, double const vz, double const phi,  int const cent, TLorentzVector const& rMom, TVector3 const& pos)
 {
    int iParticleIndex = particle;
    int iEtaIndex = getEtaIndex(rMom.PseudoRapidity());
@@ -430,13 +410,7 @@ bool reconstructD0(int const centrality, TLorentzVector const& mom)
    return gRandom->Rndm() < gr->Eval(mom.Perp());
 }
 
-bool matchHft(int const cent, TLorentzVector const& mom)
-{
-   int const bin = hHftRatio[cent]->FindBin(mom.Perp());
-   return gRandom->Rndm() < hHftRatio[cent]->GetBinContent(bin);
-}
-
-bool matchHft1(int const particle, double const eta, double const vz, double const phi, int const cent, TLorentzVector const& mom)
+bool matchHft(int const particle, double const eta, double const vz, double const phi, int const cent, TLorentzVector const& mom)
 {
    int iParticleIndex = particle;
    int iEtaIndex = getEtaIndex(mom.PseudoRapidity());
