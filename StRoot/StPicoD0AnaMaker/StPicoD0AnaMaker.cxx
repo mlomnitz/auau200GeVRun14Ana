@@ -69,7 +69,6 @@ Int_t StPicoD0AnaMaker::Init()
 //-----------------------------------------------------------------------------
 StPicoD0AnaMaker::~StPicoD0AnaMaker()
 {
-   delete mGRefMultCorrUtil;
 }
 //-----------------------------------------------------------------------------
 Int_t StPicoD0AnaMaker::Finish()
