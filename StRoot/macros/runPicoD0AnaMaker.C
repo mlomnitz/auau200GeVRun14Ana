@@ -28,11 +28,16 @@ void runPicoD0AnaMaker(TString d0list, TString outFileName, TString badRunListFi
   gSystem->Exec(command.Data());
   command = "sed -i 's/picoD0/picoDst/g' correspondingPico.list";
   gSystem->Exec(command.Data());
+  // create list of kfVertex files
+  TString command = "sed 's/d0tree/kfVertex/g' " + d0list + " >correspondingkfVertex.list";
+  gSystem->Exec(command.Data());
+  command = "sed -i 's/picoD0/kfVertex/g' correspondingkfVertex.list";
+  gSystem->Exec(command.Data());
   StPicoDstMaker* picoDstMaker = new StPicoDstMaker(0, "correspondingPico.list", "picoDstMaker");
   StRefMultCorr* grefmultCorrUtil  = CentralityMaker::instance()->getgRefMultCorr();
   // StEventPlane*  eventPlaneMaker = new StEventPlane("eventPlaneMaker",picoDstMaker,grefmultCorrUtil);
   // StPicoD0AnaMaker*  picoD0AnaMaker = new StPicoD0AnaMaker("picoD0AnaMaker", d0list, outFileName.Data(), picoDstMaker, grefmultCorrUtil, eventPlaneMaker);
-  StPicoD0AnaMaker*  picoD0AnaMaker = new StPicoD0AnaMaker("picoD0AnaMaker", d0list, outFileName.Data(), picoDstMaker, grefmultCorrUtil);
+  StPicoD0AnaMaker*  picoD0AnaMaker = new StPicoD0AnaMaker("picoD0AnaMaker", d0list, "correspondingkfVertex.list", outFileName.Data(), picoDstMaker, grefmultCorrUtil);
   grefmultCorrUtil->setVzForWeight(6, -6.0, 6.0);
   grefmultCorrUtil->readScaleForWeight("StRoot/StRefMultCorr/macros/weight_grefmult_vpd30_vpd5_Run14.txt");
   for(Int_t i=0;i<6;i++){
@@ -63,6 +68,8 @@ void runPicoD0AnaMaker(TString d0list, TString outFileName, TString badRunListFi
 
   // delete list of picos
   command = "rm -f correspondingPico.list";
+  gSystem->Exec(command.Data());
+  command = "rm -f correspondingkfVertex.list";
   gSystem->Exec(command.Data());
   stopWatch->Stop();   
   stopWatch->Print();
