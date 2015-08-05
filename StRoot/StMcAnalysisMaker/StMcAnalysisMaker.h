@@ -8,6 +8,7 @@
 
 class TFile;
 class TNtuple;
+class TH3F;
 
 class StMcTrack;
 class StTrack;
@@ -23,10 +24,16 @@ private:
    TString mOutfileName;
    std::vector<float> firedTriggersIndices;
    double mField; //.. magnetic field
+   bool mFillTpcHitsNtuple;
 
    TFile* mFile;
    TNtuple* mTracks;
    TNtuple* mEventCount; //.. For counting purposes
+   TNtuple* mTpcNtuple;
+
+   TH3F* hTpcHitsDiffXVsPadrowVsSector;                                                                                                                                                                  
+   TH3F* hTpcHitsDiffYVsPadrowVsSector;
+   TH3F* hTpcHitsDiffZVsPadrowVsSector;
 
    StMcEvent* mMcEvent;
    StEvent* mEvent;
@@ -47,6 +54,9 @@ private:
 
    bool isGoodMcTrack(StMcTrack const*) const;
 
+   void fillTpcHitsNtuple(bool t=true);
+   void fillTpcNtuple(StMcTrack const* const,StTrack const* const);
+
 public:
    StMcAnalysisMaker(TString name);
 
@@ -56,4 +66,6 @@ public:
 
    ClassDef(StMcAnalysisMaker, 0)
 };
+
+void StMcAnalysisMaker::fillTpcHitsNtuple(bool t){ mFillTpcHitsNtuple=t;}
 #endif

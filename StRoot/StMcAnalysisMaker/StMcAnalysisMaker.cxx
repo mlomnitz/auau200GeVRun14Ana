@@ -35,8 +35,8 @@
 
 ClassImp(StMcAnalysisMaker);
 
-StMcAnalysisMaker::StMcAnalysisMaker(TString name): StMaker(name.Data()), mFile(NULL),
-   mTracks(NULL), mEventCount(NULL), mMcEvent(NULL), mEvent(NULL), mAssoc(NULL)
+StMcAnalysisMaker::StMcAnalysisMaker(TString name): StMaker(name.Data()), mField(-999), mFillTpcHitsNtuple(false)
+  mFile(NULL), mTracks(NULL), mEventCount(NULL), mMcEvent(NULL), mEvent(NULL), mAssoc(NULL)
 {
    LOG_INFO << "StMcAnalysisMaker() - DONE" << endm;
 }
@@ -68,7 +68,16 @@ int StMcAnalysisMaker::Init()
                              "posRefMult:negRefMult:zdc:bbc:nMcTracks:nRTracks:magField:t0:t1:t2:t3:t4:t5");
 
    mTracks = new TNtuple("tracks", "", "pt:p:eta:y:phi:geantId:eventGenLabel:startVtxX:startVtxY:startVtxZ:stopVtxX:stopVtxY:stopVtxZ:" // MC
-                         "rPt:rEta:rPhi:nFit:nMax:nCom:nDedx:nDedx2:dedx:nSigPi:nSigK:dca:dcaXY:dcaZ:hftTopo:hftTruth"); // global
+                         "rPt:rEta:rPhi:nFit:nMax:nCom:nDedx:nDedx2:dedx:nSigPi:nSigK:dca:dcaXY:dcaZ:hftTopo:hftTruth:trkMap0:trkMap1"); // global
+
+   if(mFillTpcHitsNtuple)
+   {
+     hTpcHitsDiffXVsPadrowVsSector = new TH3F("hTpcHitsDiffXVsPadrowVsSector", "hTpcHitsDiffXVsPadrowVsSector", 50, 0, 50, 26, 0, 26, 200, -2, 2);
+     hTpcHitsDiffYVsPadrowVsSector = new TH3F("hTpcHitsDiffYVsPadrowVsSector", "hTpcHitsDiffYVsPadrowVsSector", 50, 0, 50, 26, 0, 26, 200, -2, 2);
+     hTpcHitsDiffZVsPadrowVsSector = new TH3F("hTpcHitsDiffZVsPadrowVsSector", "hTpcHitsDiffZVsPadrowVsSector", 50, 0, 50, 26, 0, 26, 200, -2, 2);
+
+     mTpcNtuple = new TNtuple("tpc","tpc","pt:eta:phi:mcX:mcY:mcZ:rcX:rcY:rcZ:sector:padrow:pad:dE:adc");
+   }
 
    LOG_INFO << "Init() - DONE" << endm;
 
@@ -136,10 +145,12 @@ int StMcAnalysisMaker::fillTracks(int& nRTracks, int& nMcTracks)
       int idx = 0;
 
       fillMcTrack(array, idx, mcTrack);
+
       if (rcTrack)
       {
          ++nRTracks;
          fillRcTrack(array, idx, mcTrack,rcTrack, nCommonHits);
+         if(mFillTpcHitsNtuple) fillTpcNtuple(mcTrack,rcTrack);
       }
 
       mTracks->Fill(array);
@@ -215,6 +226,53 @@ void StMcAnalysisMaker::fillRcTrack(float* array, int& idx, StMcTrack const* con
    array[idx++] = dcaZ;
    array[idx++] = rcTrack->topologyMap().data(0) >> 1 & 0x7F;
    array[idx++] = hftTruth;
+   array[idx++] = rcTrack->topologyMap().data(0);
+   array[idx++] = rcTrack->topologyMap().data(1);
+}
+
+void StMcAnalysisMaker::fillTpcNtuple(StMcTrack const* const mcTrack,StTrack const* const rcTrack)
+{
+  if(!rcTrack) return;
+
+  StPtrVecHit rcTpcHits = rcTrack->detectorInfo()->hits(kTpcId);
+
+  for (size_t ih = 0; ih < rcTpcHits.size(); ++ih)
+  {
+    StTpcHit* rcHit = dynamic_cast<StTpcHit*>(rcTpcHits[ih]);
+    if (!rcHit) continue;
+
+    pair<rcTpcHitMapIter, rcTpcHitMapIter>  bounds = mAssoc->rcTpcHitMap()->equal_range(rcHit);
+
+    // loop over all mcHits associated with this rcHit
+    bool found = false;
+    for (rcTpcHitMapIter iter = bounds.first; iter != bounds.second; iter++)
+    {
+      const StMcTpcHit* mcHit = (*iter).second;
+
+      // fill histograms if this mcHit belongs to this mcTrack
+      if (mcHit->parentTrack()->key() == mcTrack->key())
+      {
+        mTpcNtuple->Fill(mcTrack->pt(),mcTrack->pseudoRapidity(),mcTrack->momentum().phi(),
+            mcHit->position().x(),mcHit->position().y(), mcHit->position().z(),
+            rcHit->position().x(),rcHit->position().y(), rcHit->position().z(),
+            mcHit->sector(),mcHit->padrow(),mcHit->pad(),mcHit->dE(),rcHit->adc());
+
+        hTpcHitsDiffXVsPadrowVsSector->Fill(mcHit->padrow(), mcHit->sector(), mcHit->position().x() - rcHit->position().x());
+        hTpcHitsDiffYVsPadrowVsSector->Fill(mcHit->padrow(), mcHit->sector(), mcHit->position().y() - rcHit->position().y());
+        hTpcHitsDiffZVsPadrowVsSector->Fill(mcHit->padrow(), mcHit->sector(), mcHit->position().z() - rcHit->position().z());
+        found = true;
+      }
+      else
+      {
+        cout << "Not a good candidate" << endl;
+      }
+    }
+
+    if (!found)
+    {
+      LOG_WARN << "No mc hit was found for this rc Hit!!!!" << endm;
+    }
+  }
 }
 
 bool StMcAnalysisMaker::isGoodMcTrack(StMcTrack const* const mcTrack) const
