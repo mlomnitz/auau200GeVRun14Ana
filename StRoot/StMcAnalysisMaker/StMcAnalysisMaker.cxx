@@ -139,10 +139,10 @@ int StMcAnalysisMaker::fillTracks(int& nRTracks, int& nMcTracks)
       if (rcTrack)
       {
          ++nRTracks;
-         fillRcTrack(array, idx, rcTrack);
+         fillRcTrack(array, idx, mcTrack,rcTrack, nCommonHits);
       }
 
-      mTracks->Fill(arr);
+      mTracks->Fill(array);
    }
 
    LOG_INFO << endm;
@@ -167,7 +167,7 @@ void StMcAnalysisMaker::fillMcTrack(float* array, int& idx, StMcTrack const* con
    array[idx++] = mcTrk->stopVertex()->position().z();
 }
 
-void StMcAnalysisMaker::fillRcTrack(float* array, int& idx, StTrack const* const rcTrack, int const ncom)
+void StMcAnalysisMaker::fillRcTrack(float* array, int& idx, StMcTrack const* const mcTrack,StTrack const* const rcTrack, int const ncom)
 {
    if (!rcTrack) return;
 
@@ -186,7 +186,7 @@ void StMcAnalysisMaker::fillRcTrack(float* array, int& idx, StTrack const* const
    static StTpcDedxPidAlgorithm aplus(McAnaCuts::dedxMethod);
    static StPionPlus* Pion = StPionPlus::instance();
    static StKaonPlus* Kaon = StKaonPlus::instance();
-   StParticleDefinition const* prtcl = gTrk->pidTraits(aplus);
+   StParticleDefinition const* prtcl = rcTrack->pidTraits(aplus);
 
    if (prtcl)
    {
@@ -213,7 +213,7 @@ void StMcAnalysisMaker::fillRcTrack(float* array, int& idx, StTrack const* const
    array[idx++] = dca;
    array[idx++] = dcaXY;
    array[idx++] = dcaZ;
-   array[idx++] = hftTopo;
+   array[idx++] = rcTrack->topologyMap().data(0) >> 1 & 0x7F;
    array[idx++] = hftTruth;
 }
 

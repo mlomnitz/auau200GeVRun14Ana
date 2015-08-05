@@ -41,7 +41,7 @@ private:
    int  fillEventCounts(float nRTracks = -1, float nMcTracks = -1);
    int  fillTracks(int& nRTracks, int& nMcTracks);
    void fillMcTrack(float* array,int& idx,StMcTrack const*);
-   void fillRcTrack(float* array,int& idx,StTrack const*,int const ncom);
+   void fillRcTrack(float* array,int& idx,StMcTrack const*,StTrack const*,int const ncom);
    unsigned int  getHftTruth(StMcTrack const*,StTrack const*) const;
    void getDca(StTrack const*,float& dca, float& dcaXY, float& dcaZ) const;
 
