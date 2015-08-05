@@ -35,7 +35,7 @@
 
 ClassImp(StMcAnalysisMaker);
 
-StMcAnalysisMaker::StMcAnalysisMaker(TString name): StMaker(name.Data()), mField(-999), mFillTpcHitsNtuple(false)
+StMcAnalysisMaker::StMcAnalysisMaker(TString name): StMaker(name.Data()), mField(-999), mFillTpcHitsNtuple(false),
   mFile(NULL), mTracks(NULL), mEventCount(NULL), mMcEvent(NULL), mEvent(NULL), mAssoc(NULL)
 {
    LOG_INFO << "StMcAnalysisMaker() - DONE" << endm;

@@ -54,7 +54,6 @@ private:
 
    bool isGoodMcTrack(StMcTrack const*) const;
 
-   void fillTpcHitsNtuple(bool t=true);
    void fillTpcNtuple(StMcTrack const* const,StTrack const* const);
 
 public:
@@ -64,8 +63,9 @@ public:
    int Make();
    int Finish();
 
+   void fillTpcHitsNtuple(bool t=true);
    ClassDef(StMcAnalysisMaker, 0)
 };
 
-void StMcAnalysisMaker::fillTpcHitsNtuple(bool t){ mFillTpcHitsNtuple=t;}
+inline void StMcAnalysisMaker::fillTpcHitsNtuple(bool t){ mFillTpcHitsNtuple=t;}
 #endif
