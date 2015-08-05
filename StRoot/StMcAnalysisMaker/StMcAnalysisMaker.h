@@ -40,9 +40,12 @@ private:
    bool passTrigger();
    int  fillEventCounts(float nRTracks = -1, float nMcTracks = -1);
    int  fillTracks(int& nRTracks, int& nMcTracks);
-   // void fillRcTrack(float* array, int& idx, StTrack const* gTrk, StPrimaryTrack* pTrk, int ncom);
+   void fillMcTrack(float* array,int& idx,StMcTrack const*);
+   void fillRcTrack(float* array,int& idx,StTrack const*,int const ncom);
    unsigned int  getHftTruth(StMcTrack const*,StTrack const*) const;
    void getDca(StTrack const*,float& dca, float& dcaXY, float& dcaZ) const;
+
+   bool isGoodMcTrack(StMcTrack const*) const;
 
 public:
    StMcAnalysisMaker(TString name);

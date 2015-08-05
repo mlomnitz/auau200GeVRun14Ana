@@ -67,6 +67,9 @@ int StMcAnalysisMaker::Init()
    mEventCount = new TNtuple("eventCount", "eventCount", "runId:eventId:mcVx:mcVy:mcVz:vx:vy:vz:vzVpd:"
                              "posRefMult:negRefMult:zdc:bbc:nMcTracks:nRTracks:magField:t0:t1:t2:t3:t4:t5");
 
+   mTracks = new TNtuple("tracks", "", "pt:p:eta:y:phi:geantId:eventGenLabel:startVtxX:startVtxY:startVtxZ:stopVtxX:stopVtxY:stopVtxZ:" // MC
+                         "rPt:rEta:rPhi:nFit:nMax:nCom:nDedx:nDedx2:dedx:nSigPi:nSigK:dca:dcaXY:dcaZ:hftTopo:hftTruth"); // global
+
    LOG_INFO << "Init() - DONE" << endm;
 
    return kStOk;
@@ -122,28 +125,101 @@ int StMcAnalysisMaker::fillTracks(int& nRTracks, int& nMcTracks)
    {
       StMcTrack* const mcTrack = mMcEvent->tracks()[iTrk];
 
-      if (mcTrack->geantId() != McAnaCuts::geantId) continue;
-      if (mcTrack->startVertex()->position().perp() > McAnaCuts::mcTrackStartVtxR) continue;
+      if (!isGoodMcTrack(mcTrack)) continue;
+      ++nMcTracks;
 
       int nCommonHits = 0;
       StTrack const* const rcTrack = findPartner(mcTrack, nCommonHits);
-      
-      unsigned int hftTruth = 999;
-      float dca = -999.;
-      float dcaXY = -999.;
-      float dcaZ = -999.;
 
+      float array[220];
+      for (int ii = 0; ii < 220; ++ii) array[ii] = -999;
+      int idx = 0;
+
+      fillMcTrack(array, idx, mcTrack);
       if (rcTrack)
       {
-         hftTruth = getHftTruth(mcTrack,rcTrack);
-         getDca(rcTrack,dca,dcaXY,dcaZ);
+         ++nRTracks;
+         fillRcTrack(array, idx, rcTrack);
       }
 
-      // arr[iArr++] = rcTrack ? (rcTrack->topologyMap().data(0)) >> 1 & 0x7F : 0;
-      // arr[iArr++] = static_cast<float>(istTruth && pxlTruth1 && pxlTruth2);
+      mTracks->Fill(arr);
    }
 
+   LOG_INFO << endm;
+
    return kStOk;
+}
+
+void StMcAnalysisMaker::fillMcTrack(float* array, int& idx, StMcTrack const* const mcTrk)
+{
+   array[idx++] = mcTrk->pt();
+   array[idx++] = mcTrk->momentum().mag();
+   array[idx++] = mcTrk->pseudoRapidity();
+   array[idx++] = mcTrk->rapidity();
+   array[idx++] = mcTrk->momentum().phi();
+   array[idx++] = mcTrk->geantId();
+   array[idx++] = mcTrk->eventGenLabel();
+   array[idx++] = mcTrk->startVertex()->position().x();
+   array[idx++] = mcTrk->startVertex()->position().y();
+   array[idx++] = mcTrk->startVertex()->position().z();
+   array[idx++] = mcTrk->stopVertex()->position().x();
+   array[idx++] = mcTrk->stopVertex()->position().y();
+   array[idx++] = mcTrk->stopVertex()->position().z();
+}
+
+void StMcAnalysisMaker::fillRcTrack(float* array, int& idx, StTrack const* const rcTrack, int const ncom)
+{
+   if (!rcTrack) return;
+
+   array[idx++] = rcTrack->geometry()->momentum().perp();
+   array[idx++] = rcTrack->geometry()->momentum().pseudoRapidity();
+   array[idx++] = rcTrack->geometry()->momentum().phi();
+   array[idx++] = rcTrack->fitTraits().numberOfFitPoints(kTpcId);
+   array[idx++] = rcTrack->numberOfPossiblePoints(kTpcId);
+   array[idx++] = ncom;
+
+   // dedx info
+   float nDedxPts = -9999;
+   float dedx = -9999;
+   float nSigPi = -9999;
+   float nSigK = -9999;
+   static StTpcDedxPidAlgorithm aplus(McAnaCuts::dedxMethod);
+   static StPionPlus* Pion = StPionPlus::instance();
+   static StKaonPlus* Kaon = StKaonPlus::instance();
+   StParticleDefinition const* prtcl = gTrk->pidTraits(aplus);
+
+   if (prtcl)
+   {
+      nDedxPts = aplus.traits()->numberOfPoints();
+      dedx = aplus.traits()->mean();
+      nSigPi = aplus.numberOfSigma(Pion);
+      nSigK = aplus.numberOfSigma(Kaon);
+   }
+
+   array[idx++] = nDedxPts;
+   array[idx++] = getNHitsDedx(rcTrack);
+   array[idx++] = dedx;
+   array[idx++] = nSigPi;
+   array[idx++] = nSigK;
+
+   unsigned int hftTruth = 999;
+   float dca = -999.;
+   float dcaXY = -999.;
+   float dcaZ = -999.;
+
+   hftTruth = getHftTruth(mcTrack, rcTrack);
+   getDca(rcTrack, dca, dcaXY, dcaZ);
+
+   array[idx++] = dca;
+   array[idx++] = dcaXY;
+   array[idx++] = dcaZ;
+   array[idx++] = hftTopo;
+   array[idx++] = hftTruth;
+}
+
+bool StMcAnalysisMaker::isGoodMcTrack(StMcTrack const* const mcTrack) const
+{
+   return mcTrack->geantId() == McAnaCuts::geantId && mcTrack->startVertex()->position().perp() < McAnaCuts::mcTrackStartVtxR;
 }
 
 int StMcAnalysisMaker::fillEventCounts(float nRTracks, float nMcTracks)
@@ -246,15 +322,15 @@ StTrack const* StMcAnalysisMaker::findPartner(StMcTrack* mcTrack, int& maxCommon
 
 void StMcAnalysisMaker::getDca(StTrack const* const rcTrack, float& dca, float& dcaXY, float& dcaZ) const
 {
-  StPhysicalHelixD helix = rcTrack->geometry()->helix();
-  dca = helix.distance(mEvent->primaryVertex()->position());
-  dcaXY = helix.geometricSignedDistance(mEvent->primaryVertex()->position().x(), mEvent->primaryVertex()->position().y());
+   StPhysicalHelixD helix = rcTrack->geometry()->helix();
+   dca = helix.distance(mEvent->primaryVertex()->position());
+   dcaXY = helix.geometricSignedDistance(mEvent->primaryVertex()->position().x(), mEvent->primaryVertex()->position().y());
 
-  StThreeVectorF dcaPoint = helix.at(helix.pathLength(mEvent->primaryVertex()->position()));
-  dcaZ = dcaPoint.z() - mEvent->primaryVertex()->position().z();
+   StThreeVectorF dcaPoint = helix.at(helix.pathLength(mEvent->primaryVertex()->position()));
+   dcaZ = dcaPoint.z() - mEvent->primaryVertex()->position().z();
 }
 
-unsigned int StMcAnalysisMaker::getHftTruth(StMcTrack const* const mcTrack,StTrack const* const rcTrack) const
+unsigned int StMcAnalysisMaker::getHftTruth(StMcTrack const* const mcTrack, StTrack const* const rcTrack) const
 {
    bool istTruth = true;
    bool pxlTruth1 = true;
@@ -264,31 +340,31 @@ unsigned int StMcAnalysisMaker::getHftTruth(StMcTrack const* const mcTrack,StTra
    int nRcIstHits = (int)rcIstHits.size();
    for (int iHit = 0; iHit < nRcIstHits; ++iHit)
    {
-     if (rcIstHits[iHit]->idTruth() != mcTrack->key())
-     {
-       istTruth = false;
-       break;
-     }
+      if (rcIstHits[iHit]->idTruth() != mcTrack->key())
+      {
+         istTruth = false;
+         break;
+      }
    }
 
    StPtrVecHit rcPxlHits = rcTrack->detectorInfo()->hits(kPxlId);
    int nRcPxlHits = (int)rcPxlHits.size();
    for (int iHit = 0; iHit < nRcPxlHits; ++iHit)
    {
-     if (rcPxlHits[iHit]->idTruth() != mcTrack->key())
-     {
-       StThreeVectorF pos = rcPxlHits[iHit]->position();
+      if (rcPxlHits[iHit]->idTruth() != mcTrack->key())
+      {
+         StThreeVectorF pos = rcPxlHits[iHit]->position();
 
-       float const R = pow(pos.x(), 2.0) + pow(pos.y(), 2.0);
-       if (R > 3.5 * 3.5) pxlTruth2 = false;
-       else pxlTruth1 = false;
-     }
+         float const R = pow(pos.x(), 2.0) + pow(pos.y(), 2.0);
+         if (R > 3.5 * 3.5) pxlTruth2 = false;
+         else pxlTruth1 = false;
+      }
    }
 
    unsigned int hftTruth = 0;
-   if(pxlTruth1) hftTruth |= (1 << 0);
-   if(pxlTruth2) hftTruth |= (1 << 1);
-   if(istTruth)  hftTruth |= (1 << 2);
+   if (pxlTruth1) hftTruth |= (1 << 0);
+   if (pxlTruth2) hftTruth |= (1 << 1);
+   if (istTruth)  hftTruth |= (1 << 2);
 
    return hftTruth;
 }
@@ -332,7 +408,7 @@ StDedxPidTraits const* StMcAnalysisMaker::findDedxPidTraits(StTrack const* const
    for (unsigned int ii = 0; ii < traits.size(); ++ii)
    {
       pid = dynamic_cast<StDedxPidTraits*>(traits[ii]);
-      if (pid && pid->method() == kTruncatedMeanId) break;
+      if (pid && pid->method() == McAnaCuts::dedxMethod) break;
    }
 
    return pid;
@@ -350,7 +426,7 @@ int StMcAnalysisMaker::getNHitsDedx(StTrack const* const t) const
       {
          pid = dynamic_cast<StDedxPidTraits*>(pidTraits[ii]);
 
-         if (pid && (pid->method() == kTruncatedMeanId))
+         if (pid && (pid->method() == McAnaCuts::dedxMethod))
          {
             ndedx = pid->numberOfPoints();            //number of dedx hits
             break;
