@@ -26,11 +26,12 @@ class StPicoTrack;
 class StPicoDstMaker;
 class StPicoD0AnaHists;
 class StRefMultCorr;
+class kfEvent;
 
 class StPicoD0AnaMaker : public StMaker
 {
   public:
-    StPicoD0AnaMaker(char const * name, TString const inputFilesList, 
+    StPicoD0AnaMaker(char const * name, TString const inputFilesList, char const * kfFileList,
         TString const outBaseName,StPicoDstMaker* picoDstMaker, StRefMultCorr* grefmultCorrUtil);
     virtual ~StPicoD0AnaMaker();
 
@@ -58,10 +59,13 @@ class StPicoD0AnaMaker : public StMaker
     StPicoDstMaker* mPicoDstMaker;
     StPicoD0Event* mPicoD0Event;
     StRefMultCorr* mGRefMultCorrUtil;
+    kfEvent* mKfEvent;
 
+    char const *mKfFileList;
     TString mInputFilesList;
     TString mOutFileBaseName;
     TChain* mChain;
+    TChain* mKfChain;
     int mEventCounter;
 
     // -------------- USER variables -------------------------
@@ -80,5 +84,6 @@ inline int StPicoD0AnaMaker::getEntries() const
 inline void StPicoD0AnaMaker::readNextEvent()
 {
   mChain->GetEntry(mEventCounter++);
+  mKfChain->GetEntry(mEventCounter-1);// Be Careful here, there is no++// stupid bug spent me one day to slove
 }
 #endif
