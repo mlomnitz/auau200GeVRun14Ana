@@ -46,11 +46,12 @@ int StMcAnalysisMaker::Init()
    StBFChain *bfChain = (StBFChain *) StMaker::GetChain();
 
    if (!bfChain) return kStFatal;
-   TString fileName(gSystem->BaseName(bfChain->GetFileOut().Data()));
-   fileName = fileName.ReplaceAll(".event.root", "");
-   fileName = fileName.ReplaceAll(".geant.root", "");
-   fileName = fileName.ReplaceAll(".MuDst.root", "");
+   // TString fileName(gSystem->BaseName(bfChain->GetFileOut().Data()));
+   // fileName = fileName.ReplaceAll(".event.root", "");
+   // fileName = fileName.ReplaceAll(".geant.root", "");
+   // fileName = fileName.ReplaceAll(".MuDst.root", "");
 
+   TString fileName;
    if (!fileName.Length()) fileName = "mcAnalysis";
    fileName = fileName.ReplaceAll(".root", "");
 
@@ -63,6 +64,8 @@ int StMcAnalysisMaker::Init()
       LOG_ERROR << "Could not get StAssociationMaker" << endm;
       return kStErr;
    }
+
+   for(int ii=0;ii<McAnaCuts::maxNumberOfTriggers;++ii) {firedTriggersIndices.push_back(-1);};
 
    mEventCount = new TNtuple("eventCount", "eventCount", "runId:eventId:mcVx:mcVy:mcVz:vx:vy:vz:vzVpd:"
                              "posRefMult:negRefMult:zdc:bbc:nMcTracks:nRTracks:magField:t0:t1:t2:t3:t4:t5");
@@ -87,15 +90,15 @@ int StMcAnalysisMaker::Init()
 //__________________________________
 int StMcAnalysisMaker::Make()
 {
-   StMcEvent* mcEvent = (StMcEvent*)GetDataSet("StMcEvent");
+   mMcEvent = (StMcEvent*)GetDataSet("StMcEvent");
 
-   if (!mcEvent)
+   if (!mMcEvent)
    {
       LOG_WARN << "No StMcEvent" << endm;
       return kStWarn;
    }
 
-   StEvent* mEvent = (StEvent*)GetDataSet("StEvent");
+   mEvent = (StEvent*)GetDataSet("StEvent");
    if (!mEvent)
    {
       LOG_WARN << "No StEvent" << endm;
@@ -133,6 +136,12 @@ int StMcAnalysisMaker::fillTracks(int& nRTracks, int& nMcTracks)
    for (unsigned int iTrk = 0;  iTrk < mMcEvent->tracks().size(); ++iTrk)
    {
       StMcTrack* const mcTrack = mMcEvent->tracks()[iTrk];
+
+      if(!mcTrack)
+      {
+        LOG_WARN << "Empty mcTrack container" << endm;
+        continue;
+      }
 
       if (!isGoodMcTrack(mcTrack)) continue;
       ++nMcTracks;
@@ -173,9 +182,13 @@ void StMcAnalysisMaker::fillMcTrack(float* array, int& idx, StMcTrack const* con
    array[idx++] = mcTrk->startVertex()->position().x();
    array[idx++] = mcTrk->startVertex()->position().y();
    array[idx++] = mcTrk->startVertex()->position().z();
-   array[idx++] = mcTrk->stopVertex()->position().x();
-   array[idx++] = mcTrk->stopVertex()->position().y();
-   array[idx++] = mcTrk->stopVertex()->position().z();
+
+   if(mcTrk->stopVertex())
+   {
+     array[idx++] = mcTrk->stopVertex()->position().x();
+     array[idx++] = mcTrk->stopVertex()->position().y();
+     array[idx++] = mcTrk->stopVertex()->position().z();
+   }
 }
 
 void StMcAnalysisMaker::fillRcTrack(float* array, int& idx, StMcTrack const* const mcTrack,StTrack const* const rcTrack, int const ncom)
@@ -322,6 +335,17 @@ bool StMcAnalysisMaker::passTrigger()
 {
    LOG_INFO << "Checking triggers..." << endm;
    bool interesting_event = false;
+
+   if(!mEvent)
+   {
+     LOG_FATAL << "mEvent doesn't exist" << endm;
+   }
+
+   if(McAnaCuts::interesting_triggers.size() == 0)
+   {
+     LOG_WARN << "No triggers in McAnaCuts::interesting_triggers ... accepting event anyway" << endm;
+     return true;
+   }
 
    const StTriggerId* st_trgid = mEvent->triggerIdCollection()->nominal();
 
