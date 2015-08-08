@@ -86,7 +86,7 @@ int StMcAnalysisMaker::Init()
                              "posRefMult:negRefMult:zdc:bbc:nMcTracks:nRTracks:magField:t0:t1:t2:t3:t4:t5");
 
    mTracks = new TNtuple("tracks", "", "pt:p:eta:y:phi:geantId:eventGenLabel:startVtxX:startVtxY:startVtxZ:stopVtxX:stopVtxY:stopVtxZ:" // MC
-                         "rPt:rEta:rPhi:nFit:nMax:nCom:nDedx:nDedx2:dedx:nSigPi:nSigK:dca:dcaXY:dcaZ:hftTopo:hftTruth:trkMap0:trkMap1"); // global
+                         "gPt:gEta:gPhi:nFit:nMax:nCom:nDedx:dedx:nSigPi:nSigK:dca:dcaXY:dcaZ:hftTopo:hftTruth:trkMap0:trkMap1"); // global
 
    if (mFillTpcHitsNtuple)
    {
@@ -204,6 +204,10 @@ void StMcAnalysisMaker::fillMcTrack(float* array, int& idx, StMcTrack const* con
       array[idx++] = mcTrk->stopVertex()->position().y();
       array[idx++] = mcTrk->stopVertex()->position().z();
    }
+   else
+   {
+     idx += 3;
+   }
 }
 
 void StMcAnalysisMaker::fillRcTrack(float* array, int& idx, StMcTrack const* const mcTrack, StTrack const* const rcTrack, int const ncom)
@@ -235,7 +239,6 @@ void StMcAnalysisMaker::fillRcTrack(float* array, int& idx, StMcTrack const* con
       nSigK = aplus.numberOfSigma(Kaon);
    }
 
-   array[idx++] = nDedxPts;
    array[idx++] = getNHitsDedx(rcTrack);
    array[idx++] = dedx;
    array[idx++] = nSigPi;
