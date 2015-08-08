@@ -28,11 +28,6 @@ namespace McAnaCuts
   }
 
   std::vector<unsigned int> const interesting_triggers = getAllTriggers();
-  //interesting_triggers.push_back(450050);
-  //interesting_triggers.push_back(450060); 
-  //interesting_triggers.push_back(450005); 
-  //interesting_triggers.push_back(450015); 
-  //interesting_triggers.push_back(450025);
 
   float const mcTrackStartVtxR = 1.0; // maximum
   int const geantId = 8;
