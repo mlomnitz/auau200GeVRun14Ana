@@ -35,27 +35,39 @@
 
 ClassImp(StMcAnalysisMaker);
 
-StMcAnalysisMaker::StMcAnalysisMaker(TString name): StMaker(name.Data()), mField(-999), mFillTpcHitsNtuple(false),
-  mFile(NULL), mTracks(NULL), mEventCount(NULL), mMcEvent(NULL), mEvent(NULL), mAssoc(NULL)
+StMcAnalysisMaker::StMcAnalysisMaker(const char *name, const char *title): StMaker(name),
+  mField(-999), mFillTpcHitsNtuple(false), mFile(NULL), mTracks(NULL), mEventCount(NULL),
+  mMcEvent(NULL), mEvent(NULL), mAssoc(NULL)
 {
    LOG_INFO << "StMcAnalysisMaker() - DONE" << endm;
 }
 //__________________________________
 int StMcAnalysisMaker::Init()
 {
-   StBFChain *bfChain = (StBFChain *) StMaker::GetChain();
+   if(!mOutfileName.Length())
+   {
+     // StBFChain* bfChain = (StBFChain *) StMaker::GetChain();
+     //
+     // if (!bfChain) return kStFatal;
+     //
+     // mOutfileName = bfChain->GetFileIn();
 
-   if (!bfChain) return kStFatal;
-   // TString fileName(gSystem->BaseName(bfChain->GetFileOut().Data()));
-   // fileName = fileName.ReplaceAll(".event.root", "");
-   // fileName = fileName.ReplaceAll(".geant.root", "");
-   // fileName = fileName.ReplaceAll(".MuDst.root", "");
+     if(mOutfileName.Length())
+     {
+       LOG_INFO << mOutfileName << endm;
+       mOutfileName = gSystem->BaseName(mOutfileName.Data());
+       mOutfileName = mOutfileName.ReplaceAll(".event.root", "");
+       mOutfileName = mOutfileName.ReplaceAll(".geant.root", "");
+       mOutfileName = mOutfileName.ReplaceAll(".MuDst.root", "");
+     }
+     else
+     {
+       mOutfileName = "mcAnalysis";
+     }
+   }
 
-   TString fileName;
-   if (!fileName.Length()) fileName = "mcAnalysis";
-   fileName = fileName.ReplaceAll(".root", "");
-
-   mFile = new TFile(Form("%s.McAna.root", fileName.Data()), "recreate");
+   mOutfileName = mOutfileName.ReplaceAll(".root", "");
+   mFile = new TFile(Form("%s.McAna.root", mOutfileName.Data()), "recreate");
    assert(mFile && !mFile->IsZombie());
 
    mAssoc = (StAssociationMaker*)GetMaker("StAssociationMaker");

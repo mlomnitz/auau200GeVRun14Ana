@@ -1,13 +1,11 @@
 #include <iostream>
 #include <string>
 
-#include "StChain/StChain.h"
-
 void Load();
 
 using namespace std;
 
-void run_StMcAnalysisMaker(const char* file)
+void run_StMcAnalysisMaker(const char* file, std::string outFile="test")
 {
     //Check STAR Library. Please set SL_version to the original star library used 
     // in the production from http://www.star.bnl.gov/devcgi/dbProdOptionRetrv.pl
@@ -56,11 +54,12 @@ void run_StMcAnalysisMaker(const char* file)
     //dbMk->SetDateTime(20080101,000001);
 
     // Monte Carlo event maker
-    StMcAnalysisMaker* analysis = new StMcAnalysisMaker("StMcAnalysisMaker");
+    StMcAnalysisMaker* analysis = new StMcAnalysisMaker;
+    analysis->setOutFileName(outFile);
 
     // Initialize chain
     chain->Init();
-    chain->EventLoop(1000000);
+    chain->EventLoop(10);
     chain->Finish();
 
     //delete chain;

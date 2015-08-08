@@ -57,15 +57,18 @@ private:
    void fillTpcNtuple(StMcTrack const* const,StTrack const* const);
 
 public:
-   StMcAnalysisMaker(TString name);
+   StMcAnalysisMaker (const char *name="StMcAnalysisMaker", const char *title="event/StMcAnalysisMaker");
 
    int Init();
    int Make();
    int Finish();
+
+   void setOutFileName(std::string);
 
    void fillTpcHitsNtuple(bool t=true);
    ClassDef(StMcAnalysisMaker, 0)
 };
 
 inline void StMcAnalysisMaker::fillTpcHitsNtuple(bool t){ mFillTpcHitsNtuple=t;}
+inline void StMcAnalysisMaker::setOutFileName(std::string s){ mOutfileName = s.c_str();}
 #endif
