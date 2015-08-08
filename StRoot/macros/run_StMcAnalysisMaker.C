@@ -56,10 +56,11 @@ void run_StMcAnalysisMaker(const char* file, std::string outFile="test")
     // Monte Carlo event maker
     StMcAnalysisMaker* analysis = new StMcAnalysisMaker;
     analysis->setOutFileName(outFile);
+    analysis->fillTpcHitsNtuple();
 
     // Initialize chain
     chain->Init();
-    chain->EventLoop(10);
+    chain->EventLoop(1e6);
     chain->Finish();
 
     //delete chain;
