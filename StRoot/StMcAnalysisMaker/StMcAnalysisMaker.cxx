@@ -40,7 +40,7 @@
 ClassImp(StMcAnalysisMaker);
 
 StMcAnalysisMaker::StMcAnalysisMaker(const char *name, const char *title): StMaker(name),
-   mGRefMultCorrUtil(NULL), mField(-999), mCentrality(-999), mFillTpcHitsNtuple(false), 
+   mGRefMultCorrUtil(NULL), mMuDst(NULL), mField(-999), mCentrality(-999), mFillTpcHitsNtuple(false), 
    mFile(NULL), mTracks(NULL), mEventCount(NULL), mMcEvent(NULL), mEvent(NULL), mAssoc(NULL)
 {
    LOG_INFO << "StMcAnalysisMaker() - DONE" << endm;
@@ -113,8 +113,15 @@ int StMcAnalysisMaker::Make()
 
    if (!muDstMaker)
    {
-      LOG_INFO << " No MuDstMaker, will try to take all event information from StEvent" << endm;
-      return kStErr;
+      LOG_WARN << " No MuDstMaker, will try to take all event information from StEvent" << endm;
+   }
+
+   mMuDst = (StMuDst*)muDstMaker->muDst();
+
+   if(!mMuDst && mMuDst->event())
+   {
+     LOG_WARN << "MuDst or mMuDst->event() is missing, will try to take all event information from StEvent" << endm;
+     mMuDst = NULL;
    }
 
    mMcEvent = (StMcEvent*)GetDataSet("StMcEvent");
@@ -134,20 +141,22 @@ int StMcAnalysisMaker::Make()
 
    mField = (float)mEvent->summary()->magneticField();
 
-   if(mGRefMultCorrUtil)
+   if(mGRefMultCorrUtil && mMuDst)
    {
      mGRefMultCorrUtil->init(mEvent()->runId());
 
-     /*mGRefMultCorrUtil->initEvent(mEvent()->grefMult(), 
+     mGRefMultCorrUtil->initEvent(mMuDst->event()->grefmult(),
                                   mEvent->primaryVertex()->position().z(), 
                                   mEvent->runInfo()->zdcCoincidenceRate());
 
+     mCentrality  = mGRefMultCorrUtil->getCentralityBin9();
+
      if (mGRefMultCorrUtil->isBadRun(picoDst->event()->runId()))
      {
-       //cout<<"This is a bad run from mGRefMultCorrUtil! Skip! " << endl;
-       return kStOK;
+       LOG_INFO << "This is a bad run from mGRefMultCorrUtil! Skip! " << endm;
+
+       return kStSkip;
      }
-     */
    }
    else
    {
@@ -198,9 +207,9 @@ int StMcAnalysisMaker::fillTracks(int& nRTracks, int& nMcTracks)
 
       float array[220];
       for (int ii = 0; ii < 220; ++ii) array[ii] = -999;
-      int idx = 0;
 
-      
+      int idx = 0;
+      array[idx++] = mCentrality;
 
       fillMcTrack(array, idx, mcTrack);
 
@@ -368,7 +377,7 @@ bool StMcAnalysisMaker::isGoodMcTrack(StMcTrack const* const mcTrack) const
 
 int StMcAnalysisMaker::fillEventCounts(float nRTracks, float nMcTracks)
 {
-   float vars[30];
+   float vars[50];
 
    float vpdVz = -999;
    StBTofHeader* tofheader = 0;
@@ -385,6 +394,8 @@ int StMcAnalysisMaker::fillEventCounts(float nRTracks, float nMcTracks)
    vars[iVar++] = (float)mEvent->primaryVertex()->position().y();
    vars[iVar++] = (float)mEvent->primaryVertex()->position().z();
    vars[iVar++] = vpdVz;
+   vars[iVar++] = mCentrality;
+   vars[iVar++] = mMuDst? mMuDst->event()->grefmult() : -999;
    vars[iVar++] = (float)uncorrectedNumberOfPositivePrimaries(*mEvent);
    vars[iVar++] = (float)uncorrectedNumberOfNegativePrimaries(*mEvent);
    vars[iVar++] = (float)mEvent->runInfo()->zdcCoincidenceRate();

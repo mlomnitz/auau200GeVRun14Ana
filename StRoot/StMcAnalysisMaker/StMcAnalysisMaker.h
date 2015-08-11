@@ -16,6 +16,7 @@ class StGlobalTrack;
 class StAssociationMaker;
 class StMcEvent;
 class StEvent;
+class StMuDst;
 class StDedxPidTraits;
 class StRefMultCorr;
 
@@ -24,6 +25,7 @@ class StMcAnalysisMaker : public StMaker
 private:
    TString mOutfileName;
    StRefMultCorr* mGRefMultCorrUtil;
+   StMuDst*       mMuDst;
    std::vector<float> firedTriggersIndices;
    double mField; //.. magnetic field
    int    mCentrality;
