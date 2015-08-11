@@ -17,13 +17,16 @@ class StAssociationMaker;
 class StMcEvent;
 class StEvent;
 class StDedxPidTraits;
+class StRefMultCorr;
 
 class StMcAnalysisMaker : public StMaker
 {
 private:
    TString mOutfileName;
+   StRefMultCorr* mGRefMultCorrUtil;
    std::vector<float> firedTriggersIndices;
    double mField; //.. magnetic field
+   int    mCentrality;
    bool mFillTpcHitsNtuple;
 
    TFile* mFile;
@@ -64,11 +67,13 @@ public:
    int Finish();
 
    void setOutFileName(std::string);
-
    void fillTpcHitsNtuple(bool t=true);
+   void setRefMultCorr(StRefMultCorr*);
+
    ClassDef(StMcAnalysisMaker, 0)
 };
 
 inline void StMcAnalysisMaker::fillTpcHitsNtuple(bool t){ mFillTpcHitsNtuple=t;}
 inline void StMcAnalysisMaker::setOutFileName(std::string s){ mOutfileName = s.c_str();}
+inline void StMcAnalysisMaker::setRefMultCorr(StRefMultCorr* grefmultCorrUtil){ mGRefMultCorrUtil = grefmultCorrUtil;}
 #endif

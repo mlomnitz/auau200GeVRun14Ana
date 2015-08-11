@@ -30,14 +30,15 @@
 #include "StAssociationMaker/StAssociationMaker.h"
 #include "StAssociationMaker/StTrackPairInfo.hh"
 
+#include "StRefMultCorr/StRefMultCorr.h"
 #include "StMcAnaCuts.h"
 #include "StMcAnalysisMaker.h"
 
 ClassImp(StMcAnalysisMaker);
 
 StMcAnalysisMaker::StMcAnalysisMaker(const char *name, const char *title): StMaker(name),
-   mField(-999), mFillTpcHitsNtuple(false), mFile(NULL), mTracks(NULL), mEventCount(NULL),
-   mMcEvent(NULL), mEvent(NULL), mAssoc(NULL)
+   mGRefMultCorrUtil(NULL), mField(-999), mCentrality(-999), mFillTpcHitsNtuple(false), 
+   mFile(NULL), mTracks(NULL), mEventCount(NULL), mMcEvent(NULL), mEvent(NULL), mAssoc(NULL)
 {
    LOG_INFO << "StMcAnalysisMaker() - DONE" << endm;
 }
@@ -83,9 +84,9 @@ int StMcAnalysisMaker::Init()
    };
 
    mEventCount = new TNtuple("eventCount", "eventCount", "runId:eventId:mcVx:mcVy:mcVz:vx:vy:vz:vzVpd:"
-                             "posRefMult:negRefMult:zdc:bbc:nMcTracks:nRTracks:magField:t0:t1:t2:t3:t4:t5");
+                             "centrality:gRefMult:posRefMult:negRefMult:zdc:bbc:nMcTracks:nRTracks:magField:t0:t1:t2:t3:t4:t5");
 
-   mTracks = new TNtuple("tracks", "", "pt:p:eta:y:phi:geantId:eventGenLabel:startVtxX:startVtxY:startVtxZ:stopVtxX:stopVtxY:stopVtxZ:" // MC
+   mTracks = new TNtuple("tracks", "", "centrality:pt:p:eta:y:phi:geantId:eventGenLabel:startVtxX:startVtxY:startVtxZ:stopVtxX:stopVtxY:stopVtxZ:" // MC
                          "gPt:gEta:gPhi:nFit:nMax:nCom:nDedx:dedx:nSigPi:nSigK:dca:dcaXY:dcaZ:hftTopo:hftTruth:trkMap0:trkMap1"); // global
 
    if (mFillTpcHitsNtuple)
@@ -121,6 +122,26 @@ int StMcAnalysisMaker::Make()
    }
 
    mField = (float)mEvent->summary()->magneticField();
+
+   if(mGRefMultCorrUtil)
+   {
+     mGRefMultCorrUtil->init(mEvent()->runId());
+
+     /*mGRefMultCorrUtil->initEvent(mEvent()->grefMult(), 
+                                  mEvent->primaryVertex()->position().z(), 
+                                  mEvent->runInfo()->zdcCoincidenceRate());
+
+     if (mGRefMultCorrUtil->isBadRun(picoDst->event()->runId()))
+     {
+       //cout<<"This is a bad run from mGRefMultCorrUtil! Skip! " << endl;
+       return kStOK;
+     }
+     */
+   }
+   else
+   {
+     mCentrality = -999;
+   }
 
    // Fill
    int nRTracks = -1;
@@ -167,6 +188,8 @@ int StMcAnalysisMaker::fillTracks(int& nRTracks, int& nMcTracks)
       float array[220];
       for (int ii = 0; ii < 220; ++ii) array[ii] = -999;
       int idx = 0;
+
+      
 
       fillMcTrack(array, idx, mcTrack);
 
