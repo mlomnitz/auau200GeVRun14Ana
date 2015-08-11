@@ -21,6 +21,9 @@
 #include "StEvent/StEvent.h"
 #include "StEvent/StTpcDedxPidAlgorithm.h"
 #include "StEventUtilities/StuRefMult.hh"
+#include "StMuDSTMaker/COMMON/StMuDstMaker.h"
+#include "StMuDSTMaker/COMMON/StMuDst.h"
+#include "StMuDSTMaker/COMMON/StMuPrimaryVertex.h"
 
 #include "StMcEvent/StMcEventTypes.hh"
 #include "StMcEvent/StMcContainers.hh"
@@ -105,6 +108,14 @@ int StMcAnalysisMaker::Init()
 //__________________________________
 int StMcAnalysisMaker::Make()
 {
+   StMuDstMaker *muDstMaker = (StMuDstMaker*)GetMaker("MuDst");
+
+   if (!muDstMaker)
+   {
+      LOG_INFO << " No MuDstMaker, will try to take all event information from StEvent" << endm;
+      return kStErr;
+   }
+
    mMcEvent = (StMcEvent*)GetDataSet("StMcEvent");
 
    if (!mMcEvent)
@@ -206,7 +217,7 @@ void StMcAnalysisMaker::fillMcTrack(float* array, int& idx, StMcTrack const* con
    }
    else
    {
-     idx += 3;
+      idx += 3;
    }
 }
 
