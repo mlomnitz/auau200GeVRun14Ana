@@ -23,6 +23,7 @@
 #include "StEventUtilities/StuRefMult.hh"
 #include "StMuDSTMaker/COMMON/StMuDstMaker.h"
 #include "StMuDSTMaker/COMMON/StMuDst.h"
+#include "StMuDSTMaker/COMMON/StMuEvent.h"
 #include "StMuDSTMaker/COMMON/StMuPrimaryVertex.h"
 
 #include "StMcEvent/StMcEventTypes.hh"
@@ -143,7 +144,7 @@ int StMcAnalysisMaker::Make()
 
    if(mGRefMultCorrUtil && mMuDst)
    {
-     mGRefMultCorrUtil->init(mEvent()->runId());
+     mGRefMultCorrUtil->init(mEvent->runId());
 
      mGRefMultCorrUtil->initEvent(mMuDst->event()->grefmult(),
                                   mEvent->primaryVertex()->position().z(), 
@@ -151,7 +152,7 @@ int StMcAnalysisMaker::Make()
 
      mCentrality  = mGRefMultCorrUtil->getCentralityBin9();
 
-     if (mGRefMultCorrUtil->isBadRun(picoDst->event()->runId()))
+     if (mGRefMultCorrUtil->isBadRun(mEvent->runId()))
      {
        LOG_INFO << "This is a bad run from mGRefMultCorrUtil! Skip! " << endm;
 
