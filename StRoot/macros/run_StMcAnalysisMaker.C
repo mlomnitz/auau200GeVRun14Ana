@@ -35,8 +35,16 @@ void run_StMcAnalysisMaker(const char* file, std::string outFile = "test")
    ioMaker->SetBranch("eventBranch", 0, "r");
 
    TString mudstfile = file;
+
+   if(mudstfile.First("$") != -1)
+   {
+     mudstfile.ReplaceAll("$","");
+     mudstfile = getenv(mudstfile.Data());
+   }
+
    mudstfile.ReplaceAll(".event.root", ".MuDst.root");
    mudstfile.ReplaceAll(".geant.root", ".MuDst.root");
+   cout << "Reading MuDst file " << mudstfile << endl;
    StMuDstMaker* muDstMaker = new StMuDstMaker(0, 0, "", mudstfile.Data(), "", 100000, "MuDst");
 
    StMcEventMaker *mcEventMaker = new StMcEventMaker();
