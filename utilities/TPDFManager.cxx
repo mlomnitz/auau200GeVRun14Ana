@@ -89,6 +89,15 @@ void TPDFManager::draw(TH1* hist,Option_t* drawOpt,bool legend,bool logx,bool lo
     draw(temp,drawOpt,legend,logx,logy,logz);
 }
 
+void TPDFManager::draw(TH1* hist0,TH1* hist1,Option_t* drawOpt,bool legend,bool logx,bool logy,bool logz)
+{
+    std::vector<TH1*> temp;
+    temp.push_back(hist0);
+    temp.push_back(hist1);
+
+    draw(temp,drawOpt,legend,logx,logy,logz);
+}
+
 void TPDFManager::newLegend(TString header,float lx,float ly,float ux,float uy)
 {
   mLegend = new TLegend(lx,ly,ux,uy);
