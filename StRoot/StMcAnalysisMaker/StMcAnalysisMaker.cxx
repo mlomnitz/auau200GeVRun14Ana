@@ -110,16 +110,19 @@ int StMcAnalysisMaker::Init()
 //__________________________________
 int StMcAnalysisMaker::Make()
 {
-   StMuDstMaker *muDstMaker = (StMuDstMaker*)GetMaker("MuDst");
+   StMuDstMaker* muDstMaker = (StMuDstMaker*)GetMaker("MuDst");
 
    if (!muDstMaker)
    {
       LOG_WARN << " No MuDstMaker, will try to take all event information from StEvent" << endm;
+      mMuDst = NULL;
+   }
+   else
+   {
+     mMuDst = (StMuDst*)muDstMaker->muDst();
    }
 
-   mMuDst = (StMuDst*)muDstMaker->muDst();
-
-   if(!mMuDst && mMuDst->event())
+   if(!mMuDst || !mMuDst->event())
    {
      LOG_WARN << "MuDst or mMuDst->event() is missing, will try to take all event information from StEvent" << endm;
      mMuDst = NULL;
