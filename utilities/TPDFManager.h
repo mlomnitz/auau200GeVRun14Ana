@@ -26,7 +26,7 @@ class TPDFManager
     void draw(TH1* hist,Option_t* drawOpt="",bool legend=false,bool logx=false,bool logy=false,bool logz=false);
     void draw(TH1* hist0,TH1* hist1,Option_t* drawOpt="",bool legend=false,bool logx=false,bool logy=false,bool logz=false);
     void draw(std::vector<TH1*>& hists,Option_t* drawOpt="",bool legend=false,bool logx=false,bool logy=false,bool logz=false);
-    void newLegend(TString header="",float lx=0.8,float ly=0.8,float ux=0.9,float uy=0.88);
+    void newLegend(TString header="",float lx=0.15,float ly=0.6,float ux=0.4,float uy=0.85);
     void close();
 
   private:

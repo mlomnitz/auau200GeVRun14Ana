@@ -67,7 +67,7 @@ void TPDFManager::draw(std::vector<TH1*>& hists,Option_t* drawOpt,bool legend,bo
 
   for(size_t iHist=1;iHist<hists.size();++iHist)
   {
-    hists.at(iHist)->Draw(Form("sames:%s",drawOpt));
+    hists.at(iHist)->Draw(Form("sames%s",drawOpt));
     if(legend) mLegend->AddEntry(hists.at(iHist),hists.at(iHist)->GetTitle(),"LP");
   }
 
