@@ -48,7 +48,7 @@ void setGraphicsStyle()
     Double_t reds[NRGBs]   = { 0.00, 0.00, 0.87, 1.00, 0.51 };
     Double_t greens[NRGBs] = { 0.00, 0.81, 1.00, 0.20, 0.00 };
     Double_t blues[NRGBs]  = { 0.51, 1.00, 0.12, 0.00, 0.00 };
-    Int_t  FI = TColor::CreateGradientColorTable(NRGBs, stops, reds, greens, blues, NCont);
+    TColor::CreateGradientColorTable(NRGBs, stops, reds, greens, blues, NCont);
     gStyle->SetNumberContours(NCont);
     gStyle->UseCurrentStyle();
     // **************************************************************************************
