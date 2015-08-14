@@ -7,8 +7,7 @@
 
 #include "TPDFManager.h"
 
-TPDFManager::TPDFManager(TString outFileName): mCanvas(NULL), mPad(NULL), mPDF(NULL), mPageHeader(NULL),
-  mLegend(NULL), mNCanvasX(1), mNCanvasY(1), mSubCanvasIndex(0), mMaxCanvasPerPage(0)
+TPDFManager::TPDFManager(TString outFileName)
 {
     mCanvas = new TCanvas("mCanvas","",800,450);
     mCanvas->cd();

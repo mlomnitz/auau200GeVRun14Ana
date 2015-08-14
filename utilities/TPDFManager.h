@@ -30,14 +30,14 @@ class TPDFManager
     void close();
 
   private:
-    TCanvas*   mCanvas;
-    TPad*      mPad;
-    TPDF*      mPDF;
-    TPaveText* mPageHeader;
-    TLegend*   mLegend;
-    int        mNCanvasX;
-    int        mNCanvasY;
-    int        mSubCanvasIndex;
-    int        mMaxCanvasPerPage;
+    TCanvas*   mCanvas = NULL;
+    TPad*      mPad = NULL;
+    TPDF*      mPDF = NULL;
+    TPaveText* mPageHeader = NULL;
+    TLegend*   mLegend = NULL;
+    int        mNCanvasX = 1;
+    int        mNCanvasY = 1;
+    int        mSubCanvasIndex = 0;
+    int        mMaxCanvasPerPage = 0;
 };
 #endif
