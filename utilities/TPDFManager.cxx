@@ -7,9 +7,8 @@
 
 #include "TPDFManager.h"
 
-TPDFManager::TPDFManager(TString outFileName): mCanvas(NULL),
-  mPad(NULL), mPDF(NULL),
-  mPageHeader(NULL), mLegend(NULL), mNCanvasX(1), mNCanvasY(1), mSubCanvasIndex(0), mMaxCanvasPerPage(1)
+TPDFManager::TPDFManager(TString outFileName): mCanvas(NULL), mPad(NULL), mPDF(NULL), mPageHeader(NULL),
+  mLegend(NULL), mNCanvasX(1), mNCanvasY(1), mSubCanvasIndex(0), mMaxCanvasPerPage(0)
 {
     mCanvas = new TCanvas("mCanvas","",800,450);
     mCanvas->cd();
@@ -63,15 +62,15 @@ void TPDFManager::draw(std::vector<TH1*>& hists,Option_t* drawOpt,bool legend,bo
   mPad->cd(mSubCanvasIndex)->Draw();
 
   hists.at(0)->Draw(drawOpt);
-  if(legend) mLegend->AddEntry(hists.at(0),hists.at(0)->GetTitle(),"LP");
+  if(legend && mLegend) mLegend->AddEntry(hists.at(0),hists.at(0)->GetTitle(),"LP");
 
   for(size_t iHist=1;iHist<hists.size();++iHist)
   {
     hists.at(iHist)->Draw(Form("sames%s",drawOpt));
-    if(legend) mLegend->AddEntry(hists.at(iHist),hists.at(iHist)->GetTitle(),"LP");
+    if(legend && mLegend) mLegend->AddEntry(hists.at(iHist),hists.at(iHist)->GetTitle(),"LP");
   }
 
-  if(legend) mLegend->Draw();
+  if(legend && mLegend) mLegend->Draw();
   if(logx)   mPad->cd(mSubCanvasIndex)->SetLogx();
   if(logy)   mPad->cd(mSubCanvasIndex)->SetLogy();
   if(logz)   mPad->cd(mSubCanvasIndex)->SetLogz();
@@ -103,7 +102,7 @@ void TPDFManager::newLegend(TString header,float lx,float ly,float ux,float uy)
   mLegend = new TLegend(lx,ly,ux,uy);
   mLegend->SetFillColor(0);
   mLegend->SetBorderSize(0);
-  mLegend->SetTextFont(132);
+  mLegend->SetTextFont(42);
   mLegend->SetTextSize(0.035);
   if(header.Length()) mLegend->SetHeader(header.Data());
 }

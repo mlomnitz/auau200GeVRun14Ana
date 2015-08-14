@@ -22,6 +22,9 @@ int main()
   TH1F* h1 = new TH1F("h1","h1",100,-1,1);
   h1->FillRandom("gaus",1e4);
 
+  setStyle(h1,24,2);
+  setStyle(h2);
+
   setGraphicsStyle();
 
   TPDFManager* pdf = new TPDFManager("test");
@@ -31,7 +34,7 @@ int main()
   pdf->draw(h1);
   pdf->draw(h2,"colz",false,false,false,true);
 
-  pdf->newPage(2,1,"Second page"); // divide the page into 2x1 canvases
+  pdf->newPage(2,1); // divide the page into 2x1 canvases
   pdf->draw(h2->ProjectionX(),h2->ProjectionY()); // plot two histograms in the same canvas
 
   gStyle->SetOptStat(0);
