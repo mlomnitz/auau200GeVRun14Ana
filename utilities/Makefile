@@ -9,7 +9,7 @@ ROOTLIBS     += -lEG
 INCFLAGS = -I$(ROOTSYS)/include
 LDFLAGS = -L$(ROOTSYS)/lib
 
-CXX = g++ -m64
+CXX = g++ -W -Wall -Wextra -pedantic -std=c++11
 FLAGS = -Wall -g $(INCFLAGS) $(LDFLAGS) -fPIC
 
 COMPILE = $(CXX) $(FLAGS) -c 
