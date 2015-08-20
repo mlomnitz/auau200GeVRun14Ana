@@ -114,7 +114,7 @@ int main(int argc, char **argv)
 
       if (fabs(t->y) > anaCuts::rapidity) continue;
 
-      if (!(t->cent >= 7 || t->cent < 4)) continue;
+      // if (!(t->cent >= 7 || t->cent < 4)) continue;
 
       // fill denominator histograms
       if (t->cent >= 7) noCuts010->Fill(t->rPt);
