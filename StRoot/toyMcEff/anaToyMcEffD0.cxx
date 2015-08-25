@@ -96,12 +96,12 @@ int main(int argc, char **argv)
    TH1D* hftTpc010 = new TH1D("hftTpc010", "", 60, 0, 12);
    TH1D* hftTpc4080 = new TH1D("hftTpc4080", "", 60, 0, 12);
 
-   TH3F* mcPointingAngle = new TH3F(Form("%s_se_us_pointingangle", "mc"), "Same Event US pointing angle; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 1000, 0, 1.0);
+   TH3F* mcPointingAngle = new TH3F(Form("%s_se_us_pointingangle", "mc"), "Same Event US pointing angle; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 1000, 0.9, 1.0);
    TH3F* mcDecayL = new TH3F(Form("%s_se_us_decayL", "mc"), "Same Event US Decay Length; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.1);
-   TH3F* mcDca12 = new TH3F(Form("%s_se_us_dcaDaughters", "mc"), "Same Event US dca daughters; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.1);
-   TH3F* mcPionDca2Vtx = new TH3F(Form("%s_se_us_pionDca", "mc"), "Same Event #pi dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 1.);
-   TH3F* mcKaonDca2Vtx = new TH3F(Form("%s_se_us_kaonDca", "mc"), "Same Event US K dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 1.);
-   TH3F* mcD0Dca2Vtx = new TH3F(Form("%s_se_us_D0Dca2Vtx", "mc"), "SameEvent US D0 dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.1);
+   TH3F* mcDca12 = new TH3F(Form("%s_se_us_dcaDaughters", "mc"), "Same Event US dca daughters; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.05);
+   TH3F* mcPionDca2Vtx = new TH3F(Form("%s_se_us_pionDca", "mc"), "Same Event #pi dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.2);
+   TH3F* mcKaonDca2Vtx = new TH3F(Form("%s_se_us_kaonDca", "mc"), "Same Event US K dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.2);
+   TH3F* mcD0Dca2Vtx = new TH3F(Form("%s_se_us_D0Dca2Vtx", "mc"), "SameEvent US D0 dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.05);
 
    Long64_t nEntries = t->GetEntries();
    cout << "nEntries = " << nEntries << endl;
