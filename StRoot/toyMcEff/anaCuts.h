@@ -19,8 +19,8 @@ namespace anaCuts
 
    float const rapidity = 1.0;
 
-   float const massMin = 1.82;
-   float const massMax = 1.9;
+   float const massMin = 1.828;
+   float const massMax = 1.892;
 
    float const dcaV0ToPv[nPtBins] = {61, 49, 38, 38, 40};
    float const decayLength[nPtBins] = {145, 181, 212, 247, 259};
