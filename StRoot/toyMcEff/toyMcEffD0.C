@@ -86,7 +86,7 @@ TH1D* h1DcaZ[nCent][nPtBins];
 TH1D* h1DcaXY[nCent][nPtBins];
 TH1D* h1Vz[nCent];
 
-TH1D* hHftRatio1[nParticles][nEtas][nVzs][nCent];
+TH1D* hHftRatio1[nParticles][nEtas][nVzs][nPhis][nCent];
 TH1D* h1DcaZ1[nParticles][nEtas][nVzs][nCent][nPtBins];
 TH1D* h1DcaXY1[nParticles][nEtas][nVzs][nCent][nPtBins];
 
@@ -385,10 +385,10 @@ TVector3 smearPosData(int const iParticleIndex, double const vz, int const cent,
    float sigmaPosZ = 0;
    float sigmaPosXY = 0;
 
-   if (h1DcaZ1[iParticleIndex][iEtaIndex][iVzIndex][cent][iPtIndex]->GetEntries())
+   if (h1DcaZ1[iParticleIndex][iEtaIndex][iVzIndex][cent][iPtIndex]->ComputeIntegral())
      sigmaPosZ = h1DcaZ1[iParticleIndex][iEtaIndex][iVzIndex][cent][iPtIndex]->GetRandom() * 1e4;
 
-   if (h1DcaXY1[iParticleIndex][iEtaIndex][iVzIndex][cent][iPtIndex]->GetEntries())
+   if (h1DcaXY1[iParticleIndex][iEtaIndex][iVzIndex][cent][iPtIndex]->ComputeIntegral())
      sigmaPosXY = h1DcaXY1[iParticleIndex][iEtaIndex][iVzIndex][cent][iPtIndex]->GetRandom() * 1e4;
 
    TVector3 newPos(pos);
@@ -428,9 +428,10 @@ bool matchHft(int const iParticleIndex, double const vz, int const cent, TLorent
 {
    int const iEtaIndex = getEtaIndex(mom.PseudoRapidity());
    int const iVzIndex = getVzIndex(vz);
-   // int const iPhiIndex = getPhiIndex(mom.Phi());
-   int const bin = hHftRatio1[iParticleIndex][iEtaIndex][iVzIndex][cent]->FindBin(mom.Perp());
-   return gRandom->Rndm() < hHftRatio1[iParticleIndex][iEtaIndex][iVzIndex][cent]->GetBinContent(bin);
+   int const iPhiIndex = getPhiIndex(mom.Phi());
+
+   int const bin = hHftRatio1[iParticleIndex][iEtaIndex][iVzIndex][iPhiIndex][cent]->FindBin(mom.Perp());
+   return gRandom->Rndm() < hHftRatio1[iParticleIndex][iEtaIndex][iVzIndex][iPhiIndex][cent]->GetBinContent(bin);
 }
 //___________
 void bookObjects()
@@ -449,35 +450,27 @@ void bookObjects()
                     "pRM:pRPt:pREta:pRY:pRPhi:pRVx:pRVy:pRVz:pRDca:" // Rc Pion1
                     "kHft:pHft");
 
+   cout << "Loading input momentum resolution ..." << endl;
    TFile f("momentum_resolution.root");
    fPionMomResolution = (TF1*)f.Get("fPion")->Clone("fPionMomResolution");
    fKaonMomResolution = (TF1*)f.Get("fKaon")->Clone("fKaonMomResolution");
    f.Close();
 
+   cout << "Loading input spectra ..." << endl;
    TFile fPP("pp200_spectra.root");
    fWeightFunction = (TF1*)fPP.Get("run12/f1Levy")->Clone("fWeightFunction");
    fPP.Close();
 
-   TFile fHftRatio("HFT_Ratio_VsPt_Centrality.root");
-   TFile fDca("Dca_VsPt_Centrality.root");
    TFile fVertex("Run14_After107_Vz_Cent.root");
 
    for (int ii = 0; ii < nCent; ++ii)
    {
-      hHftRatio[ii] = (TH1D*)(fHftRatio.Get(Form("mh1HFTRatio1_%i", ii))->Clone(Form("mh1HFTRatio1_%i", ii)));
       h1Vz[ii]      = (TH1D*)(fVertex.Get(Form("mh1Vz_%i", ii))->Clone(Form("mh1Vz_%i", ii)));
-
-      for (int jj = 0; jj < nPtBins; ++jj)
-      {
-         h1DcaXY[ii][jj] = (TH1D*)((fDca.Get(Form("mh3DcaXy_Cent%i_Pt%i", ii, jj)))->Clone(Form("mh3DcaXy_Cent%i_Pt%i", ii, jj)));
-         h1DcaZ[ii][jj]  = (TH1D*)((fDca.Get(Form("mh3DcaZ_Cent%i_Pt%i", ii, jj)))->Clone(Form("mh3DcaZ_Cent%i_Pt%i", ii, jj)));
-      }
    }
 
-   fHftRatio.Close();
-   fDca.Close();
    fVertex.Close();
 
+   cout << "Loading input HFT ratios and DCA ..." << endl;
    TFile fHftRatio1("HFT_Ratio_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
    TFile fDca1("Dca_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
    for (int iParticle = 0; iParticle < nParticles; ++iParticle)
@@ -488,7 +481,11 @@ void bookObjects()
          {
             for (int ii = 0; ii < nCent; ++ii)
             {
-               hHftRatio1[iParticle][iEta][iVz][ii] = (TH1D*)(fHftRatio1.Get(Form("mh1HFT1PtCentPartEtaVzRatio_%i_%i_%i_%i", iParticle, iEta, iVz, ii))->Clone(Form("mh1HFT1PtCentPartEtaVzRatio_%i_%i_%i_%i", iParticle, iEta, iVz, ii)));
+               for(int iPhi = 0; iPhi < nPhis; ++iPhi)
+               {
+                 hHftRatio1[iParticle][iEta][iVz][iPhi][ii] = (TH1D*)(fHftRatio1.Get(Form("mh1HFT1PtCentPartEtaVzPhiRatio_%i_%i_%i_%i_%i", iParticle, iEta, iVz, iPhi, ii))->Clone(Form("mh1HFT1PtCentPartEtaVzPhiRatio_%i_%i_%i_%i_%i", iParticle, iEta, iVz, iPhi, ii)));
+               }
+
                for (int jj = 0; jj < nPtBins; ++jj)
                {
                   h1DcaXY1[iParticle][iEta][iVz][ii][jj] = (TH1D*)((fDca1.Get(Form("mh1DcaXyPtCentPartEtaVz_%i_%i_%i_%i_%i", iParticle, iEta, iVz, ii, jj)))->Clone(Form("mh1DcaXyPtCentPartEtaVz_%i_%i_%i_%i_%i", iParticle, iEta, iVz, ii, jj)));
@@ -501,6 +498,8 @@ void bookObjects()
 
    fHftRatio1.Close();
    fDca1.Close();
+
+   cout << "Done with loading all files ..." << endl;
 
    grEff[0] = new TGraph("eff_4080.csv", "%lg %lg", ",");
    grEff[1] = new TGraph("eff_1040.csv", "%lg %lg", ",");
