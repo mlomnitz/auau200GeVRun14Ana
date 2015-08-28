@@ -368,7 +368,7 @@ int getVzIndex(double Vz)
 
 int getPhiIndex(double Phi)
 {
-   for (int i = 0; i < nPtBins; i++)
+   for (int i = 0; i < nPhis; i++)
    {
       if ((Phi >= PhiEdge[i]) && (Phi < PhiEdge[i + 1]))
          return i;
