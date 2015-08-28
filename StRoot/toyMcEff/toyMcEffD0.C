@@ -48,6 +48,7 @@ float dca(TVector3 const& p, TVector3 const& pos, TVector3 const& vertex);
 float dca1To2(TVector3 const& p1, TVector3 const& pos1, TVector3 const& p2, TVector3 const& pos2, TVector3& v0);
 TVector3 getVertex(int centrality);
 bool matchHft(int iParticleIndex, double vz, int cent, TLorentzVector const& mom);
+bool tpcReconstructed(int iParticleIndex, float charge, int cent, TLorentzVector const& mom);
 bool reconstructD0(int const centrality, TLorentzVector const& mom);
 void bookObjects();
 void write();
@@ -89,6 +90,11 @@ TH1D* h1Vz[nCent];
 TH1D* hHftRatio1[nParticles][nEtas][nVzs][nPhis][nCent];
 TH1D* h1DcaZ1[nParticles][nEtas][nVzs][nCent][nPtBins];
 TH1D* h1DcaXY1[nParticles][nEtas][nVzs][nCent][nPtBins];
+
+TH1D* hTpcPiPlus[nCent];
+TH1D* hTpcPiMinus[nCent];
+TH1D* hTpcKPlus[nCent];
+TH1D* hTpcKMinus[nCent];
 
 string outFileName = "D0.toyMc.root";
 std::pair<int, int> const decayChannels(747, 807);
@@ -206,6 +212,8 @@ void fill(int const kf, TLorentzVector* b, double weight, TLorentzVector const& 
    kRMomRest.Boost(-beta);
    float const cosThetaStar = rMom.Vect().Unit().Dot(kRMomRest.Vect().Unit());
 
+   int const charge = kf > 0? 1: -1;
+
    // save
    float arr[100];
    int iArr = 0;
@@ -258,6 +266,7 @@ void fill(int const kf, TLorentzVector* b, double weight, TLorentzVector const& 
    arr[iArr++] = kRPos.Y();
    arr[iArr++] = kRPos.Z();
    arr[iArr++] = kRDca;
+   arr[iArr++] = tpcReconstructed(1,-1*charge,centrality,kRMom);
 
    arr[iArr++] = pMom.M();
    arr[iArr++] = pMom.Perp();
@@ -275,6 +284,7 @@ void fill(int const kf, TLorentzVector* b, double weight, TLorentzVector const& 
    arr[iArr++] = pRPos.Y();
    arr[iArr++] = pRPos.Z();
    arr[iArr++] = pRDca;
+   arr[iArr++] = tpcReconstructed(0,charge,centrality,pRMom);
 
    arr[iArr++] = matchHft(1, vertex.z(), centrality, kRMom);
    arr[iArr++] = matchHft(0, vertex.z(), centrality, pRMom);
@@ -424,6 +434,26 @@ bool reconstructD0(int const centrality, TLorentzVector const& mom)
    return gRandom->Rndm() < gr->Eval(mom.Perp());
 }
 
+bool tpcReconstructed(int iParticleIndex, float charge, int cent, TLorentzVector const& mom)
+{
+  TH1D* h = NULL;
+
+  if(iParticleIndex == 0)
+  {
+    if(charge>0) h = hTpcPiPlus[cent];
+    else h = hTpcPiMinus[cent];
+  }
+  else
+  {
+    if(charge>0) h = hTpcKPlus[cent];
+    else h = hTpcKMinus[cent];
+  }
+
+  int const bin = h->FindBin(mom.Perp());
+
+  return gRandom->Rndm() < h->GetBinContent(bin);
+}
+
 bool matchHft(int const iParticleIndex, double const vz, int const cent, TLorentzVector const& mom)
 {
    int const iEtaIndex = getEtaIndex(mom.PseudoRapidity());
@@ -445,9 +475,9 @@ void bookObjects()
                     "rM:rPt:rEta:rY:rPhi:rV0x:rV0y:rV0z:reco:" // Rc D0
                     "dca12:decayLength:dcaD0ToPv:cosTheta:angle12:cosThetaStar:" // Rc pair
                     "kM:kPt:kEta:kY:kPhi:kDca:" // MC Kaon
-                    "kRM:kRPt:kREta:kRY:kRPhi:kRVx:kRVy:kRVz:kRDca:" // Rc Kaon
+                    "kRM:kRPt:kREta:kRY:kRPhi:kRVx:kRVy:kRVz:kRDca:kTpc:" // Rc Kaon
                     "pM:pPt:pEta:pY:pPhi:pDca:" // MC Pion1
-                    "pRM:pRPt:pREta:pRY:pRPhi:pRVx:pRVy:pRVz:pRDca:" // Rc Pion1
+                    "pRM:pRPt:pREta:pRY:pRPhi:pRVx:pRVy:pRVz:pRDca:pTpc:" // Rc Pion1
                     "kHft:pHft");
 
    cout << "Loading input momentum resolution ..." << endl;
@@ -498,6 +528,26 @@ void bookObjects()
 
    fHftRatio1.Close();
    fDca1.Close();
+
+   cout << " Loading TPC tracking efficiencies " << endl;
+
+   TFile fTpcPiPlus("Eff_PionPlus_embedding.root");
+   TFile fTpcPiMinus("Eff_PionMinus_embedding.root");
+   TFile fTpcKPlus("Eff_KaonPlus_embedding.root");
+   TFile fTpcKMinus("Eff_KaonMinus_embedding.root");
+
+   for(int iCent = 0; iCent< nCent; ++iCent)
+   {
+     hTpcPiPlus[iCent] = (TH1D*)fTpcPiPlus.Get(Form("h1Ratiocent_%i",iCent))->Clone(Form("tpcPiPlus_%i",iCent));
+     hTpcPiMinus[iCent] = (TH1D*)fTpcPiMinus.Get(Form("h1Ratiocent_%i",iCent))->Clone(Form("tpcPiMinus_%i",iCent));
+     hTpcKPlus[iCent] = (TH1D*)fTpcKPlus.Get(Form("h1Ratiocent_%i",iCent))->Clone(Form("tpcKPlus_%i",iCent));
+     hTpcKMinus[iCent] = (TH1D*)fTpcKMinus.Get(Form("h1Ratiocent_%i",iCent))->Clone(Form("tpcKMinus_%i",iCent));
+   }
+
+   fTpcPiPlus.Close();
+   fTpcPiMinus.Close();
+   fTpcKPlus.Close();
+   fTpcKMinus.Close();
 
    cout << "Done with loading all files ..." << endl;
 
