@@ -132,7 +132,7 @@ int main(int argc, char **argv)
 
       bool passTopologicalCuts = isGoodPair(t->rPt, t->rY, t->cosTheta, t->pRDca, t->kRDca, t->dca12, t->decayLength, t->dcaD0ToPv);
       bool passHft = t->kHft > 0 && t->pHft > 0;
-      bool passTpc = t->reco > 0;
+      bool passTpc = t->kTpc>0 && t->pTpc>0;
       float weight = t->pt * t->w;
 
       if (t->cent >= 7) // 0-10
