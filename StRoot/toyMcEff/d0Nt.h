@@ -62,6 +62,7 @@ public :
    Float_t         kRVy;
    Float_t         kRVz;
    Float_t         kRDca;
+   Float_t         kTpc;
    Float_t         pM;
    Float_t         pPt;
    Float_t         pEta;
@@ -77,6 +78,7 @@ public :
    Float_t         pRVy;
    Float_t         pRVz;
    Float_t         pRDca;
+   Float_t         pTpc;
    Float_t         kHft;
    Float_t         pHft;
 
@@ -122,6 +124,7 @@ public :
    TBranch        *b_kRVy;   //!
    TBranch        *b_kRVz;   //!
    TBranch        *b_kRDca;   //!
+   TBranch        *b_kTpc;   //!
    TBranch        *b_pM;   //!
    TBranch        *b_pPt;   //!
    TBranch        *b_pEta;   //!
@@ -137,6 +140,7 @@ public :
    TBranch        *b_pRVy;   //!
    TBranch        *b_pRVz;   //!
    TBranch        *b_pRDca;   //!
+   TBranch        *b_pTpc;   //!
    TBranch        *b_kHft;   //!
    TBranch        *b_pHft;   //!
 
@@ -266,6 +270,7 @@ void d0Nt::Init(TTree *tree)
    fChain->SetBranchAddress("kRVy", &kRVy, &b_kRVy);
    fChain->SetBranchAddress("kRVz", &kRVz, &b_kRVz);
    fChain->SetBranchAddress("kRDca", &kRDca, &b_kRDca);
+   fChain->SetBranchAddress("kTpc", &kTpc, &b_kTpc);
    fChain->SetBranchAddress("pM", &pM, &b_pM);
    fChain->SetBranchAddress("pPt", &pPt, &b_pPt);
    fChain->SetBranchAddress("pEta", &pEta, &b_pEta);
@@ -281,6 +286,7 @@ void d0Nt::Init(TTree *tree)
    fChain->SetBranchAddress("pRVy", &pRVy, &b_pRVy);
    fChain->SetBranchAddress("pRVz", &pRVz, &b_pRVz);
    fChain->SetBranchAddress("pRDca", &pRDca, &b_pRDca);
+   fChain->SetBranchAddress("pTpc", &pTpc, &b_pTpc);
    fChain->SetBranchAddress("kHft", &kHft, &b_kHft);
    fChain->SetBranchAddress("pHft", &pHft, &b_pHft);
    Notify();
