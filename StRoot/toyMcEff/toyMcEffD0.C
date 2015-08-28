@@ -98,7 +98,7 @@ TH1D* hTpcKMinus[nCent];
 
 string outFileName = "D0.toyMc.root";
 std::pair<int, int> const decayChannels(747, 807);
-std::pair<float, float> const momentumRange(0.3, 12);
+std::pair<float, float> const momentumRange(0, 12);
 
 float const gVzCut = 6.0e4;
 float const acceptanceRapidity = 1.0;
@@ -378,7 +378,7 @@ int getVzIndex(double Vz)
 
 int getPhiIndex(double Phi)
 {
-   for (int i = 0; i < nPtBins; i++)
+   for (int i = 0; i < nPhis; i++)
    {
       if ((Phi >= PhiEdge[i]) && (Phi < PhiEdge[i + 1]))
          return i;
