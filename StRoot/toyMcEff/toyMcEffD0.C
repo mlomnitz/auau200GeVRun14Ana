@@ -19,7 +19,6 @@
 #include "TFile.h"
 #include "TH1F.h"
 #include "TH1D.h"
-#include "TH2F.h"
 #include "TGraph.h"
 #include "TNtuple.h"
 #include "TMath.h"
@@ -95,6 +94,7 @@ string outFileName = "D0.toyMc.root";
 std::pair<int, int> const decayChannels(747, 807);
 std::pair<float, float> const momentumRange(0.3, 12);
 
+float const gVzCut = 6.0e4;
 float const acceptanceRapidity = 1.0;
 float const sigmaPos0 = 15.2;
 float const pxlLayer1Thickness = 0.00486;
@@ -402,8 +402,14 @@ TVector3 smearPosData(int const iParticleIndex, double const vz, int const cent,
 TVector3 getVertex(int const centrality)
 {
    double rdmVz;
+
    if (h1Vz[centrality]->GetEntries() == 0) rdmVz = 0.;
-   else rdmVz = h1Vz[centrality]->GetRandom() * 1e4;
+   else
+   {
+     do rdmVz = h1Vz[centrality]->GetRandom() * 1e4;
+     while ( fabs(rdmVz) > gVzCut);
+   }
+
    return TVector3(0., 0., rdmVz);
 }
 
