@@ -151,7 +151,7 @@ struct Hists
 
     if(hTotalPhysBinning)
     {
-      TH1* hEffPhysBinning = hPass->Rebin(anaCuts::physNPtBins,Form("hEffPhysBinning%s",name.Data()),(double*)anaCuts::physPtEdge);
+      TH1* hEffPhysBinning = hPass->Rebin(anaCuts::physNPtBins,Form("hEffPhysBinning%s",name.Data()),anaCuts::physPtEdge);
       hEffPhysBinning->SetTitle(Form("%s Eff. - Physics Binning",hPass->GetTitle()));
       hEffPhysBinning->Divide(hTotalPhysBinning);
       hEffPhysBinning->Write();
