@@ -45,6 +45,9 @@ TLorentzVector smearMom(TLorentzVector const& b, TF1 const * const fMomResolutio
 TVector3 smearPos(TLorentzVector const& mom, TLorentzVector const& rMom, TVector3 const& pos);
 TVector3 smearPosData(int iParticleIndex, double vz, int cent, TLorentzVector const& rMom, TVector3 const& pos);
 float dca(TVector3 const& p, TVector3 const& pos, TVector3 const& vertex);
+float dcaSigned(TVector3 const& p, TVector3 const& pos, TVector3 const& vertex);
+float dcaXY(TVector3 const& p, TVector3 const& pos, TVector3 const& vertex);
+float dcaZ(TVector3 const& p, TVector3 const& pos, TVector3 const& vertex);
 float dca1To2(TVector3 const& p1, TVector3 const& pos1, TVector3 const& p2, TVector3 const& pos2, TVector3& v0);
 TVector3 getVertex(int centrality);
 bool matchHft(int iParticleIndex, double vz, int cent, TLorentzVector const& mom);
@@ -311,6 +314,37 @@ float dca(TVector3 const& p, TVector3 const& pos, TVector3 const& vertex)
    return fabs(p.Cross(posDiff.Cross(p)).Unit().Dot(posDiff));
 }
 
+float dcaSigned(TVector3 const& p, TVector3 const& pos, TVector3 const& vertex)
+{
+  TVector3 posDiff = pos - vertex;
+  float sign = posDiff.x()*p.y()-posDiff.y()*p.x() > 0 ? +1 : -1; 
+ 
+  return sign*p.Cross(posDiff.Cross(p)).Unit().Dot(posDiff);
+}
+
+float dcaXY(TVector3 const& p, TVector3 const& pos, TVector3 const& vertex)
+{
+  TVector3 newPos(pos);
+  newPos.SetZ(0);
+ 
+  TVector3 newP(p);
+  newP.SetZ(0);
+
+  TVector3 newVertex(vertex);
+  vertex.SetZ(0);
+ 
+  TVector3 posDiff = newPos - newVertex;
+  float sign = posDiff.x()*p.y()-posDiff.y()*p.x() > 0 ? +1 : -1; 
+  return sign*newP.Cross(posDiff.Cross(newP)).Unit().Dot(posDiff);
+}
+
+float dcaZ(TVector3 const& p, TVector3 const& pos, TVector3 const& vertex)
+{
+  TVector3 posDiff = pos - vertex;
+  if(sin(p.Theta())==0) return 0;
+  else return (-posDiff.x()*cos(p.Phi())-posDiff.y()*sin(p.Phi()))*cos(p.Theta())/sin(p.Theta())+posDiff.z();
+}
+
 float dca1To2(TVector3 const& p1, TVector3 const& pos1, TVector3 const& p2, TVector3 const& pos2, TVector3& v0)
 {
    TVector3 posDiff = pos2 - pos1;
@@ -404,7 +438,7 @@ TVector3 smearPosData(int const iParticleIndex, double const vz, int const cent,
    TVector3 newPos(pos);
    newPos.SetZ(0);
    TVector3 momPerp(-rMom.Vect().Y(), rMom.Vect().X(), 0.0);
-   newPos += momPerp.Unit() * sigmaPosXY;
+   newPos -= momPerp.Unit() * sigmaPosXY;
 
    return TVector3(newPos.X(), newPos.Y(), pos.Z() + sigmaPosZ);
 }
