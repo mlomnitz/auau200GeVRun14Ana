@@ -9,6 +9,8 @@
  * **************************************************
  */
 
+#include "TString.h"
+
 namespace anaCuts
 {
    int   const nPtBins = 5;
@@ -21,6 +23,10 @@ namespace anaCuts
 
    float const massMin = 1.828;
    float const massMax = 1.892;
+
+   int const nCentralities = 4;
+   int const centralityEdges[nCentralities+1] = {0,3,5,6,9}; // 40-80, 20-40, 10-20, 0-10
+   TString const centralityName[nCentralities] = {"40-80%","20-40%","10-20%","0-10%"};
 
    float const dcaV0ToPv[nPtBins] = {61, 49, 38, 38, 40};
    float const decayLength[nPtBins] = {145, 181, 212, 247, 259};

@@ -57,6 +57,22 @@ int getD0PtIndex(float const pt)
    return bin;
 }
 
+int getD0CentIndex(float const cent)
+{
+   int bin = -1;
+
+   for (int i = 0; i < anaCuts::nCentralities; ++i)
+   {
+      if (cent <= anaCuts::centralityEdges[i + 1])
+      {
+         bin = i;
+         break;
+      }
+   }
+
+   return bin;
+}
+
 bool isGoodTrack(float const pt, float const eta)
 {
    return pt > anaCuts::pt && fabs(eta) < anaCuts::eta;
