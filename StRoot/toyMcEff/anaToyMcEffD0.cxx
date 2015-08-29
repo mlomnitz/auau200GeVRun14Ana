@@ -133,6 +133,8 @@ struct Hists
 
     hNoCuts->Fill(t->rPt,weight);
     hNoCutsPhysBinning->Fill(t->rPt,weight);
+    if (!isGoodTrack(t->kRPt, t->kREta) || !isGoodTrack(t->pRPt, t->pREta)) return;
+
     if(passTopologicalCuts) hTopoCuts->Fill(t->rPt,weight);
     if(passHft) hHftMatchingOnly->Fill(t->rPt,weight);
     if(passTpc) hTpcOnly->Fill(t->rPt,weight);
@@ -208,6 +210,7 @@ struct TopoHists
 
   void fill(d0Nt* t)
   {
+    if (!isGoodTrack(t->kRPt, t->kREta) || !isGoodTrack(t->pRPt, t->pREta)) return;
     if (t->rM <  anaCuts::massMin || t->rM > anaCuts::massMax) return;
     bool passHft = t->kHft > 0 && t->pHft > 0;
     if (!passHft) return;
@@ -291,7 +294,6 @@ int main(int argc, char **argv)
       if (i && i % 1000000 == 0) cout << static_cast<float>(i) / nEntries << endl;
 
       if (fabs(t->y) > anaCuts::rapidity) continue;
-      if (!isGoodTrack(t->kRPt, t->kREta) || !isGoodTrack(t->pRPt, t->pREta)) continue;
 
       int d0CentBin = getD0CentIndex(t->cent);
       if(d0CentBin<0) continue;
