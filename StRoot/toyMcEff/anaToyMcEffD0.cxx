@@ -39,6 +39,7 @@
 #include "TProfile.h"
 #include "TTree.h"
 #include "TNtuple.h"
+#include "TGraphAsymmErrors.h"
 #endif
 
 #include "d0Nt.h"
@@ -91,43 +92,183 @@ bool isGoodPair(float const pt, float const y, float const cosTheta, float const
           dcaV0ToPv < anaCuts::dcaV0ToPv[tmpIndex];
 }
 
+struct Hists
+{
+  int centrality;
+  TH1D* hNoCuts;
+  TH1D* hTopoCuts;
+  TH1D* hHftMatchingOnly;
+  TH1D* hTpcOnly;
+  TH1D* hTpcHftTopo;
+
+  Hists(int cent)
+  {
+    centrality = cent;
+
+    int nBins = 60;
+    float minPt = 0.;
+    float maxPt = 12.;
+    hNoCuts = new TH1D(Form("hNoCuts_%i",cent),Form("No Cuts %s",anaCuts::centralityName[cent].Data()),nBins,minPt,maxPt);
+    hTopoCuts = new TH1D(Form("hTopoCuts_%i",cent),Form("Topo Cuts %s",anaCuts::centralityName[cent].Data()),nBins,minPt,maxPt);
+    hHftMatchingOnly = new TH1D(Form("hHftMatchingOnly_%i",cent),Form("HFT Matching Only %s",anaCuts::centralityName[cent].Data()),nBins,minPt,maxPt);
+    hTpcOnly = new TH1D(Form("hTpcOnly_%i",cent),Form("TPC Only %s",anaCuts::centralityName[cent].Data()),nBins,minPt,maxPt);
+    hTpcHftTopo = new TH1D(Form("hTpcHftTopo_%i",cent),Form("TPC + HFT + Topo %s",anaCuts::centralityName[cent].Data()),nBins,minPt,maxPt);
+
+    hNoCuts->Sumw2();
+    hTopoCuts->Sumw2();
+    hHftMatchingOnly->Sumw2();
+    hTpcOnly->Sumw2();
+    hTpcHftTopo->Sumw2();
+  }
+
+  void fill(d0Nt const* const t)
+  {
+    bool passTopologicalCuts = isGoodPair(t->rPt, t->rY, t->cosTheta, t->pRDca, t->kRDca, t->dca12, t->decayLength, t->dcaD0ToPv);
+    bool passHft = t->kHft > 0 && t->pHft > 0;
+    bool passTpc = t->kTpc>0 && t->pTpc>0;
+    float weight = t->pt * t->w;
+
+    hNoCuts->Fill(t->rPt,weight);
+    if(passTopologicalCuts) hTopoCuts->Fill(t->rPt,weight);
+    if(passHft) hHftMatchingOnly->Fill(t->rPt,weight);
+    if(passTpc) hTpcOnly->Fill(t->rPt,weight);
+    if(passTpc && passHft && passTopologicalCuts) hTpcHftTopo->Fill(t->rPt,weight);
+  }
+
+  void makeEffciency(TFile* fOut, TH1D* hPass,TH1D* hTotal)
+  {
+    TH1D* hEff = (TH1D*)hPass->Clone(Form("%sEff",hPass->GetName()));
+    hEff->SetTitle(Form("%s Eff",hPass->GetTitle()));
+    hEff->Divide(hTotal);
+
+    TGraphAsymmErrors* grEff = new TGraphAsymmErrors(hPass,hTotal);
+    TString name = hPass->GetName();
+    name.Replace(0,1,"");
+    grEff->SetName(Form("gr%sEff",name.Data()));
+    grEff->SetTitle(Form("%s Eff",hPass->GetTitle()));
+
+    fOut->cd();
+    hEff->Write();
+    grEff->Write();
+  }
+
+  void write(TFile* fOut)
+  {
+    hNoCuts->Write();
+    hTopoCuts->Write();
+    hHftMatchingOnly->Write();
+    hTpcOnly->Write();
+    hTpcHftTopo->Write();
+    makeEffciency(fOut,hTopoCuts,hNoCuts);
+    makeEffciency(fOut,hHftMatchingOnly,hNoCuts);
+    makeEffciency(fOut,hTpcOnly,hNoCuts);
+    makeEffciency(fOut,hTpcHftTopo,hNoCuts);
+  }
+};
+
+struct TopoHists
+{
+  TH3F* mcPointingAngle;
+  TH3F* mcDecayL;
+  TH3F* mcDca12;
+  TH3F* mcPionDca2Vtx;
+  TH3F* mcKaonDca2Vtx;
+  TH3F* mcD0Dca2Vtx;
+  
+  TopoHists()
+  {
+    mcPointingAngle = new TH3F(Form("%s_se_us_pointingangle", "mc"), "Same Event US pointing angle; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 1000, 0.9, 1.0);
+    mcDecayL = new TH3F(Form("%s_se_us_decayL", "mc"), "Same Event US Decay Length; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.1);
+    mcDca12 = new TH3F(Form("%s_se_us_dcaDaughters", "mc"), "Same Event US dca daughters; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.05);
+    mcPionDca2Vtx = new TH3F(Form("%s_se_us_pionDca", "mc"), "Same Event #pi dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.2);
+    mcKaonDca2Vtx = new TH3F(Form("%s_se_us_kaonDca", "mc"), "Same Event US K dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.2);
+    mcD0Dca2Vtx = new TH3F(Form("%s_se_us_D0Dca2Vtx", "mc"), "SameEvent US D0 dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.05);
+
+    mcPointingAngle->Sumw2();
+    mcDecayL->Sumw2();
+    mcDca12->Sumw2();
+    mcPionDca2Vtx->Sumw2();
+    mcKaonDca2Vtx->Sumw2();
+    mcD0Dca2Vtx->Sumw2();
+  }
+
+  void fill(d0Nt* t)
+  {
+    if (t->rM <  anaCuts::massMin || t->rM > anaCuts::massMax) return;
+    bool passHft = t->kHft > 0 && t->pHft > 0;
+    if (!passHft) return;
+
+    float weight = t->pt * t->w;
+    int ptIndex = getD0PtIndex(t->rPt);
+
+    //Cos theta
+    if (t->pRDca > anaCuts::pDca[ptIndex] && t->kRDca > anaCuts::kDca[ptIndex] &&
+        t->dca12 < anaCuts::dcaDaughters[ptIndex] && t->decayLength > anaCuts::decayLength[ptIndex] &&
+        //std::cos(t->pointingAngle()) > anaCuts::cosTheta[ptIndex] &&
+        t->dcaD0ToPv < anaCuts::dcaV0ToPv[ptIndex]) mcPointingAngle->Fill(t->rPt, t->cent,  t->cosTheta, weight);
+
+    //DecayL
+    if (t->pRDca > anaCuts::pDca[ptIndex] && t->kRDca > anaCuts::kDca[ptIndex] &&
+        t->dca12 < anaCuts::dcaDaughters[ptIndex] &&
+        //t->decayLength() > anaCuts::decayLength[ptIndex] &&
+        t->cosTheta > anaCuts::cosTheta[ptIndex] && t->dcaD0ToPv < anaCuts::dcaV0ToPv[ptIndex]) mcDecayL->Fill(t->rPt, t->cent, t->decayLength/1.e4, weight);
+
+    //DcaDaughter
+    if (t->pRDca > anaCuts::pDca[ptIndex] && t->kRDca > anaCuts::kDca[ptIndex] &&
+        //t->dca12 < anaCuts::dcaDaughters[ptIndex] &&
+        t->decayLength > anaCuts::decayLength[ptIndex] &&
+        t->cosTheta > anaCuts::cosTheta[ptIndex] &&
+        t->dcaD0ToPv < anaCuts::dcaV0ToPv[ptIndex])
+      mcDca12->Fill(t->rPt, t->cent, t->dca12/1.e4, weight);
+
+    //PionDca
+    if (//t->pRDca > anaCuts::pDca[ptIndex] &&
+        t->kRDca > anaCuts::kDca[ptIndex] &&
+        t->dca12 < anaCuts::dcaDaughters[ptIndex] && t->decayLength > anaCuts::decayLength[ptIndex] &&
+        t->cosTheta > anaCuts::cosTheta[ptIndex] && t->dcaD0ToPv < anaCuts::dcaV0ToPv[ptIndex]) mcPionDca2Vtx->Fill(t->rPt, t->cent, t->pRDca/1.e4, weight);
+
+    //Kaon Dca
+    if (t->pRDca > anaCuts::pDca[ptIndex] &&
+        //t->kRDca > anaCuts::kDca[ptIndex] &&
+        t->dca12 < anaCuts::dcaDaughters[ptIndex] &&
+        t->decayLength > anaCuts::decayLength[ptIndex] && t->cosTheta > anaCuts::cosTheta[ptIndex] &&
+        t->dcaD0ToPv < anaCuts::dcaV0ToPv[ptIndex]) mcKaonDca2Vtx->Fill(t->rPt, t->cent,  t->kRDca/1.e4, weight);
+
+    //D0 dca
+    if (t->pRDca > anaCuts::pDca[ptIndex] && t->kRDca > anaCuts::kDca[ptIndex] &&
+        t->dca12 < anaCuts::dcaDaughters[ptIndex] && t->decayLength > anaCuts::decayLength[ptIndex] &&
+        t->cosTheta > anaCuts::cosTheta[ptIndex]) mcD0Dca2Vtx->Fill(t->rPt, t->cent, t->dcaD0ToPv/1.e4, weight);
+
+  }
+
+  void write(TFile* fOut)
+  {
+    fOut->cd();
+    mcPointingAngle->Write();
+    mcDecayL->Write();
+    mcDca12->Write();
+    mcPionDca2Vtx->Write();
+    mcKaonDca2Vtx->Write();
+    mcD0Dca2Vtx->Write();
+  }
+};
+
 int main(int argc, char **argv)
 {
    d0Nt* t = new d0Nt();
 
    TFile* fOut = new TFile("eff.root", "recreate");
 
-   TH1D* noCuts010 = new TH1D("noCuts010", "", 60, 0, 12);
-   TH1D* noCuts4080 = new TH1D("noCuts4080", "", 60, 0, 12);
-
-   TH1D* topoOnly010 = new TH1D("topoOnly010", "", 60, 0, 12);
-   TH1D* topoOnly4080 = new TH1D("topoOnly4080", "", 60, 0, 12);
-
-   TH1D* hftOnly010 = new TH1D("hftOnly010", "", 60, 0, 12);
-   TH1D* hftOnly4080 = new TH1D("hftOnly4080", "", 60, 0, 12);
-
-   TH1D* hftTopo010 = new TH1D("hftTopo010", "", 60, 0, 12);
-   TH1D* hftTopo4080 = new TH1D("hftTopo4080", "", 60, 0, 12);
-
-   TH1D* hftTpc010 = new TH1D("hftTpc010", "", 60, 0, 12);
-   TH1D* hftTpc4080 = new TH1D("hftTpc4080", "", 60, 0, 12);
-
-   TH3F* mcPointingAngle = new TH3F(Form("%s_se_us_pointingangle", "mc"), "Same Event US pointing angle; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 1000, 0.9, 1.0);
-   TH3F* mcDecayL = new TH3F(Form("%s_se_us_decayL", "mc"), "Same Event US Decay Length; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.1);
-   TH3F* mcDca12 = new TH3F(Form("%s_se_us_dcaDaughters", "mc"), "Same Event US dca daughters; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.05);
-   TH3F* mcPionDca2Vtx = new TH3F(Form("%s_se_us_pionDca", "mc"), "Same Event #pi dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.2);
-   TH3F* mcKaonDca2Vtx = new TH3F(Form("%s_se_us_kaonDca", "mc"), "Same Event US K dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.2);
-   TH3F* mcD0Dca2Vtx = new TH3F(Form("%s_se_us_D0Dca2Vtx", "mc"), "SameEvent US D0 dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.05);
-
-   mcPointingAngle->Sumw2();
-   mcDecayL->Sumw2();
-   mcDca12->Sumw2();
-   mcPionDca2Vtx->Sumw2();
-   mcKaonDca2Vtx->Sumw2();
-   mcD0Dca2Vtx->Sumw2();
-
    Long64_t nEntries = t->GetEntries();
    cout << "nEntries = " << nEntries << endl;
+
+   std::vector<Hists> hists;
+   TopoHists          topoHists;
+
+   for(int iCent = 0; iCent < anaCuts::nCentralities; ++iCent)
+   {
+     hists.push_back(Hists(iCent));
+   }
 
    for (Long64_t i = 0; i < t->GetEntries(); ++i)
    {
@@ -136,120 +277,20 @@ int main(int argc, char **argv)
       if (i && i % 1000000 == 0) cout << static_cast<float>(i) / nEntries << endl;
 
       if (fabs(t->y) > anaCuts::rapidity) continue;
-
-      // if (!(t->cent >= 7 || t->cent < 4)) continue;
-
-      // fill denominator histograms
-      if (t->cent >= 7) noCuts010->Fill(t->rPt);
-      else if (t->cent < 4) noCuts4080->Fill(t->rPt);
-
       if (!isGoodTrack(t->kRPt, t->kREta) || !isGoodTrack(t->pRPt, t->pREta)) continue;
 
+      int d0CentBin = getD0CentIndex(t->cent);
+      if(d0CentBin<0) continue;
+      hists[d0CentBin].fill(t);
 
-      bool passTopologicalCuts = isGoodPair(t->rPt, t->rY, t->cosTheta, t->pRDca, t->kRDca, t->dca12, t->decayLength, t->dcaD0ToPv);
-      bool passHft = t->kHft > 0 && t->pHft > 0;
-      bool passTpc = t->kTpc>0 && t->pTpc>0;
-      float weight = t->pt * t->w;
+      topoHists.fill(t);
+   }
 
-      if (t->cent >= 7) // 0-10
-      {
-        if (passHft) hftOnly010->Fill(t->rPt);
-        if (passTopologicalCuts) topoOnly010->Fill(t->rPt);
-        if (passTopologicalCuts && passHft) hftTopo010->Fill(t->rPt);
-        if (passTopologicalCuts && passHft && passTpc) hftTpc010->Fill(t->rPt);
-      }
-      else if (t->cent < 4) // 40-80
-      {
-        if (passHft) hftOnly4080->Fill(t->rPt);
-        if (passTopologicalCuts) topoOnly4080->Fill(t->rPt);
-        if (passTopologicalCuts && passHft) hftTopo4080->Fill(t->rPt);
-        if (passTopologicalCuts && passHft && passTpc) hftTpc4080->Fill(t->rPt);
-      }
-      
-      // a block to fill the topoligical variables distributions will be cleaned up later
-      if (!passHft) continue;
-      if (t->rM <  anaCuts::massMin || t->rM > anaCuts::massMax) continue;
+   for(int iCent = 0; iCent < anaCuts::nCentralities; ++iCent)
+   {
+     hists[iCent].write(fOut);
+   }
 
-      int ptIndex = getD0PtIndex(t->rPt);
-
-      //Cos theta
-      if (t->pRDca > anaCuts::pDca[ptIndex] && t->kRDca > anaCuts::kDca[ptIndex] &&
-          t->dca12 < anaCuts::dcaDaughters[ptIndex] && t->decayLength > anaCuts::decayLength[ptIndex] &&
-          //std::cos(t->pointingAngle()) > anaCuts::cosTheta[ptIndex] &&
-          t->dcaD0ToPv < anaCuts::dcaV0ToPv[ptIndex]) mcPointingAngle->Fill(t->rPt, t->cent,  t->cosTheta, weight);
-
-      //DecayL
-      if (t->pRDca > anaCuts::pDca[ptIndex] && t->kRDca > anaCuts::kDca[ptIndex] &&
-          t->dca12 < anaCuts::dcaDaughters[ptIndex] &&
-          //t->decayLength() > anaCuts::decayLength[ptIndex] &&
-          t->cosTheta > anaCuts::cosTheta[ptIndex] && t->dcaD0ToPv < anaCuts::dcaV0ToPv[ptIndex]) mcDecayL->Fill(t->rPt, t->cent, t->decayLength/1.e4, weight);
-
-      //DcaDaughter
-      if (t->pRDca > anaCuts::pDca[ptIndex] && t->kRDca > anaCuts::kDca[ptIndex] &&
-          //t->dca12 < anaCuts::dcaDaughters[ptIndex] &&
-          t->decayLength > anaCuts::decayLength[ptIndex] &&
-          t->cosTheta > anaCuts::cosTheta[ptIndex] &&
-          t->dcaD0ToPv < anaCuts::dcaV0ToPv[ptIndex])
-        mcDca12->Fill(t->rPt, t->cent, t->dca12/1.e4, weight);
-
-      //PionDca
-      if (//t->pRDca > anaCuts::pDca[ptIndex] &&
-          t->kRDca > anaCuts::kDca[ptIndex] &&
-          t->dca12 < anaCuts::dcaDaughters[ptIndex] && t->decayLength > anaCuts::decayLength[ptIndex] &&
-          t->cosTheta > anaCuts::cosTheta[ptIndex] && t->dcaD0ToPv < anaCuts::dcaV0ToPv[ptIndex]) mcPionDca2Vtx->Fill(t->rPt, t->cent, t->pRDca/1.e4, weight);
-
-      //Kaon Dca
-      if (t->pRDca > anaCuts::pDca[ptIndex] &&
-          //t->kRDca > anaCuts::kDca[ptIndex] &&
-          t->dca12 < anaCuts::dcaDaughters[ptIndex] &&
-          t->decayLength > anaCuts::decayLength[ptIndex] && t->cosTheta > anaCuts::cosTheta[ptIndex] &&
-          t->dcaD0ToPv < anaCuts::dcaV0ToPv[ptIndex]) mcKaonDca2Vtx->Fill(t->rPt, t->cent,  t->kRDca/1.e4, weight);
-
-      //D0 dca
-      if (t->pRDca > anaCuts::pDca[ptIndex] && t->kRDca > anaCuts::kDca[ptIndex] &&
-          t->dca12 < anaCuts::dcaDaughters[ptIndex] && t->decayLength > anaCuts::decayLength[ptIndex] &&
-          t->cosTheta > anaCuts::cosTheta[ptIndex]) mcD0Dca2Vtx->Fill(t->rPt, t->cent, t->dcaD0ToPv/1.e4, weight);
-   } // end event looping
-
-   noCuts010->Scale(1 / 2.);
-   topoOnly010->Scale(1 / 2.);
-   hftOnly010->Scale(1 / 2.);
-   hftTopo010->Scale(1 / 2.);
-   hftTpc010->Scale(1 / 2.);
-
-   noCuts4080->Scale(1 / 4.);
-   topoOnly4080->Scale(1. / 4.);
-   hftOnly4080->Scale(1. / 4.);
-   hftTopo4080->Scale(1 / 4.);
-   hftTpc4080->Scale(1. / 4.);
-
-   noCuts010->Sumw2();
-   noCuts4080->Sumw2();
-   topoOnly010->Sumw2();
-   topoOnly4080->Sumw2();
-   hftOnly010->Sumw2();
-   hftOnly4080->Sumw2();
-   hftTopo010->Sumw2();
-   hftTopo4080->Sumw2();
-   hftTpc010->Sumw2();
-   hftTpc4080->Sumw2();
-
-   fOut->cd();
-   noCuts010->Write();
-   noCuts4080->Write();
-   topoOnly010->Write();
-   topoOnly4080->Write();
-   hftOnly010->Write();
-   hftOnly4080->Write();
-   hftTopo010->Write();
-   hftTopo4080->Write();
-   hftTpc010->Write();
-   hftTpc4080->Write();
-   mcPointingAngle->Write();
-   mcDecayL->Write();
-   mcDca12->Write();
-   mcPionDca2Vtx->Write();
-   mcKaonDca2Vtx->Write();
-   mcD0Dca2Vtx->Write();
+   topoHists.write(fOut);
    fOut->Close();
 }
