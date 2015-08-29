@@ -331,7 +331,7 @@ float dcaXY(TVector3 const& p, TVector3 const& pos, TVector3 const& vertex)
   newP.SetZ(0);
 
   TVector3 newVertex(vertex);
-  vertex.SetZ(0);
+  newVertex.SetZ(0);
  
   TVector3 posDiff = newPos - newVertex;
   float sign = posDiff.x()*p.y()-posDiff.y()*p.x() > 0 ? +1 : -1; 
