@@ -37,6 +37,6 @@ namespace anaCuts
    TString const physCentralityName[physNCentralities] = {"40-80%","20-40%","10-20%","0-10%"};
 
    int   const physNPtBins = 7;
-   float const physPtEdge[physNPtBins+1] = {0., 1., 2., 3., 4., 5., 7., 12.};
+   double const physPtEdge[physNPtBins+1] = {0., 1., 2., 3., 4., 5., 7., 12.};
 }
 #endif
