@@ -33,6 +33,7 @@
 #include "TF1.h"
 #include "TH1F.h"
 #include "TH1D.h"
+#include "TH2D.h"
 #include "TH3F.h"
 #include "TStyle.h"
 #include "TCanvas.h"
@@ -101,6 +102,7 @@ struct Hists
   TH1D* hHftMatchingOnly;
   TH1D* hTpcOnly;
   TH1D* hTpcHftTopo;
+  TH2D* h2MassPt;
 
   Hists(int cent)
   {
@@ -115,6 +117,7 @@ struct Hists
     hHftMatchingOnly = new TH1D(Form("hHftMatchingOnly_%i",cent),Form("HFT Matching Only %s",anaCuts::physCentralityName[cent].Data()),nBins,minPt,maxPt);
     hTpcOnly = new TH1D(Form("hTpcOnly_%i",cent),Form("TPC Only %s",anaCuts::physCentralityName[cent].Data()),nBins,minPt,maxPt);
     hTpcHftTopo = new TH1D(Form("hTpcHftTopo_%i",cent),Form("TPC + HFT + Topo %s",anaCuts::physCentralityName[cent].Data()),nBins,minPt,maxPt);
+    h2MassPt = new TH2D(Form("h2MassPt_%i",cent),Form("Invariant Mass vs. Pt %s",anaCuts::physCentralityName[cent].Data()),nBins,minPt,maxPt,210,0,2.1);
 
     hNoCuts->Sumw2();
     hNoCutsPhysBinning->Sumw2();
@@ -122,6 +125,7 @@ struct Hists
     hHftMatchingOnly->Sumw2();
     hTpcOnly->Sumw2();
     hTpcHftTopo->Sumw2();
+    h2MassPt->Sumw2();
   }
 
   void fill(d0Nt const* const t)
@@ -138,7 +142,11 @@ struct Hists
     if(passTopologicalCuts) hTopoCuts->Fill(t->rPt,weight);
     if(passHft) hHftMatchingOnly->Fill(t->rPt,weight);
     if(passTpc) hTpcOnly->Fill(t->rPt,weight);
-    if(passTpc && passHft && passTopologicalCuts) hTpcHftTopo->Fill(t->rPt,weight);
+    if(passTpc && passHft && passTopologicalCuts) 
+    {
+      hTpcHftTopo->Fill(t->rPt,weight);
+      h2MassPt->Fill(t->rPt,t->rM,weight);
+    }
   }
 
   void makeEffciency(TFile* fOut, TH1D* hPass,TH1D* hTotal,TH1D* hTotalPhysBinning=NULL,bool graphAsym=false)
@@ -175,6 +183,7 @@ struct Hists
     hHftMatchingOnly->Write();
     hTpcOnly->Write();
     hTpcHftTopo->Write();
+    h2MassPt->Write();
     makeEffciency(fOut,hTopoCuts,hNoCuts,hNoCutsPhysBinning);
     makeEffciency(fOut,hHftMatchingOnly,hNoCuts,hNoCutsPhysBinning);
     makeEffciency(fOut,hTpcOnly,hNoCuts,hNoCutsPhysBinning);
