@@ -62,9 +62,9 @@ int getD0CentIndex(float const cent)
 {
    int bin = -1;
 
-   for (int i = 0; i < anaCuts::nCentralities; ++i)
+   for (int i = 0; i < anaCuts::physNCentralities; ++i)
    {
-      if (cent <= anaCuts::centralityEdges[i + 1])
+      if (cent <= anaCuts::physCentralityEdges[i + 1])
       {
          bin = i;
          break;
@@ -96,6 +96,7 @@ struct Hists
 {
   int centrality;
   TH1D* hNoCuts;
+  TH1D* hNoCutsPhysBinning;
   TH1D* hTopoCuts;
   TH1D* hHftMatchingOnly;
   TH1D* hTpcOnly;
@@ -108,13 +109,15 @@ struct Hists
     int nBins = 60;
     float minPt = 0.;
     float maxPt = 12.;
-    hNoCuts = new TH1D(Form("hNoCuts_%i",cent),Form("No Cuts %s",anaCuts::centralityName[cent].Data()),nBins,minPt,maxPt);
-    hTopoCuts = new TH1D(Form("hTopoCuts_%i",cent),Form("Topo Cuts %s",anaCuts::centralityName[cent].Data()),nBins,minPt,maxPt);
-    hHftMatchingOnly = new TH1D(Form("hHftMatchingOnly_%i",cent),Form("HFT Matching Only %s",anaCuts::centralityName[cent].Data()),nBins,minPt,maxPt);
-    hTpcOnly = new TH1D(Form("hTpcOnly_%i",cent),Form("TPC Only %s",anaCuts::centralityName[cent].Data()),nBins,minPt,maxPt);
-    hTpcHftTopo = new TH1D(Form("hTpcHftTopo_%i",cent),Form("TPC + HFT + Topo %s",anaCuts::centralityName[cent].Data()),nBins,minPt,maxPt);
+    hNoCuts = new TH1D(Form("hNoCuts_%i",cent),Form("No Cuts %s",anaCuts::physCentralityName[cent].Data()),nBins,minPt,maxPt);
+    hNoCutsPhysBinning = new TH1D(Form("hNoCutsPhysBinning_%i",cent),Form("No Cuts Physics Binning %s",anaCuts::physCentralityName[cent].Data()),anaCuts::physNPtBins,anaCuts::physPtEdge);
+    hTopoCuts = new TH1D(Form("hTopoCuts_%i",cent),Form("Topo Cuts %s",anaCuts::physCentralityName[cent].Data()),nBins,minPt,maxPt);
+    hHftMatchingOnly = new TH1D(Form("hHftMatchingOnly_%i",cent),Form("HFT Matching Only %s",anaCuts::physCentralityName[cent].Data()),nBins,minPt,maxPt);
+    hTpcOnly = new TH1D(Form("hTpcOnly_%i",cent),Form("TPC Only %s",anaCuts::physCentralityName[cent].Data()),nBins,minPt,maxPt);
+    hTpcHftTopo = new TH1D(Form("hTpcHftTopo_%i",cent),Form("TPC + HFT + Topo %s",anaCuts::physCentralityName[cent].Data()),nBins,minPt,maxPt);
 
     hNoCuts->Sumw2();
+    hNoCutsPhysBinning->Sumw2();
     hTopoCuts->Sumw2();
     hHftMatchingOnly->Sumw2();
     hTpcOnly->Sumw2();
@@ -129,27 +132,38 @@ struct Hists
     float weight = t->pt * t->w;
 
     hNoCuts->Fill(t->rPt,weight);
+    hNoCutsPhysBinning->Fill(t->rPt,weight);
     if(passTopologicalCuts) hTopoCuts->Fill(t->rPt,weight);
     if(passHft) hHftMatchingOnly->Fill(t->rPt,weight);
     if(passTpc) hTpcOnly->Fill(t->rPt,weight);
     if(passTpc && passHft && passTopologicalCuts) hTpcHftTopo->Fill(t->rPt,weight);
   }
 
-  void makeEffciency(TFile* fOut, TH1D* hPass,TH1D* hTotal)
+  void makeEffciency(TFile* fOut, TH1D* hPass,TH1D* hTotal,TH1D* hTotalPhysBinning=NULL,bool graphAsym=false)
   {
-    TH1D* hEff = (TH1D*)hPass->Clone(Form("%sEff",hPass->GetName()));
-    hEff->SetTitle(Form("%s Eff",hPass->GetTitle()));
-    hEff->Divide(hTotal);
-
-    TGraphAsymmErrors* grEff = new TGraphAsymmErrors(hPass,hTotal);
+    fOut->cd();
     TString name = hPass->GetName();
     name.Replace(0,1,"");
-    grEff->SetName(Form("gr%sEff",name.Data()));
-    grEff->SetTitle(Form("%s Eff",hPass->GetTitle()));
-
-    fOut->cd();
+    TH1D* hEff = (TH1D*)hPass->Clone(Form("hEff%s",name.Data()));
+    hEff->SetTitle(Form("%s Eff.",hPass->GetTitle()));
+    hEff->Divide(hTotal);
     hEff->Write();
-    grEff->Write();
+
+    if(hTotalPhysBinning)
+    {
+      TH1* hEffPhysBinning = hPass->Rebin(anaCuts::physNPtBins,Form("hEffPhysBinning%s",name.Data()),(double*)anaCuts::physPtEdge);
+      hEffPhysBinning->SetTitle(Form("%s Eff. - Physics Binning",hPass->GetTitle()));
+      hEffPhysBinning->Divide(hTotalPhysBinning);
+      hEffPhysBinning->Write();
+    }
+
+    if(graphAsym)
+    {
+      TGraphAsymmErrors* grEff = new TGraphAsymmErrors(hPass,hTotal);
+      grEff->SetName(Form("grEff%s",name.Data()));
+      grEff->SetTitle(Form("%s Eff.",hPass->GetTitle()));
+      grEff->Write();
+    }
   }
 
   void write(TFile* fOut)
@@ -159,10 +173,10 @@ struct Hists
     hHftMatchingOnly->Write();
     hTpcOnly->Write();
     hTpcHftTopo->Write();
-    makeEffciency(fOut,hTopoCuts,hNoCuts);
-    makeEffciency(fOut,hHftMatchingOnly,hNoCuts);
-    makeEffciency(fOut,hTpcOnly,hNoCuts);
-    makeEffciency(fOut,hTpcHftTopo,hNoCuts);
+    makeEffciency(fOut,hTopoCuts,hNoCuts,hNoCutsPhysBinning);
+    makeEffciency(fOut,hHftMatchingOnly,hNoCuts,hNoCutsPhysBinning);
+    makeEffciency(fOut,hTpcOnly,hNoCuts,hNoCutsPhysBinning);
+    makeEffciency(fOut,hTpcHftTopo,hNoCuts,hNoCutsPhysBinning);
   }
 };
 
@@ -265,7 +279,7 @@ int main(int argc, char **argv)
    std::vector<Hists> hists;
    TopoHists          topoHists;
 
-   for(int iCent = 0; iCent < anaCuts::nCentralities; ++iCent)
+   for(int iCent = 0; iCent < anaCuts::physNCentralities; ++iCent)
    {
      hists.push_back(Hists(iCent));
    }
@@ -286,7 +300,7 @@ int main(int argc, char **argv)
       topoHists.fill(t);
    }
 
-   for(int iCent = 0; iCent < anaCuts::nCentralities; ++iCent)
+   for(int iCent = 0; iCent < anaCuts::physNCentralities; ++iCent)
    {
      hists[iCent].write(fOut);
    }

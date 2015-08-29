@@ -24,15 +24,19 @@ namespace anaCuts
    float const massMin = 1.828;
    float const massMax = 1.892;
 
-   int const nCentralities = 4;
-   int const centralityEdges[nCentralities+1] = {0,3,5,6,9}; // 40-80, 20-40, 10-20, 0-10
-   TString const centralityName[nCentralities] = {"40-80%","20-40%","10-20%","0-10%"};
-
    float const dcaV0ToPv[nPtBins] = {61, 49, 38, 38, 40};
    float const decayLength[nPtBins] = {145, 181, 212, 247, 259};
    float const cosTheta[nPtBins] = {0.0000, 0.0000, 0.0000, 0.0000, 0.0000};//0.995
    float const dcaDaughters[nPtBins] = {84, 66, 57, 50, 60}; //0.0050;
    float const kDca[nPtBins] = {103, 91, 95, 79, 58};//0.008, // minimum
    float const pDca[nPtBins] = {110, 111, 86, 81, 62};//0.008
+
+   // all variables with a phys prefix are for final physics plots
+   int const physNCentralities = 4;
+   int const physCentralityEdges[physNCentralities+1] = {0,3,5,6,9}; // 40-80, 20-40, 10-20, 0-10
+   TString const physCentralityName[physNCentralities] = {"40-80%","20-40%","10-20%","0-10%"};
+
+   int   const physNPtBins = 7;
+   float const physPtEdge[physNPtBins+1] = {0., 1., 2., 3., 4., 5., 7., 12.};
 }
 #endif
