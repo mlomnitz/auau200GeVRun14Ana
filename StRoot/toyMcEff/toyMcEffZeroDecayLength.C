@@ -99,7 +99,7 @@ TH1D* hTpcPiMinus[nCent];
 TH1D* hTpcKPlus[nCent];
 TH1D* hTpcKMinus[nCent];
 
-string outFileName = "D0.toyMc.root";
+string outFileName = "D0.zeroDecayLength.toyMc.root";
 std::pair<int, int> const decayChannels(747, 807);
 std::pair<float, float> const momentumRange(0, 12);
 
@@ -110,7 +110,7 @@ float const pxlLayer1Thickness = 0.00486;
 float const sigmaVertexCent[nCent] = {31., 18.1, 12.8, 9.3, 7.2, 5.9, 5., 4.6, 4.};
 
 //============== main  program ==================
-void toyMcEffD0(int npart = 100)
+void toyMcEffZeroDecayLength(int npart = 100)
 {
    gRandom->SetSeed();
    bookObjects();
@@ -549,7 +549,7 @@ void bookObjects()
 
    cout << "Loading input HFT ratios and DCA ..." << endl;
    TFile fHftRatio1("HFT_Ratio_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
-   TFile fDca1("Dca_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
+   TFile fDca1("NoBinWidth_Dca_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
    for (int iParticle = 0; iParticle < nParticles; ++iParticle)
    {
       for (int iEta = 0; iEta < nEtas; ++iEta)

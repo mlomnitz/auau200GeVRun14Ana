@@ -536,7 +536,7 @@ void bookObjects()
 
    cout << "Loading input HFT ratios and DCA ..." << endl;
    TFile fHftRatio1("HFT_Ratio_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
-   TFile fDca1("Dca_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
+   TFile fDca1("NoBinWidth_Dca_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
    for (int iParticle = 0; iParticle < nParticles; ++iParticle)
    {
       for (int iEta = 0; iEta < nEtas; ++iEta)
