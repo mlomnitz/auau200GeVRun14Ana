@@ -197,16 +197,16 @@ int main(int argc, char **argv)
 
       if(isGoodTrack(t->pREta) && t->pHft>0)
       {
-        h1Dca[0][getEtaIndex(t->pREta)][vzIdx][(int)t->cent][getPtIndex(t->pRPt)]->Fill(t->pRSDca);
-        h1DcaZ[0][getEtaIndex(t->pREta)][vzIdx][(int)t->cent][getPtIndex(t->pRPt)]->Fill(t->pRDcaZ);
-        h1DcaXY[0][getEtaIndex(t->pREta)][vzIdx][(int)t->cent][getPtIndex(t->pRPt)]->Fill(t->pRDcaXY);
+        h1Dca[0][getEtaIndex(t->pREta)][vzIdx][(int)t->cent][getPtIndex(t->pRPt)]->Fill(t->pRSDca/1.e4);
+        h1DcaZ[0][getEtaIndex(t->pREta)][vzIdx][(int)t->cent][getPtIndex(t->pRPt)]->Fill(t->pRDcaZ/1.e4);
+        h1DcaXY[0][getEtaIndex(t->pREta)][vzIdx][(int)t->cent][getPtIndex(t->pRPt)]->Fill(t->pRDcaXY/1.e4);
       }
 
       if(isGoodTrack(t->kREta) && t->kHft>0)
       {
-        h1Dca[1][getEtaIndex(t->kREta)][vzIdx][(int)t->cent][getPtIndex(t->kRPt)]->Fill(t->kRSDca);
-        h1DcaZ[1][getEtaIndex(t->kREta)][vzIdx][(int)t->cent][getPtIndex(t->kRPt)]->Fill(t->kRDcaZ);
-        h1DcaXY[1][getEtaIndex(t->kREta)][vzIdx][(int)t->cent][getPtIndex(t->kRPt)]->Fill(t->kRDcaXY);
+        h1Dca[1][getEtaIndex(t->kREta)][vzIdx][(int)t->cent][getPtIndex(t->kRPt)]->Fill(t->kRSDca/1.e4);
+        h1DcaZ[1][getEtaIndex(t->kREta)][vzIdx][(int)t->cent][getPtIndex(t->kRPt)]->Fill(t->kRDcaZ/1.e4);
+        h1DcaXY[1][getEtaIndex(t->kREta)][vzIdx][(int)t->cent][getPtIndex(t->kRPt)]->Fill(t->kRDcaXY/1.e4);
       }
    }
 
