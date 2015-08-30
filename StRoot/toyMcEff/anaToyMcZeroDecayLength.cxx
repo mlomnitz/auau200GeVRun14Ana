@@ -46,11 +46,15 @@
 #include "d0ZeroDecayLength.h"
 
 const Int_t nParticles = 2;
-const Int_t nEtas = 10;
-const Int_t nVzs = 6;
 const Int_t nCent = 9;
-const Double_t EtaEdge[nEtas + 1] = { -1.0, -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0 };
-const Double_t VzEdge[nVzs + 1] = { -6.0e4, -4.0e4, -2.0e4, 0.0, 2.0e4, 4.0e4, 6.0e4};
+// const Int_t nEtas = 10;
+// const Double_t EtaEdge[nEtas + 1] = { -1.0, -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0 };
+int const nEtas = 5;
+float const EtaEdge[nEtas + 1] = { -1.0, -0.6, -0.2, 0.2, 0.6, 1.0};
+// const Int_t nVzs = 6;
+// const Double_t VzEdge[nVzs + 1] = { -6.0e4, -4.0e4, -2.0e4, 0.0, 2.0e4, 4.0e4, 6.0e4};
+int const nVzs = 4;
+float const VzEdge[nVzs + 1] = { -6., -3., 0, 3., 6.};
 // const Int_t nPtBins = 35;
 // const Double_t ptEdge[nPtBins + 1] = { 0.0, 0.2, 0.4,  0.6,  0.8,
 //                                        1.0, 1.2, 1.4,  1.6,  1.8,
