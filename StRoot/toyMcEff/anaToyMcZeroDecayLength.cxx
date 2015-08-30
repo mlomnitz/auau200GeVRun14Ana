@@ -193,7 +193,7 @@ int main(int argc, char **argv)
 
       if (i && i % 1000000 == 0) cout << static_cast<float>(i) / nEntries << endl;
 
-      int const vzIdx = getVzIndex(t->vz);
+      int const vzIdx = getVzIndex(t->vz/1.e4);
 
       if(isGoodTrack(t->pREta) && t->pHft>0)
       {
