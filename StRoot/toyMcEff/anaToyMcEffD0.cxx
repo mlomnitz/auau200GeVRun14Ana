@@ -302,7 +302,7 @@ int main(int argc, char **argv)
 
       if (i && i % 1000000 == 0) cout << static_cast<float>(i) / nEntries << endl;
 
-      if (fabs(t->rY) > anaCuts::rapidity) continue;
+      if (fabs(t->y) > anaCuts::rapidity) continue;
 
       int d0CentBin = getD0CentIndex(t->cent);
       if(d0CentBin<0) continue;
