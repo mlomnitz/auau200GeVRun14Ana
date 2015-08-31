@@ -8,7 +8,7 @@ ROOTGLIBS     = $(shell root-config --glibs)
 INCFLAGS = -I$(ROOTSYS)/include
 LDFLAGS = -L$(ROOTSYS)/lib
 
-CXX = g++ -m64
+CXX = g++ -m32
 FLAGS = -Wall -g $(INCFLAGS) $(LDFLAGS)
 
 COMPILE = $(CXX) $(FLAGS) -c 
