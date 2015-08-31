@@ -11,3 +11,6 @@
 temp_gccflags.c
 *.o
 *.so
+*.zip
+*.package
+*.session.xml
