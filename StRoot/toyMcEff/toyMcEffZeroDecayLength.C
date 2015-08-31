@@ -69,21 +69,33 @@ TF1* fPionMomResolution = NULL;
 TF1* fWeightFunction = NULL;
 TGraph* grEff[3];
 const Int_t nParticles = 2;
-const Int_t nEtas = 10;
-const Int_t nVzs = 6;
+// const Int_t nEtas = 10;
+// const Int_t nVzs = 6;
 const Int_t nPhis = 30;
 const Int_t nCent = 9;
-const Int_t nPtBins = 35;
-const Double_t EtaEdge[nEtas + 1] = { -1.0, -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0 };
-const Double_t VzEdge[nVzs + 1] = { -6.0e4, -4.0e4, -2.0e4, 0.0, 2.0e4, 4.0e4, 6.0e4};
+// const Int_t nPtBins = 35;
+// const Double_t EtaEdge[nEtas + 1] = { -1.0, -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0 };
+// const Double_t VzEdge[nVzs + 1] = { -6.0e4, -4.0e4, -2.0e4, 0.0, 2.0e4, 4.0e4, 6.0e4};
 const Double_t PhiEdge[nPhis + 1] = { -3.14159, -2.93215, -2.72271, -2.51327, -2.30383, -2.0944, -1.88496, -1.67552, -1.46608, -1.25664, -1.0472, -0.837758, -0.628319, -0.418879, -0.20944, 0.0, 0.20944, 0.418879, 0.628319, 0.837758, 1.0472, 1.25664, 1.46608, 1.67552, 1.88496, 2.0944, 2.30383, 2.51327, 2.72271, 2.93215, 3.14159};
-const Double_t ptEdge[nPtBins + 1] = { 0.0, 0.2, 0.4,  0.6,  0.8,
-                                       1.0, 1.2, 1.4,  1.6,  1.8,
-                                       2.0, 2.2, 2.4,  2.6,  2.8,
-                                       3.0, 3.2, 3.4,  3.6,  3.8,
-                                       4.0, 4.2, 4.4,  4.6,  4.8,
-                                       5.0, 5.4, 5.8,  6.2,  6.6,
-                                       7.0, 8.0, 9.0, 10.0, 11.0, 12.0};
+// const Double_t ptEdge[nPtBins + 1] = { 0.0, 0.2, 0.4,  0.6,  0.8,
+                                       // 1.0, 1.2, 1.4,  1.6,  1.8,
+                                       // 2.0, 2.2, 2.4,  2.6,  2.8,
+                                       // 3.0, 3.2, 3.4,  3.6,  3.8,
+                                       // 4.0, 4.2, 4.4,  4.6,  4.8,
+                                       // 5.0, 5.4, 5.8,  6.2,  6.6,
+                                       // 7.0, 8.0, 9.0, 10.0, 11.0, 12.0};
+int const nVzs = 4;
+float const VzEdge[nVzs + 1] = { -6., -3., 0, 3., 6.};
+
+int const nEtas = 5;
+float const EtaEdge[nEtas + 1] = { -1.0, -0.6, -0.2, 0.2, 0.6, 1.0};
+const Int_t nPtBins = 28;
+const Double_t ptEdge[nPtBins + 1] =
+   {
+      0. , 0.1 , 0.2 , 0.3 , 0.4 , 0.5 , 0.6 , 0.7 , 0.8 , 0.9 ,
+      1. , 1.2 , 1.4 , 1.6 , 1.8 , 2.  , 2.2 , 2.4 , 2.6 , 2.8 ,
+      3. , 3.5 , 4.  , 4.5 , 5. , 6. , 8.0 , 10. , 12.0
+   };
 
 TH1D* hHftRatio[nCent];
 TH1D* h1DcaZ[nCent][nPtBins];
@@ -549,7 +561,8 @@ void bookObjects()
 
    cout << "Loading input HFT ratios and DCA ..." << endl;
    TFile fHftRatio1("HFT_Ratio_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
-   TFile fDca1("NoBinWidth_Dca_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
+   // TFile fDca1("NoBinWidth_Dca_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
+   TFile fDca1("NoBinWidth_3D_Dca_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
    for (int iParticle = 0; iParticle < nParticles; ++iParticle)
    {
       for (int iEta = 0; iEta < nEtas; ++iEta)
