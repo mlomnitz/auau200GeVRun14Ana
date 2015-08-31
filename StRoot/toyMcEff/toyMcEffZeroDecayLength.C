@@ -457,13 +457,13 @@ TVector3 smearPosData(int const iParticleIndex, double const vz, int const cent,
    if (h1DcaZ1[iParticleIndex][iEtaIndex][iVzIndex][cent][iPtIndex]->ComputeIntegral())
    {
      do sigmaPosZ = h1DcaZ1[iParticleIndex][iEtaIndex][iVzIndex][cent][iPtIndex]->GetRandom() * 1e4;
-     while (fabs(sigmaPosZ) < 1.e3);
+     while (fabs(sigmaPosZ) > 1.e3);
    }
 
    if (h1DcaXY1[iParticleIndex][iEtaIndex][iVzIndex][cent][iPtIndex]->ComputeIntegral())
    {
      do sigmaPosXY = h1DcaXY1[iParticleIndex][iEtaIndex][iVzIndex][cent][iPtIndex]->GetRandom() * 1e4;
-     while (fabs(sigmaPosXY) < 1.e3);
+     while (fabs(sigmaPosXY) > 1.e3);
    }
 
    TVector3 newPos(pos);
