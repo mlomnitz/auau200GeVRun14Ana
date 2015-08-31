@@ -578,7 +578,7 @@ void bookObjects()
    cout << "Loading input HFT ratios and DCA ..." << endl;
    TFile fHftRatio1("HFT_Ratio_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
    // TFile fDca1("NoBinWidth_Dca_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
-   TFile fDca1("NoBinWidth_3D_Dca_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
+   TFile fDca1("2DProjection_NoBinWidth_3D_Dca_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
    for (int iParticle = 0; iParticle < nParticles; ++iParticle)
    {
       for (int iEta = 0; iEta < nEtas; ++iEta)
@@ -592,15 +592,9 @@ void bookObjects()
                  hHftRatio1[iParticle][iEta][iVz][iPhi][ii] = (TH1D*)(fHftRatio1.Get(Form("mh1HFT1PtCentPartEtaVzPhiRatio_%i_%i_%i_%i_%i", iParticle, iEta, iVz, iPhi, ii))->Clone(Form("mh1HFT1PtCentPartEtaVzPhiRatio_%i_%i_%i_%i_%i", iParticle, iEta, iVz, iPhi, ii)));
                }
 
-               TH3F* hDca = (TH3F*)fDca1.Get(Form("mh3DcaXyZPtCentPartEtaVz_%i_%i_%i_%i",iParticle,iEta,iVz,ii));
-
                for (int jj = 0; jj < nPtBins; ++jj)
                {
-                 hDca->GetXaxis()->SetRangeUser(ptEdge[jj],ptEdge[jj+1]);
-                 result->cd();
-                 h2Dca[iParticle][iEta][iVz][ii][jj] = (TH2D*)hDca->Project3D("ZY");
-                 h2Dca[iParticle][iEta][iVz][ii][jj]->SetName(Form("mh2DcaPtCentPartEtaVz_%i_%i_%i_%i_%i", iParticle, iEta, iVz, ii, jj));
-                 h2Dca[iParticle][iEta][iVz][ii][jj]->Write();
+                  h2Dca[iParticle][iEta][iVz][ii][jj] = (TH1D*)((fDca1.Get(Form("mh2DcaPtCentPartEtaVz_%i_%i_%i_%i_%i", iParticle, iEta, iVz, ii, jj)))->Clone(Form("mh2DcaPtCentPartEtaVz_%i_%i_%i_%i_%i", iParticle, iEta, iVz, ii, jj)));
                   // h1DcaXY1[iParticle][iEta][iVz][ii][jj] = (TH1D*)((fDca1.Get(Form("mh1DcaXyPtCentPartEtaVz_%i_%i_%i_%i_%i", iParticle, iEta, iVz, ii, jj)))->Clone(Form("mh1DcaXyPtCentPartEtaVz_%i_%i_%i_%i_%i", iParticle, iEta, iVz, ii, jj)));
                   // h1DcaZ1[iParticle][iEta][iVz][ii][jj] = (TH1D*)((fDca1.Get(Form("mh1DcaZPtCentPartEtaVz_%i_%i_%i_%i_%i", iParticle, iEta, iVz, ii, jj)))->Clone(Form("mh1DcaZPtCentPartEtaVz_%i_%i_%i_%i_%i", iParticle, iEta, iVz, ii, jj)));
                }
