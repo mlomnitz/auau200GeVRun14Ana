@@ -20,6 +20,7 @@
 #include "TH1F.h"
 #include "TH1D.h"
 #include "TH2D.h"
+#include "TH3F.h"
 #include "TGraph.h"
 #include "TNtuple.h"
 #include "TMath.h"
@@ -458,8 +459,8 @@ TVector3 smearPosData(int const iParticleIndex, double const vz, int const cent,
    int const iVzIndex = getVzIndex(vz);
    int const iPtIndex = getPtIndex(rMom.Perp());
 
-   float sigmaPosZ = 0;
-   float sigmaPosXY = 0;
+   double sigmaPosZ = 0;
+   double sigmaPosXY = 0;
 
    h2Dca[iParticleIndex][iEtaIndex][iVzIndex][cent][iPtIndex]->GetRandom2(sigmaPosXY,sigmaPosZ);
    /*if (h1DcaZ1[iParticleIndex][iEtaIndex][iVzIndex][cent][iPtIndex]->ComputeIntegral())
@@ -596,7 +597,7 @@ void bookObjects()
                for (int jj = 0; jj < nPtBins; ++jj)
                {
                  hDca->GetXaxis()->SetRangeUser(ptEdge[jj],ptEdge[jj+1]);
-                 fOut->cd();
+                 result->cd();
                  h2Dca[iParticle][iEta][iVz][ii][jj] = (TH2D*)hDca->Project3D("ZY");
                  h2Dca[iParticle][iEta][iVz][ii][jj]->SetName(Form("mh2DcaPtCentPartEtaVz_%i_%i_%i_%i_%i", iParticle, iEta, iVz, ii, jj));
                  h2Dca[iParticle][iEta][iVz][ii][jj]->Write();
