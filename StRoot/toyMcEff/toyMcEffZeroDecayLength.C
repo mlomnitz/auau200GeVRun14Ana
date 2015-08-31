@@ -87,17 +87,17 @@ const Double_t PhiEdge[nPhis + 1] = { -3.14159, -2.93215, -2.72271, -2.51327, -2
                                        // 5.0, 5.4, 5.8,  6.2,  6.6,
                                        // 7.0, 8.0, 9.0, 10.0, 11.0, 12.0};
 int const nVzs = 4;
-float const VzEdge[nVzs + 1] = { -6., -3., 0, 3., 6.};
+float const VzEdge[nVzs + 1] = { -6.e4, -3.e4, 0, 3.e4, 6.e4};
 
 int const nEtas = 5;
 float const EtaEdge[nEtas + 1] = { -1.0, -0.6, -0.2, 0.2, 0.6, 1.0};
-const Int_t nPtBins = 28;
+const Int_t nPtBins = 10;
 const Double_t ptEdge[nPtBins + 1] =
    {
-      0. , 0.1 , 0.2 , 0.3 , 0.4 , 0.5 , 0.6 , 0.7 , 0.8 , 0.9 ,
-      1. , 1.2 , 1.4 , 1.6 , 1.8 , 2.  , 2.2 , 2.4 , 2.6 , 2.8 ,
-      3. , 3.5 , 4.  , 4.5 , 5. , 6. , 8.0 , 10. , 12.0
-   };
+      0. , 0.1 , 0.2 , 0.3 , 0.4 , 0.5 , 0.6 , 0.7 , 0.8 , 0.9};
+      // 1. , 1.2 , 1.4 , 1.6 , 1.8 , 2.  , 2.2 , 2.4 , 2.6 , 2.8 ,
+      // 3. , 3.5 , 4.  , 4.5 , 5. , 6. , 8.0 , 10. , 12.0
+   // };
 
 TH1D* hHftRatio[nCent];
 TH1D* h1DcaZ[nCent][nPtBins];
@@ -116,7 +116,7 @@ TH1D* hTpcKMinus[nCent];
 
 string outFileName = "D0.zeroDecayLength.toyMc.root";
 std::pair<int, int> const decayChannels(747, 807);
-std::pair<float, float> const momentumRange(0, 12);
+std::pair<float, float> const momentumRange(0, 3);
 
 float const gVzCut = 6.0e4;
 float const acceptanceRapidity = 1.0;
