@@ -60,7 +60,11 @@ void write();
 int getPtIndex(double);
 int getEtaIndex(double);
 int getVzIndex(double);
-int getPhiIndex(double);
+
+int getPtIndexHftRatio(double);
+int getEtaIndexHftRatio(double);
+int getVzIndexHftRatio(double);
+int getPhiIndexHftRatio(double);
 
 TPythia6Decayer* pydecay;
 TNtuple* nt;
@@ -71,26 +75,32 @@ TF1* fPionMomResolution = NULL;
 TF1* fWeightFunction = NULL;
 TGraph* grEff[3];
 const Int_t nParticles = 2;
-// const Int_t nEtas = 10;
-// const Int_t nVzs = 6;
-const Int_t nPhis = 30;
 const Int_t nCent = 9;
-// const Int_t nPtBins = 35;
-// const Double_t EtaEdge[nEtas + 1] = { -1.0, -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0 };
-// const Double_t VzEdge[nVzs + 1] = { -6.0e4, -4.0e4, -2.0e4, 0.0, 2.0e4, 4.0e4, 6.0e4};
-const Double_t PhiEdge[nPhis + 1] = { -3.14159, -2.93215, -2.72271, -2.51327, -2.30383, -2.0944, -1.88496, -1.67552, -1.46608, -1.25664, -1.0472, -0.837758, -0.628319, -0.418879, -0.20944, 0.0, 0.20944, 0.418879, 0.628319, 0.837758, 1.0472, 1.25664, 1.46608, 1.67552, 1.88496, 2.0944, 2.30383, 2.51327, 2.72271, 2.93215, 3.14159};
-// const Double_t ptEdge[nPtBins + 1] = { 0.0, 0.2, 0.4,  0.6,  0.8,
-                                       // 1.0, 1.2, 1.4,  1.6,  1.8,
-                                       // 2.0, 2.2, 2.4,  2.6,  2.8,
-                                       // 3.0, 3.2, 3.4,  3.6,  3.8,
-                                       // 4.0, 4.2, 4.4,  4.6,  4.8,
-                                       // 5.0, 5.4, 5.8,  6.2,  6.6,
-                                       // 7.0, 8.0, 9.0, 10.0, 11.0, 12.0};
+
+// HFT ratio binning
+const Int_t nEtasHftRatio = 10;
+const Int_t nVzsHftRatio = 6;
+const Int_t nPtBinsHftRatio = 35;
+const Double_t EtaEdgeHftRatio[nEtasHftRatio + 1] = { -1.0, -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0 };
+const Double_t VzEdgeHftRatio[nVzsHftRatio + 1] = { -6.0e4, -4.0e4, -2.0e4, 0.0, 2.0e4, 4.0e4, 6.0e4};
+const Double_t ptEdgeHftRatio[nPtBinsHftRatio + 1] = { 0.0, 0.2, 0.4,  0.6,  0.8,
+                                       1.0, 1.2, 1.4,  1.6,  1.8,
+                                       2.0, 2.2, 2.4,  2.6,  2.8,
+                                       3.0, 3.2, 3.4,  3.6,  3.8,
+                                       4.0, 4.2, 4.4,  4.6,  4.8,
+                                       5.0, 5.4, 5.8,  6.2,  6.6,
+                                       7.0, 8.0, 9.0, 10.0, 11.0, 12.0};
+const Int_t nPhisHftRatio = 30;
+const Double_t PhiEdgeHftRatio[nPhisHftRatio + 1] = { -3.14159, -2.93215, -2.72271, -2.51327, -2.30383, -2.0944, -1.88496, -1.67552, -1.46608, -1.25664, -1.0472, -0.837758, -0.628319, -0.418879, -0.20944, 0.0, 0.20944, 0.418879, 0.628319, 0.837758, 1.0472, 1.25664, 1.46608, 1.67552, 1.88496, 2.0944, 2.30383, 2.51327, 2.72271, 2.93215, 3.14159};
+
+// DCA binning
 int const nVzs = 4;
-float const VzEdge[nVzs + 1] = { -6., -3., 0, 3., 6.};
+float const VzEdge[nVzs + 1] = { -6.e4, -3.e4, 0, 3.e4, 6.e4};
 
 int const nEtas = 5;
 float const EtaEdge[nEtas + 1] = { -1.0, -0.6, -0.2, 0.2, 0.6, 1.0};
+
+/*
 const Int_t nPtBins = 28;
 const Double_t ptEdge[nPtBins + 1] =
    {
@@ -98,13 +108,19 @@ const Double_t ptEdge[nPtBins + 1] =
       1. , 1.2 , 1.4 , 1.6 , 1.8 , 2.  , 2.2 , 2.4 , 2.6 , 2.8 ,
       3. , 3.5 , 4.  , 4.5 , 5. , 6. , 8.0 , 10. , 12.0
    };
+   */
 
-TH1D* hHftRatio[nCent];
-TH1D* h1DcaZ[nCent][nPtBins];
-TH1D* h1DcaXY[nCent][nPtBins];
+const Int_t nPtBins = 25;
+const Double_t ptEdge[nPtBins + 1] =
+   {
+      0. , 0.1 , 0.2 , 0.3 , 0.4 , 0.5 , 0.6 , 0.7 , 0.8 , 0.9 ,
+      1. , 1.2 , 1.4 , 1.6 , 1.8 , 2.  , 2.2 , 2.4 , 2.6 , 2.8 ,
+      // 3. , 3.5 , 4.  , 4.5 , 5. , 6. , 8.0 , 10. , 12.0};
+      3. , 3.5 , 4.  , 4.5 , 5., 12.0};
+
 TH1D* h1Vz[nCent];
 
-TH1D* hHftRatio1[nParticles][nEtas][nVzs][nPhis][nCent];
+TH1D* hHftRatio1[nParticles][nEtasHftRatio][nVzsHftRatio][nPhisHftRatio][nCent];
 // TH1D* h1DcaZ1[nParticles][nEtas][nVzs][nCent][nPtBins];
 // TH1D* h1DcaXY1[nParticles][nEtas][nVzs][nCent][nPtBins];
 TH2D* h2Dca[nParticles][nEtas][nVzs][nCent][nPtBins];
@@ -443,11 +459,41 @@ int getVzIndex(double Vz)
    return nVzs - 1 ;
 }
 
-int getPhiIndex(double Phi)
+int getPtIndexHftRatio(double pT)
 {
-   for (int i = 0; i < nPhis; i++)
+   for (int i = 0; i < nPtBinsHftRatio; i++)
    {
-      if ((Phi >= PhiEdge[i]) && (Phi < PhiEdge[i + 1]))
+      if ((pT >= ptEdgeHftRatio[i]) && (pT < ptEdgeHftRatio[i + 1]))
+         return i;
+   }
+   return nPtBins - 1 ;
+}
+
+int getEtaIndexHftRatio(double Eta)
+{
+   for (int i = 0; i < nEtasHftRatio; i++)
+   {
+      if ((Eta >= EtaEdgeHftRatio[i]) && (Eta < EtaEdgeHftRatio[i + 1]))
+         return i;
+   }
+   return nEtas - 1 ;
+}
+
+int getVzIndexHftRatio(double Vz)
+{
+   for (int i = 0; i < nVzsHftRatio; i++)
+   {
+      if ((Vz >= VzEdgeHftRatio[i]) && (Vz < VzEdgeHftRatio[i + 1]))
+         return i;
+   }
+   return nVzs - 1 ;
+}
+
+int getPhiIndexHftRatio(double Phi)
+{
+   for (int i = 0; i < nPhisHftRatio; i++)
+   {
+      if ((Phi >= PhiEdgeHftRatio[i]) && (Phi < PhiEdgeHftRatio[i + 1]))
          return i;
    }
    return nPhis - 1 ;
@@ -531,9 +577,9 @@ bool tpcReconstructed(int iParticleIndex, float charge, int cent, TLorentzVector
 
 bool matchHft(int const iParticleIndex, double const vz, int const cent, TLorentzVector const& mom)
 {
-   int const iEtaIndex = getEtaIndex(mom.PseudoRapidity());
-   int const iVzIndex = getVzIndex(vz);
-   int const iPhiIndex = getPhiIndex(mom.Phi());
+   int const iEtaIndex = getEtaIndexHftRatio(mom.PseudoRapidity());
+   int const iVzIndex = getVzIndexHftRatio(vz);
+   int const iPhiIndex = getPhiIndexHftRatio(mom.Phi());
 
    int const bin = hHftRatio1[iParticleIndex][iEtaIndex][iVzIndex][iPhiIndex][cent]->FindBin(mom.Perp());
    return gRandom->Rndm() < hHftRatio1[iParticleIndex][iEtaIndex][iVzIndex][iPhiIndex][cent]->GetBinContent(bin);
@@ -542,9 +588,12 @@ bool matchHft(int const iParticleIndex, double const vz, int const cent, TLorent
 void bookObjects()
 {
    result = new TFile(outFileName.c_str(), "recreate");
+   result->SetCompressionLevel(1);
    result->cd();
 
    TH1::AddDirectory(false);
+   int BufSize = (int)pow(2., 16.);
+   int Split = 1;
    nt = new TNtuple("nt", "", "cent:vx:vy:vz:vzIdx:"
                     "pid:w:m:pt:eta:y:phi:v0x:v0y:v0z:" // MC D0
                     "rM:rPt:rEta:rY:rPhi:rV0x:rV0y:rV0z:reco:" // Rc D0
@@ -553,7 +602,8 @@ void bookObjects()
                     "kRM:kRPt:kREta:kRY:kRPhi:kRVx:kRVy:kRVz:kRDca:kRSDca:kRDcaXY:kRDcaZ:kEtaIdx:kPtIdx:kTpc:" // Rc Kaon
                     "pM:pPt:pEta:pY:pPhi:pDca:" // MC Pion1
                     "pRM:pRPt:pREta:pRY:pRPhi:pRVx:pRVy:pRVz:pRDca:pRSDca:pRDcaXY:pRDcaZ:pEtaIdx:pPtIdx:pTpc:" // Rc Pion1
-                    "kHft:pHft");
+                    "kHft:pHft",BufSize);
+   nt->SetAutoSave(1000000); // autosave every 1 Mbytes
 
    cout << "Loading input momentum resolution ..." << endl;
    TFile f("momentum_resolution.root");
@@ -579,29 +629,40 @@ void bookObjects()
    TFile fHftRatio1("HFT_Ratio_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
    // TFile fDca1("NoBinWidth_Dca_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
    TFile fDca1("2DProjection_NoBinWidth_3D_Dca_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
+
    for (int iParticle = 0; iParticle < nParticles; ++iParticle)
    {
-      for (int iEta = 0; iEta < nEtas; ++iEta)
-      {
+     for(int iCent = 0; iCent < nCent; ++iCent)
+     {
+       // HFT ratio
+       for (int iEta = 0; iEta < nEtasHftRatio; ++iEta)
+       {
+         for (int iVz = 0; iVz < nVzsHftRatio; ++iVz)
+         {
+           for(int iPhi = 0; iPhi < nPhisHftRatio; ++iPhi)
+           {
+             hHftRatio1[iParticle][iEta][iVz][iPhi][iCent] = 
+               (TH1D*)(fHftRatio1.Get(Form("mh1HFT1PtCentPartEtaVzPhiRatio_%i_%i_%i_%i_%i", iParticle, iEta, iVz, iPhi, iCent))->Clone(Form("mh1HFT1PtCentPartEtaVzPhiRatio_%i_%i_%i_%i_%i", iParticle, iEta, iVz, iPhi, iCent)));
+           }
+         }
+       }
+
+       // DCA
+       for (int iEta = 0; iEta < nEtas; ++iEta)
+       {
          for (int iVz = 0; iVz < nVzs; ++iVz)
          {
-            for (int ii = 0; ii < nCent; ++ii)
-            {
-               for(int iPhi = 0; iPhi < nPhis; ++iPhi)
-               {
-                 hHftRatio1[iParticle][iEta][iVz][iPhi][ii] = (TH1D*)(fHftRatio1.Get(Form("mh1HFT1PtCentPartEtaVzPhiRatio_%i_%i_%i_%i_%i", iParticle, iEta, iVz, iPhi, ii))->Clone(Form("mh1HFT1PtCentPartEtaVzPhiRatio_%i_%i_%i_%i_%i", iParticle, iEta, iVz, iPhi, ii)));
-               }
-
-               for (int jj = 0; jj < nPtBins; ++jj)
-               {
-                  h2Dca[iParticle][iEta][iVz][ii][jj] = (TH2D*)((fDca1.Get(Form("mh2DcaPtCentPartEtaVz_%i_%i_%i_%i_%i", iParticle, iEta, iVz, ii, jj)))->Clone(Form("mh2DcaPtCentPartEtaVz_%i_%i_%i_%i_%i", iParticle, iEta, iVz, ii, jj)));
+           for (int iPt = 0; iPt < nPtBins; ++iPt)
+           {
+             h2Dca[iParticle][iEta][iVz][iCent][iPt] = 
+               (TH2D*)((fDca1.Get(Form("mh2DcaPtCentPartEtaVz_%i_%i_%i_%i_%i", iParticle, iEta, iVz, iCent, iPt)))->Clone(Form("mh2DcaPtCentPartEtaVz_%i_%i_%i_%i_%i", iParticle, iEta, iVz, iCent, iPt)));
                   // h1DcaXY1[iParticle][iEta][iVz][ii][jj] = (TH1D*)((fDca1.Get(Form("mh1DcaXyPtCentPartEtaVz_%i_%i_%i_%i_%i", iParticle, iEta, iVz, ii, jj)))->Clone(Form("mh1DcaXyPtCentPartEtaVz_%i_%i_%i_%i_%i", iParticle, iEta, iVz, ii, jj)));
                   // h1DcaZ1[iParticle][iEta][iVz][ii][jj] = (TH1D*)((fDca1.Get(Form("mh1DcaZPtCentPartEtaVz_%i_%i_%i_%i_%i", iParticle, iEta, iVz, ii, jj)))->Clone(Form("mh1DcaZPtCentPartEtaVz_%i_%i_%i_%i_%i", iParticle, iEta, iVz, ii, jj)));
-               }
-            }
+           }
          }
-      }
-   }
+
+       }
+     }
 
    fHftRatio1.Close();
    fDca1.Close();
