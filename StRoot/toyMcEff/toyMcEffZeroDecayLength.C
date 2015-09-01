@@ -110,13 +110,13 @@ const Double_t ptEdge[nPtBins + 1] =
    };
    */
 
-const Int_t nPtBins = 25;
+const Int_t nPtBins = 24;
 const Double_t ptEdge[nPtBins + 1] =
    {
-      0. , 0.1 , 0.2 , 0.3 , 0.4 , 0.5 , 0.6 , 0.7 , 0.8 , 0.9 ,
+      0. , 0.2 , 0.3 , 0.4 , 0.5 , 0.6 , 0.7 , 0.8 , 0.9 ,
       1. , 1.2 , 1.4 , 1.6 , 1.8 , 2.  , 2.2 , 2.4 , 2.6 , 2.8 ,
       // 3. , 3.5 , 4.  , 4.5 , 5. , 6. , 8.0 , 10. , 12.0};
-      3. , 3.5 , 4.  , 4.5 , 5., 12.0};
+      3. , 3.5, 4.  , 4.5 , 5., 12.0};
 
 TH1D* h1Vz[nCent];
 
@@ -496,7 +496,7 @@ int getPhiIndexHftRatio(double Phi)
       if ((Phi >= PhiEdgeHftRatio[i]) && (Phi < PhiEdgeHftRatio[i + 1]))
          return i;
    }
-   return nPhis - 1 ;
+   return nPhisHftRatio - 1 ;
 }
 
 TVector3 smearPosData(int const iParticleIndex, double const vz, int const cent, TLorentzVector const& rMom, TVector3 const& pos)
@@ -626,9 +626,8 @@ void bookObjects()
    fVertex.Close();
 
    cout << "Loading input HFT ratios and DCA ..." << endl;
-   TFile fHftRatio1("HFT_Ratio_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
-   // TFile fDca1("NoBinWidth_Dca_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
-   TFile fDca1("2DProjection_NoBinWidth_3D_Dca_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
+   TFile* fHftRatio1= new TFile("HFT_Ratio_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
+   TFile* fDca1 = new TFile("2DProjection_NoBinWidth_3D_Dca_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
 
    for (int iParticle = 0; iParticle < nParticles; ++iParticle)
    {
@@ -641,8 +640,8 @@ void bookObjects()
          {
            for(int iPhi = 0; iPhi < nPhisHftRatio; ++iPhi)
            {
-             hHftRatio1[iParticle][iEta][iVz][iPhi][iCent] = 
-               (TH1D*)(fHftRatio1.Get(Form("mh1HFT1PtCentPartEtaVzPhiRatio_%i_%i_%i_%i_%i", iParticle, iEta, iVz, iPhi, iCent))->Clone(Form("mh1HFT1PtCentPartEtaVzPhiRatio_%i_%i_%i_%i_%i", iParticle, iEta, iVz, iPhi, iCent)));
+             hHftRatio1[iParticle][iEta][iVz][iPhi][iCent] = (TH1D*)(fHftRatio1->Get(Form("mh1HFT1PtCentPartEtaVzPhiRatio_%i_%i_%i_%i_%i", iParticle, iEta, iVz, iPhi, iCent)));
+             hHftRatio1[iParticle][iEta][iVz][iPhi][iCent]->SetDirectory(0);
            }
          }
        }
@@ -654,18 +653,17 @@ void bookObjects()
          {
            for (int iPt = 0; iPt < nPtBins; ++iPt)
            {
-             h2Dca[iParticle][iEta][iVz][iCent][iPt] = 
-               (TH2D*)((fDca1.Get(Form("mh2DcaPtCentPartEtaVz_%i_%i_%i_%i_%i", iParticle, iEta, iVz, iCent, iPt)))->Clone(Form("mh2DcaPtCentPartEtaVz_%i_%i_%i_%i_%i", iParticle, iEta, iVz, iCent, iPt)));
-                  // h1DcaXY1[iParticle][iEta][iVz][ii][jj] = (TH1D*)((fDca1.Get(Form("mh1DcaXyPtCentPartEtaVz_%i_%i_%i_%i_%i", iParticle, iEta, iVz, ii, jj)))->Clone(Form("mh1DcaXyPtCentPartEtaVz_%i_%i_%i_%i_%i", iParticle, iEta, iVz, ii, jj)));
-                  // h1DcaZ1[iParticle][iEta][iVz][ii][jj] = (TH1D*)((fDca1.Get(Form("mh1DcaZPtCentPartEtaVz_%i_%i_%i_%i_%i", iParticle, iEta, iVz, ii, jj)))->Clone(Form("mh1DcaZPtCentPartEtaVz_%i_%i_%i_%i_%i", iParticle, iEta, iVz, ii, jj)));
+             h2Dca[iParticle][iEta][iVz][iCent][iPt] = (TH2D*)((fDca1->Get(Form("mh2DcaPtCentPartEtaVz_%i_%i_%i_%i_%i", iParticle, iEta, iVz, iCent, iPt))));
+             h2Dca[iParticle][iEta][iVz][iCent][iPt]->SetDirectory(0);
            }
          }
-
        }
+       cout<<"Finished loading centrality: " << iCent << endl;
      }
+   }
 
-   fHftRatio1.Close();
-   fDca1.Close();
+   fHftRatio1->Close();
+   fDca1->Close();
 
    cout << " Loading TPC tracking efficiencies " << endl;
 
