@@ -132,7 +132,7 @@ TH1D* hTpcKMinus[nCent];
 
 string outFileName = "D0.zeroDecayLength.toyMc.root";
 std::pair<int, int> const decayChannels(747, 807);
-std::pair<float, float> const momentumRange(0, 12);
+std::pair<float, float> const momentumRange(0, 3);
 
 float const gVzCut = 6.0e4;
 float const acceptanceRapidity = 1.0;
