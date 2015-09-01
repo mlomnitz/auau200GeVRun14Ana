@@ -509,6 +509,8 @@ TVector3 smearPosData(int const iParticleIndex, double const vz, int const cent,
    double sigmaPosXY = 0;
 
    h2Dca[iParticleIndex][iEtaIndex][iVzIndex][cent][iPtIndex]->GetRandom2(sigmaPosXY,sigmaPosZ);
+   sigmaPosZ *= 1.e4;
+   sigmaPosXY *= 1.e4;
    /*if (h1DcaZ1[iParticleIndex][iEtaIndex][iVzIndex][cent][iPtIndex]->ComputeIntegral())
    {
      do sigmaPosZ = h1DcaZ1[iParticleIndex][iEtaIndex][iVzIndex][cent][iPtIndex]->GetRandom() * 1e4;
