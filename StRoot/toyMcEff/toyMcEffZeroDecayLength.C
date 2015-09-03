@@ -123,14 +123,15 @@ TH1D* h1Vz[nCent];
 TH1D* hHftRatio1[nParticles][nEtasHftRatio][nVzsHftRatio][nPhisHftRatio][nCent];
 // TH1D* h1DcaZ1[nParticles][nEtas][nVzs][nCent][nPtBins];
 // TH1D* h1DcaXY1[nParticles][nEtas][nVzs][nCent][nPtBins];
-TH2D* h2Dca[nParticles][nEtas][nVzs][nCent][nPtBins];
+int const nCentDca = 8;
+TH2D* h2Dca[nParticles][nEtas][nVzs][nCentDca][nPtBins];
 
 TH1D* hTpcPiPlus[nCent];
 TH1D* hTpcPiMinus[nCent];
 TH1D* hTpcKPlus[nCent];
 TH1D* hTpcKMinus[nCent];
 
-string outFileName = "D0.zeroDecayLength.toyMc.root";
+string outFileName = "D0.toyMc.root";
 std::pair<int, int> const decayChannels(747, 807);
 std::pair<float, float> const momentumRange(0, 12);
 
@@ -155,13 +156,14 @@ void toyMcEffZeroDecayLength(int npart = 100)
    TClonesArray ptl("TParticle", 10);
    for (int ipart = 0; ipart < npart; ipart++)
    {
-      if (!(ipart % 100000))
-         cout << "____________ ipart = " << ipart << " ________________" << endl;
+      if (!(ipart % 1000))
+         cout << "____________ ipart = " << ipart/static_cast<float>(npart) << " ________________" << endl;
 
       getKinematics(*b_d, M_D_0);
 
       decayAndFill(421, b_d, fWeightFunction->Eval(b_d->Perp()), ptl);
       decayAndFill(-421, b_d, fWeightFunction->Eval(b_d->Perp()), ptl);
+      if (ipart%1000 == 1) nt->AutoSave("SaveSelf");
    }
 
    write();
@@ -191,8 +193,8 @@ void decayAndFill(int const kf, TLorentzVector* b, double const weight, TClonesA
       {
          case 321:
             ptl0->Momentum(kMom);
-            // v00.SetXYZ(0,0,0);
-            v00.SetXYZ(ptl0->Vx() * 1000., ptl0->Vy() * 1000., ptl0->Vz() * 1000.); // converted to μm
+            v00.SetXYZ(0,0,0);
+            // v00.SetXYZ(ptl0->Vx() * 1000., ptl0->Vy() * 1000., ptl0->Vz() * 1000.); // converted to μm
             break;
          case 211:
             ptl0->Momentum(pMom);
@@ -499,7 +501,7 @@ int getPhiIndexHftRatio(double Phi)
    return nPhisHftRatio - 1 ;
 }
 
-TVector3 smearPosData(int const iParticleIndex, double const vz, int const cent, TLorentzVector const& rMom, TVector3 const& pos)
+TVector3 smearPosData(int const iParticleIndex, double const vz, int cent, TLorentzVector const& rMom, TVector3 const& pos)
 {
    int const iEtaIndex = getEtaIndex(rMom.PseudoRapidity());
    int const iVzIndex = getVzIndex(vz);
@@ -507,6 +509,8 @@ TVector3 smearPosData(int const iParticleIndex, double const vz, int const cent,
 
    double sigmaPosZ = 0;
    double sigmaPosXY = 0;
+
+   if(cent == 8) cent = 7;
 
    h2Dca[iParticleIndex][iEtaIndex][iVzIndex][cent][iPtIndex]->GetRandom2(sigmaPosXY,sigmaPosZ);
    sigmaPosZ *= 1.e4;
@@ -612,7 +616,7 @@ void bookObjects()
 
    cout << "Loading input HFT ratios and DCA ..." << endl;
    TFile fHftRatio1("HFT_Ratio_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
-   TFile fDca1("2DProjection_NoBinWidth_3D_Dca_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
+   TFile fDca1("2DProjection_simCent_NoBinWidth_3D_Dca_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
 
    for (int iParticle = 0; iParticle < nParticles; ++iParticle)
    {
@@ -630,7 +634,10 @@ void bookObjects()
            }
          }
        }
+     }
 
+     for(int iCent = 0; iCent < nCentDca; ++iCent)
+     {
        // DCA
        for (int iEta = 0; iEta < nEtas; ++iEta)
        {
@@ -681,7 +688,7 @@ void bookObjects()
    grEff[2] = new TGraph("eff_010.csv", "%lg %lg", ",");
 
    result = new TFile(outFileName.c_str(), "recreate");
-   result->SetCompressionLevel(9);
+   result->SetCompressionLevel(1);
    result->cd();
 
    int BufSize = (int)pow(2., 16.);
@@ -695,7 +702,7 @@ void bookObjects()
                     "pM:pPt:pEta:pY:pPhi:pDca:" // MC Pion1
                     "pRM:pRPt:pREta:pRY:pRPhi:pRVx:pRVy:pRVz:pRDca:pRSDca:pRDcaXY:pRDcaZ:pEtaIdx:pPtIdx:pTpc:" // Rc Pion1
                     "kHft:pHft",BufSize);
-   nt->SetAutoSave(-500000); // autosave every 1 Mbytes
+   // nt->SetAutoSave(-500000); // autosave every 1 Mbytes
 }
 //___________
 void write()
