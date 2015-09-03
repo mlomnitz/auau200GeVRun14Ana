@@ -132,7 +132,7 @@ TH1D* hTpcKMinus[nCent];
 
 string outFileName = "D0.zeroDecayLength.toyMc.root";
 std::pair<int, int> const decayChannels(747, 807);
-std::pair<float, float> const momentumRange(0, 3);
+std::pair<float, float> const momentumRange(0, 12);
 
 float const gVzCut = 6.0e4;
 float const acceptanceRapidity = 1.0;
@@ -191,8 +191,8 @@ void decayAndFill(int const kf, TLorentzVector* b, double const weight, TClonesA
       {
          case 321:
             ptl0->Momentum(kMom);
-            v00.SetXYZ(0,0,0);
-            // v00.SetXYZ(ptl0->Vx() * 1000., ptl0->Vy() * 1000., ptl0->Vz() * 1000.); // converted to μm
+            // v00.SetXYZ(0,0,0);
+            v00.SetXYZ(ptl0->Vx() * 1000., ptl0->Vy() * 1000., ptl0->Vz() * 1000.); // converted to μm
             break;
          case 211:
             ptl0->Momentum(pMom);
@@ -466,7 +466,7 @@ int getPtIndexHftRatio(double pT)
       if ((pT >= ptEdgeHftRatio[i]) && (pT < ptEdgeHftRatio[i + 1]))
          return i;
    }
-   return nPtBins - 1 ;
+   return nPtBinsHftRatio - 1 ;
 }
 
 int getEtaIndexHftRatio(double Eta)
@@ -476,7 +476,7 @@ int getEtaIndexHftRatio(double Eta)
       if ((Eta >= EtaEdgeHftRatio[i]) && (Eta < EtaEdgeHftRatio[i + 1]))
          return i;
    }
-   return nEtas - 1 ;
+   return nEtasHftRatio - 1 ;
 }
 
 int getVzIndexHftRatio(double Vz)
@@ -486,7 +486,7 @@ int getVzIndexHftRatio(double Vz)
       if ((Vz >= VzEdgeHftRatio[i]) && (Vz < VzEdgeHftRatio[i + 1]))
          return i;
    }
-   return nVzs - 1 ;
+   return nVzsHftRatio - 1 ;
 }
 
 int getPhiIndexHftRatio(double Phi)
@@ -589,47 +589,30 @@ bool matchHft(int const iParticleIndex, double const vz, int const cent, TLorent
 //___________
 void bookObjects()
 {
-   result = new TFile(outFileName.c_str(), "recreate");
-   result->SetCompressionLevel(1);
-   result->cd();
-
-   TH1::AddDirectory(false);
-   int BufSize = (int)pow(2., 16.);
-   int Split = 1;
-   nt = new TNtuple("nt", "", "cent:vx:vy:vz:vzIdx:"
-                    "pid:w:m:pt:eta:y:phi:v0x:v0y:v0z:" // MC D0
-                    "rM:rPt:rEta:rY:rPhi:rV0x:rV0y:rV0z:reco:" // Rc D0
-                    "dca12:decayLength:dcaD0ToPv:cosTheta:angle12:cosThetaStar:" // Rc pair
-                    "kM:kPt:kEta:kY:kPhi:kDca:" // MC Kaon
-                    "kRM:kRPt:kREta:kRY:kRPhi:kRVx:kRVy:kRVz:kRDca:kRSDca:kRDcaXY:kRDcaZ:kEtaIdx:kPtIdx:kTpc:" // Rc Kaon
-                    "pM:pPt:pEta:pY:pPhi:pDca:" // MC Pion1
-                    "pRM:pRPt:pREta:pRY:pRPhi:pRVx:pRVy:pRVz:pRDca:pRSDca:pRDcaXY:pRDcaZ:pEtaIdx:pPtIdx:pTpc:" // Rc Pion1
-                    "kHft:pHft",BufSize);
-   nt->SetAutoSave(1000000); // autosave every 1 Mbytes
-
-   cout << "Loading input momentum resolution ..." << endl;
+  cout << "Loading input momentum resolution ..." << endl;
    TFile f("momentum_resolution.root");
-   fPionMomResolution = (TF1*)f.Get("fPion")->Clone("fPionMomResolution");
-   fKaonMomResolution = (TF1*)f.Get("fKaon")->Clone("fKaonMomResolution");
+   fPionMomResolution = (TF1*)f.Get("fPion")->Clone("fPion");
+   fKaonMomResolution = (TF1*)f.Get("fKaon")->Clone("fKaon");
    f.Close();
 
    cout << "Loading input spectra ..." << endl;
    TFile fPP("pp200_spectra.root");
-   fWeightFunction = (TF1*)fPP.Get("run12/f1Levy")->Clone("fWeightFunction");
+   fWeightFunction = (TF1*)fPP.Get("run12/f1Levy")->Clone("f1Levy");
    fPP.Close();
 
    TFile fVertex("Run14_After107_Vz_Cent.root");
 
    for (int ii = 0; ii < nCent; ++ii)
    {
-      h1Vz[ii]      = (TH1D*)(fVertex.Get(Form("mh1Vz_%i", ii))->Clone(Form("mh1Vz_%i", ii)));
+      h1Vz[ii]      = (TH1D*)(fVertex.Get(Form("mh1Vz_%i", ii)));
+      h1Vz[ii]->SetDirectory(0);
    }
 
    fVertex.Close();
 
    cout << "Loading input HFT ratios and DCA ..." << endl;
-   TFile* fHftRatio1= new TFile("HFT_Ratio_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
-   TFile* fDca1 = new TFile("2DProjection_NoBinWidth_3D_Dca_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
+   TFile fHftRatio1("HFT_Ratio_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
+   TFile fDca1("2DProjection_NoBinWidth_3D_Dca_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
 
    for (int iParticle = 0; iParticle < nParticles; ++iParticle)
    {
@@ -642,7 +625,7 @@ void bookObjects()
          {
            for(int iPhi = 0; iPhi < nPhisHftRatio; ++iPhi)
            {
-             hHftRatio1[iParticle][iEta][iVz][iPhi][iCent] = (TH1D*)(fHftRatio1->Get(Form("mh1HFT1PtCentPartEtaVzPhiRatio_%i_%i_%i_%i_%i", iParticle, iEta, iVz, iPhi, iCent)));
+             hHftRatio1[iParticle][iEta][iVz][iPhi][iCent] = (TH1D*)(fHftRatio1.Get(Form("mh1HFT1PtCentPartEtaVzPhiRatio_%i_%i_%i_%i_%i", iParticle, iEta, iVz, iPhi, iCent)));
              hHftRatio1[iParticle][iEta][iVz][iPhi][iCent]->SetDirectory(0);
            }
          }
@@ -655,7 +638,7 @@ void bookObjects()
          {
            for (int iPt = 0; iPt < nPtBins; ++iPt)
            {
-             h2Dca[iParticle][iEta][iVz][iCent][iPt] = (TH2D*)((fDca1->Get(Form("mh2DcaPtCentPartEtaVz_%i_%i_%i_%i_%i", iParticle, iEta, iVz, iCent, iPt))));
+             h2Dca[iParticle][iEta][iVz][iCent][iPt] = (TH2D*)((fDca1.Get(Form("mh2DcaPtCentPartEtaVz_%i_%i_%i_%i_%i", iParticle, iEta, iVz, iCent, iPt))));
              h2Dca[iParticle][iEta][iVz][iCent][iPt]->SetDirectory(0);
            }
          }
@@ -664,8 +647,8 @@ void bookObjects()
      }
    }
 
-   fHftRatio1->Close();
-   fDca1->Close();
+   fHftRatio1.Close();
+   fDca1.Close();
 
    cout << " Loading TPC tracking efficiencies " << endl;
 
@@ -676,10 +659,14 @@ void bookObjects()
 
    for(int iCent = 0; iCent< nCent; ++iCent)
    {
-     hTpcPiPlus[iCent] = (TH1D*)fTpcPiPlus.Get(Form("h1Ratiocent_%i",iCent))->Clone(Form("tpcPiPlus_%i",iCent));
-     hTpcPiMinus[iCent] = (TH1D*)fTpcPiMinus.Get(Form("h1Ratiocent_%i",iCent))->Clone(Form("tpcPiMinus_%i",iCent));
-     hTpcKPlus[iCent] = (TH1D*)fTpcKPlus.Get(Form("h1Ratiocent_%i",iCent))->Clone(Form("tpcKPlus_%i",iCent));
-     hTpcKMinus[iCent] = (TH1D*)fTpcKMinus.Get(Form("h1Ratiocent_%i",iCent))->Clone(Form("tpcKMinus_%i",iCent));
+     hTpcPiPlus[iCent] = (TH1D*)fTpcPiPlus.Get(Form("h1Ratiocent_%i",iCent));
+     hTpcPiPlus[iCent]->SetDirectory(0);
+     hTpcPiMinus[iCent] = (TH1D*)fTpcPiMinus.Get(Form("h1Ratiocent_%i",iCent));
+     hTpcPiMinus[iCent] ->SetDirectory(0);
+     hTpcKPlus[iCent] = (TH1D*)fTpcKPlus.Get(Form("h1Ratiocent_%i",iCent));
+     hTpcKPlus[iCent]->SetDirectory(0);
+     hTpcKMinus[iCent] = (TH1D*)fTpcKMinus.Get(Form("h1Ratiocent_%i",iCent));
+     hTpcKMinus[iCent]->SetDirectory(0);
    }
 
    fTpcPiPlus.Close();
@@ -692,6 +679,23 @@ void bookObjects()
    grEff[0] = new TGraph("eff_4080.csv", "%lg %lg", ",");
    grEff[1] = new TGraph("eff_1040.csv", "%lg %lg", ",");
    grEff[2] = new TGraph("eff_010.csv", "%lg %lg", ",");
+
+   result = new TFile(outFileName.c_str(), "recreate");
+   result->SetCompressionLevel(9);
+   result->cd();
+
+   int BufSize = (int)pow(2., 16.);
+   // int Split = 1;
+   nt = new TNtuple("nt", "", "cent:vx:vy:vz:vzIdx:"
+                    "pid:w:m:pt:eta:y:phi:v0x:v0y:v0z:" // MC D0
+                    "rM:rPt:rEta:rY:rPhi:rV0x:rV0y:rV0z:reco:" // Rc D0
+                    "dca12:decayLength:dcaD0ToPv:cosTheta:angle12:cosThetaStar:" // Rc pair
+                    "kM:kPt:kEta:kY:kPhi:kDca:" // MC Kaon
+                    "kRM:kRPt:kREta:kRY:kRPhi:kRVx:kRVy:kRVz:kRDca:kRSDca:kRDcaXY:kRDcaZ:kEtaIdx:kPtIdx:kTpc:" // Rc Kaon
+                    "pM:pPt:pEta:pY:pPhi:pDca:" // MC Pion1
+                    "pRM:pRPt:pREta:pRY:pRPhi:pRVx:pRVy:pRVz:pRDca:pRSDca:pRDcaXY:pRDcaZ:pEtaIdx:pPtIdx:pTpc:" // Rc Pion1
+                    "kHft:pHft",BufSize);
+   nt->SetAutoSave(-500000); // autosave every 1 Mbytes
 }
 //___________
 void write()
