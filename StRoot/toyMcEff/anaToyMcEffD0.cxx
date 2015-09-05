@@ -24,6 +24,7 @@
 #include <string>
 #include <cmath>
 #include <vector>
+#include <string>
 
 #include "TROOT.h"
 #include "TFile.h"
@@ -282,7 +283,8 @@ struct TopoHists
 
 int main(int argc, char **argv)
 {
-   d0Nt* t = new d0Nt();
+   std::string file = argv[1];
+   d0Nt* t = new d0Nt(file);
 
    TFile* fOut = new TFile("eff.root", "recreate");
 
