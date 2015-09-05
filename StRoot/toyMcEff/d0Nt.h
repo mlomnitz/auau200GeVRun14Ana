@@ -4,6 +4,8 @@
 // from TChain nt/
 //////////////////////////////////////////////////////////
 
+#include <string>
+
 #ifndef d0Nt_h
 #define d0Nt_h
 
@@ -144,7 +146,7 @@ public :
    TBranch        *b_kHft;   //!
    TBranch        *b_pHft;   //!
 
-   d0Nt(TTree *tree=0);
+   d0Nt(std::string file);
    virtual ~d0Nt();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
@@ -159,32 +161,13 @@ public :
 #endif
 
 #ifdef d0Nt_cxx
-d0Nt::d0Nt(TTree *tree) : fChain(0) 
+d0Nt::d0Nt(std::string file) : fChain(0) 
 {
-// if parameter tree is not specified (or zero), connect the file
-// used to generate this class and read the Tree.
-   if (tree == 0) {
 
-#ifdef SINGLE_TREE
-      // The following code should be used if you want this class to access
-      // a single tree instead of a chain
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("Memory Directory");
-      if (!f || !f->IsOpen()) {
-         f = new TFile("Memory Directory");
-      }
-      f->GetObject("nt",tree);
+  TChain * chain = new TChain("nt","");
+  chain->Add(file.c_str());
+  TTree* tree = chain;
 
-#else // SINGLE_TREE
-
-      // The following code should be used if you want this class to access a chain
-      // of trees.
-      TChain * chain = new TChain("nt","");
-      chain->Add("/global/project/projectdirs/star/rnc/mustafa/StToyMc/D0.root/nt");
-      chain->Add("/global/project/projectdirs/star/rnc/mustafa/StToyMc/D0_0.root/nt");
-      tree = chain;
-#endif // SINGLE_TREE
-
-   }
    Init(tree);
 }
 

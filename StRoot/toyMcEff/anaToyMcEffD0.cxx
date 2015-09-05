@@ -24,6 +24,7 @@
 #include <string>
 #include <cmath>
 #include <vector>
+#include <string>
 
 #include "TROOT.h"
 #include "TFile.h"
@@ -222,7 +223,8 @@ struct TopoHists
     if (!isGoodTrack(t->kRPt, t->kREta) || !isGoodTrack(t->pRPt, t->pREta)) return;
     if (t->rM <  anaCuts::massMin || t->rM > anaCuts::massMax) return;
     bool passHft = t->kHft > 0 && t->pHft > 0;
-    if (!passHft) return;
+    bool passTpc = t->kTpc>0 && t->pTpc>0;
+    if (!passHft || !passTpc) return;
 
     float weight = t->pt * t->w;
     int ptIndex = getD0PtIndex(t->rPt);
@@ -281,7 +283,8 @@ struct TopoHists
 
 int main(int argc, char **argv)
 {
-   d0Nt* t = new d0Nt();
+   std::string file = argv[1];
+   d0Nt* t = new d0Nt(file);
 
    TFile* fOut = new TFile("eff.root", "recreate");
 
