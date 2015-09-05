@@ -222,7 +222,8 @@ struct TopoHists
     if (!isGoodTrack(t->kRPt, t->kREta) || !isGoodTrack(t->pRPt, t->pREta)) return;
     if (t->rM <  anaCuts::massMin || t->rM > anaCuts::massMax) return;
     bool passHft = t->kHft > 0 && t->pHft > 0;
-    if (!passHft) return;
+    bool passTpc = t->kTpc>0 && t->pTpc>0;
+    if (!passHft || !passTpc) return;
 
     float weight = t->pt * t->w;
     int ptIndex = getD0PtIndex(t->rPt);
