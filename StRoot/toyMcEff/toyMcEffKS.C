@@ -110,6 +110,7 @@ void decayAndFill(int const kf, TLorentzVector* b, double const weight, TClonesA
        //Will only have pions
        case 211:
          ptl0->Momentum(p1Mom);
+         v00.SetXYZ(ptl0->Vx() * 1000., ptl0->Vy() * 1000., ptl0->Vz() * 1000.); // converted to μm
          break;
        case -211:
          ptl0->Momentum(p2Mom);
