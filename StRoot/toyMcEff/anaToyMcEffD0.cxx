@@ -76,9 +76,9 @@ int getD0CentIndex(float const cent)
    return bin;
 }
 
-bool isGoodTrack(float const pt, float const eta)
+bool isGoodTrack(float const ptCut, float const pt, float const eta)
 {
-   return pt > anaCuts::pt && fabs(eta) < anaCuts::eta;
+   return pt > ptCut && fabs(eta) < anaCuts::eta;
 }
 
 bool isGoodPair(float const pt, float const y, float const cosTheta, float const pDca, float const kDca,
@@ -97,6 +97,7 @@ bool isGoodPair(float const pt, float const y, float const cosTheta, float const
 struct Hists
 {
   int centrality;
+  float minPtCut;
   TH1D* hNoCuts;
   TH1D* hNoCutsPhysBinning;
   TH1D* hTopoCuts;
@@ -105,20 +106,21 @@ struct Hists
   TH1D* hTpcHftTopo;
   TH2D* h2MassPt;
 
-  Hists(int cent)
+  Hists(int cent,int ptCut)
   {
     centrality = cent;
+    minPtCut = ptCut;
 
     int nBins = 60;
     float minPt = 0.;
     float maxPt = 12.;
-    hNoCuts = new TH1D(Form("hNoCuts_%i",cent),Form("No Cuts %s",anaCuts::physCentralityName[cent].Data()),nBins,minPt,maxPt);
-    hNoCutsPhysBinning = new TH1D(Form("hNoCutsPhysBinning_%i",cent),Form("No Cuts Physics Binning %s",anaCuts::physCentralityName[cent].Data()),anaCuts::physNPtBins,anaCuts::physPtEdge);
-    hTopoCuts = new TH1D(Form("hTopoCuts_%i",cent),Form("Topo Cuts %s",anaCuts::physCentralityName[cent].Data()),nBins,minPt,maxPt);
-    hHftMatchingOnly = new TH1D(Form("hHftMatchingOnly_%i",cent),Form("HFT Matching Only %s",anaCuts::physCentralityName[cent].Data()),nBins,minPt,maxPt);
-    hTpcOnly = new TH1D(Form("hTpcOnly_%i",cent),Form("TPC Only %s",anaCuts::physCentralityName[cent].Data()),nBins,minPt,maxPt);
-    hTpcHftTopo = new TH1D(Form("hTpcHftTopo_%i",cent),Form("TPC + HFT + Topo %s",anaCuts::physCentralityName[cent].Data()),nBins,minPt,maxPt);
-    h2MassPt = new TH2D(Form("h2MassPt_%i",cent),Form("Invariant Mass vs. Pt %s",anaCuts::physCentralityName[cent].Data()),nBins,minPt,maxPt,210,0,2.1);
+    hNoCuts = new TH1D(Form("hNoCuts_minPt%i_%i",(int)minPtCut*100,cent),Form("No Cuts %s minPt>%1.2f",anaCuts::physCentralityName[cent].Data(),minPtCut),nBins,minPt,maxPt);
+    hNoCutsPhysBinning = new TH1D(Form("hNoCutsPhysBinning_minPt%i_%i",(int)minPtCut*100,cent),Form("No Cuts Physics Binning %s minPt>%1.2f",anaCuts::physCentralityName[cent].Data(),minPtCut),anaCuts::physNPtBins,anaCuts::physPtEdge);
+    hTopoCuts = new TH1D(Form("hTopoCuts_minPt%i_%i",(int)minPtCut*100,cent),Form("Topo Cuts %s minPt>%1.2f",anaCuts::physCentralityName[cent].Data(),minPtCut),nBins,minPt,maxPt);
+    hHftMatchingOnly = new TH1D(Form("hHftMatchingOnly_minPt%i_%i",(int)minPtCut*100,cent),Form("HFT Matching Only %s minPt>%1.2f",anaCuts::physCentralityName[cent].Data(),minPtCut),nBins,minPt,maxPt);
+    hTpcOnly = new TH1D(Form("hTpcOnly_minPt%i_%i",(int)minPtCut*100,cent),Form("TPC Only %s minPt>%1.2f",anaCuts::physCentralityName[cent].Data(),minPtCut),nBins,minPt,maxPt);
+    hTpcHftTopo = new TH1D(Form("hTpcHftTopo_minPt%i_%i",(int)minPtCut*100,cent),Form("TPC + HFT + Topo %s minPt>%1.2f",anaCuts::physCentralityName[cent].Data(),minPtCut),nBins,minPt,maxPt);
+    h2MassPt = new TH2D(Form("h2MassPt_minPt%i_%i",(int)minPtCut*100,cent),Form("Invariant Mass vs. Pt %s minPt>%1.2f",anaCuts::physCentralityName[cent].Data(),minPtCut),nBins,minPt,maxPt,210,0,2.1);
 
     hNoCuts->Sumw2();
     hNoCutsPhysBinning->Sumw2();
@@ -138,7 +140,7 @@ struct Hists
 
     hNoCuts->Fill(t->rPt,weight);
     hNoCutsPhysBinning->Fill(t->rPt,weight);
-    if (!isGoodTrack(t->kRPt, t->kREta) || !isGoodTrack(t->pRPt, t->pREta)) return;
+    if (!isGoodTrack(minPtCut,t->kRPt, t->kREta) || !isGoodTrack(minPtCut,t->pRPt, t->pREta)) return;
 
     if(passTopologicalCuts) hTopoCuts->Fill(t->rPt,weight);
     if(passHft) hHftMatchingOnly->Fill(t->rPt,weight);
@@ -185,15 +187,16 @@ struct Hists
     hTpcOnly->Write();
     hTpcHftTopo->Write();
     h2MassPt->Write();
-    makeEffciency(fOut,hTopoCuts,hNoCuts,hNoCutsPhysBinning);
-    makeEffciency(fOut,hHftMatchingOnly,hNoCuts,hNoCutsPhysBinning);
-    makeEffciency(fOut,hTpcOnly,hNoCuts,hNoCutsPhysBinning);
-    makeEffciency(fOut,hTpcHftTopo,hNoCuts,hNoCutsPhysBinning);
+    makeEffciency(fOut,hTopoCuts,hNoCuts,hNoCutsPhysBinning,true);
+    makeEffciency(fOut,hHftMatchingOnly,hNoCuts,hNoCutsPhysBinning,true);
+    makeEffciency(fOut,hTpcOnly,hNoCuts,hNoCutsPhysBinning,true);
+    makeEffciency(fOut,hTpcHftTopo,hNoCuts,hNoCutsPhysBinning,true);
   }
 };
 
 struct TopoHists
 {
+  float minPtCut;
   TH3F* mcPointingAngle;
   TH3F* mcDecayL;
   TH3F* mcDca12;
@@ -201,14 +204,15 @@ struct TopoHists
   TH3F* mcKaonDca2Vtx;
   TH3F* mcD0Dca2Vtx;
   
-  TopoHists()
+  TopoHists(float const minPt)
   {
-    mcPointingAngle = new TH3F(Form("%s_se_us_pointingangle", "mc"), "Same Event US pointing angle; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 1000, 0.9, 1.0);
-    mcDecayL = new TH3F(Form("%s_se_us_decayL", "mc"), "Same Event US Decay Length; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.1);
-    mcDca12 = new TH3F(Form("%s_se_us_dcaDaughters", "mc"), "Same Event US dca daughters; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.05);
-    mcPionDca2Vtx = new TH3F(Form("%s_se_us_pionDca", "mc"), "Same Event #pi dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.2);
-    mcKaonDca2Vtx = new TH3F(Form("%s_se_us_kaonDca", "mc"), "Same Event US K dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.2);
-    mcD0Dca2Vtx = new TH3F(Form("%s_se_us_D0Dca2Vtx", "mc"), "SameEvent US D0 dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.05);
+    minPtCut = minPt;
+    mcPointingAngle = new TH3F(Form("%s_se_us_pointingangle_minPt%i", "mc",(int)minPtCut), "Same Event US pointing angle; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 1000, 0.9, 1.0);
+    mcDecayL = new TH3F(Form("%s_se_us_decayL_minPt%i", "mc",(int)minPtCut), "Same Event US Decay Length; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.1);
+    mcDca12 = new TH3F(Form("%s_se_us_dcaDaughters_minPt%i", "mc",(int)minPtCut), "Same Event US dca daughters; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.05);
+    mcPionDca2Vtx = new TH3F(Form("%s_se_us_pionDca_minPt%i", "mc",(int)minPtCut), "Same Event #pi dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.2);
+    mcKaonDca2Vtx = new TH3F(Form("%s_se_us_kaonDca_minPt%i", "mc",(int)minPtCut), "Same Event US K dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.2);
+    mcD0Dca2Vtx = new TH3F(Form("%s_se_us_D0Dca2Vtx_minPt%i", "mc",(int)minPtCut), "SameEvent US D0 dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.05);
 
     mcPointingAngle->Sumw2();
     mcDecayL->Sumw2();
@@ -220,7 +224,7 @@ struct TopoHists
 
   void fill(d0Nt* t)
   {
-    if (!isGoodTrack(t->kRPt, t->kREta) || !isGoodTrack(t->pRPt, t->pREta)) return;
+    if (!isGoodTrack(minPtCut,t->kRPt, t->kREta) || !isGoodTrack(minPtCut,t->pRPt, t->pREta)) return;
     if (t->rM <  anaCuts::massMin || t->rM > anaCuts::massMax) return;
     bool passHft = t->kHft > 0 && t->pHft > 0;
     bool passTpc = t->kTpc>0 && t->pTpc>0;
@@ -291,12 +295,25 @@ int main(int argc, char **argv)
    Long64_t nEntries = t->GetEntries();
    cout << "nEntries = " << nEntries << endl;
 
-   std::vector<Hists> hists;
-   TopoHists          topoHists;
+   std::vector<Hists> hists600MeV;
+   std::vector<Hists> hists700MeV;
+   std::vector<Hists> hists800MeV;
+   std::vector<Hists> hists900MeV;
+   std::vector<Hists> hists1000MeV;
+   std::vector<Hists> hists1100MeV;
+   std::vector<Hists> hists1200MeV;
+
+   TopoHists          topoHists(0.6);
 
    for(int iCent = 0; iCent < anaCuts::physNCentralities; ++iCent)
    {
-     hists.push_back(Hists(iCent));
+     hists600MeV.push_back(Hists(0.6,iCent));
+     hists700MeV.push_back(Hists(0.7,iCent));
+     hists800MeV.push_back(Hists(0.8,iCent));
+     hists900MeV.push_back(Hists(0.9,iCent));
+     hists1000MeV.push_back(Hists(1.0,iCent));
+     hists1100MeV.push_back(Hists(1.1,iCent));
+     hists1200MeV.push_back(Hists(1.2,iCent));
    }
 
    for (Long64_t i = 0; i < t->GetEntries(); ++i)
@@ -309,14 +326,26 @@ int main(int argc, char **argv)
 
       int d0CentBin = getD0CentIndex(t->cent);
       if(d0CentBin<0) continue;
-      hists[d0CentBin].fill(t);
+      hists600MeV[d0CentBin].fill(t);
+      hists700MeV[d0CentBin].fill(t);
+      hists800MeV[d0CentBin].fill(t);
+      hists900MeV[d0CentBin].fill(t);
+      hists1000MeV[d0CentBin].fill(t);
+      hists1100MeV[d0CentBin].fill(t);
+      hists1200MeV[d0CentBin].fill(t);
 
       topoHists.fill(t);
    }
 
    for(int iCent = 0; iCent < anaCuts::physNCentralities; ++iCent)
    {
-     hists[iCent].write(fOut);
+     hists600MeV[iCent].write(fOut);
+     hists700MeV[iCent].write(fOut);
+     hists800MeV[iCent].write(fOut);
+     hists900MeV[iCent].write(fOut);
+     hists1000MeV[iCent].write(fOut);
+     hists1100MeV[iCent].write(fOut);
+     hists1200MeV[iCent].write(fOut);
    }
 
    topoHists.write(fOut);

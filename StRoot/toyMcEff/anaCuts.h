@@ -38,6 +38,6 @@ namespace anaCuts
 
    int   const physNPtBins = 10;
    // double const physPtEdge[physNPtBins+1] = {0., 1., 2., 3., 4., 5., 7., 12.};
-   float const physPtEdge[physNPtBins+1] = {0., 0.750, 1.250, 1.750, 2.250, 2.750, 3.750, 4.750 , 5.750, 7., 10.};
+   double const physPtEdge[physNPtBins+1] = {0., 0.750, 1.250, 1.750, 2.250, 2.750, 3.750, 4.750 , 5.750, 7., 10.};
 }
 #endif
