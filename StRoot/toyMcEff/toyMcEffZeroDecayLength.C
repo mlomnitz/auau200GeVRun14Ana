@@ -133,7 +133,7 @@ TH1D* hTpcKMinus[nCent];
 
 string outFileName = "D0.toyMc.root";
 std::pair<int, int> const decayChannels(747, 807);
-std::pair<float, float> const momentumRange(0, 12);
+std::pair<float, float> const momentumRange(0, 15);
 
 float const gVzCut = 6.0e4;
 float const acceptanceRapidity = 1.0;
@@ -193,8 +193,8 @@ void decayAndFill(int const kf, TLorentzVector* b, double const weight, TClonesA
       {
          case 321:
             ptl0->Momentum(kMom);
-            v00.SetXYZ(0,0,0);
-            // v00.SetXYZ(ptl0->Vx() * 1000., ptl0->Vy() * 1000., ptl0->Vz() * 1000.); // converted to μm
+            // v00.SetXYZ(0,0,0);
+            v00.SetXYZ(ptl0->Vx() * 1000., ptl0->Vy() * 1000., ptl0->Vz() * 1000.); // converted to μm
             break;
          case 211:
             ptl0->Momentum(pMom);
@@ -615,8 +615,8 @@ void bookObjects()
    fVertex.Close();
 
    cout << "Loading input HFT ratios and DCA ..." << endl;
-   TFile fHftRatio1("HFT_Ratio_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
-   TFile fDca1("2DProjection_simCent_NoBinWidth_3D_Dca_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
+   TFile fHftRatio1("HFT_Ratio_VsPt_Centrality_Eta_Phi_Vz_Zdcx_v4.root");
+   TFile fDca1("2DProjection_simCent_NoBinWidth_3D_Dca_VsPt_Centrality_Eta_Phi_Vz_Zdcx_v3.root");
 
    for (int iParticle = 0; iParticle < nParticles; ++iParticle)
    {
@@ -659,10 +659,10 @@ void bookObjects()
 
    cout << " Loading TPC tracking efficiencies " << endl;
 
-   TFile fTpcPiPlus("Eff_PionPlus_embedding.root");
-   TFile fTpcPiMinus("Eff_PionMinus_embedding.root");
-   TFile fTpcKPlus("Eff_KaonPlus_embedding.root");
-   TFile fTpcKMinus("Eff_KaonMinus_embedding.root");
+   TFile fTpcPiPlus("Eff_PionPlus_embedding_v2.root");
+   TFile fTpcPiMinus("Eff_PionMinus_embedding_v2.root");
+   TFile fTpcKPlus("Eff_KaonPlus_embedding_v2.root");
+   TFile fTpcKMinus("Eff_KaonMinus_embedding_v2.root");
 
    for(int iCent = 0; iCent< nCent; ++iCent)
    {
