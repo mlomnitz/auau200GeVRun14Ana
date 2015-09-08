@@ -106,7 +106,7 @@ struct Hists
   TH1D* hTpcHftTopo;
   TH2D* h2MassPt;
 
-  Hists(int cent,int ptCut)
+  Hists(float ptCut,int cent)
   {
     centrality = cent;
     minPtCut = ptCut;
@@ -114,13 +114,13 @@ struct Hists
     int nBins = 60;
     float minPt = 0.;
     float maxPt = 12.;
-    hNoCuts = new TH1D(Form("hNoCuts_minPt%i_%i",(int)minPtCut*100,cent),Form("No Cuts %s minPt>%1.2f",anaCuts::physCentralityName[cent].Data(),minPtCut),nBins,minPt,maxPt);
-    hNoCutsPhysBinning = new TH1D(Form("hNoCutsPhysBinning_minPt%i_%i",(int)minPtCut*100,cent),Form("No Cuts Physics Binning %s minPt>%1.2f",anaCuts::physCentralityName[cent].Data(),minPtCut),anaCuts::physNPtBins,anaCuts::physPtEdge);
-    hTopoCuts = new TH1D(Form("hTopoCuts_minPt%i_%i",(int)minPtCut*100,cent),Form("Topo Cuts %s minPt>%1.2f",anaCuts::physCentralityName[cent].Data(),minPtCut),nBins,minPt,maxPt);
-    hHftMatchingOnly = new TH1D(Form("hHftMatchingOnly_minPt%i_%i",(int)minPtCut*100,cent),Form("HFT Matching Only %s minPt>%1.2f",anaCuts::physCentralityName[cent].Data(),minPtCut),nBins,minPt,maxPt);
-    hTpcOnly = new TH1D(Form("hTpcOnly_minPt%i_%i",(int)minPtCut*100,cent),Form("TPC Only %s minPt>%1.2f",anaCuts::physCentralityName[cent].Data(),minPtCut),nBins,minPt,maxPt);
-    hTpcHftTopo = new TH1D(Form("hTpcHftTopo_minPt%i_%i",(int)minPtCut*100,cent),Form("TPC + HFT + Topo %s minPt>%1.2f",anaCuts::physCentralityName[cent].Data(),minPtCut),nBins,minPt,maxPt);
-    h2MassPt = new TH2D(Form("h2MassPt_minPt%i_%i",(int)minPtCut*100,cent),Form("Invariant Mass vs. Pt %s minPt>%1.2f",anaCuts::physCentralityName[cent].Data(),minPtCut),nBins,minPt,maxPt,210,0,2.1);
+    hNoCuts = new TH1D(Form("hNoCuts_minPt%i_%i",(int)(minPtCut*1e3),cent),Form("No Cuts %s minPt>%1.2f",anaCuts::physCentralityName[cent].Data(),minPtCut),nBins,minPt,maxPt);
+    hNoCutsPhysBinning = new TH1D(Form("hNoCutsPhysBinning_minPt%i_%i",(int)(minPtCut*1e3),cent),Form("No Cuts Physics Binning %s minPt>%1.2f",anaCuts::physCentralityName[cent].Data(),minPtCut),anaCuts::physNPtBins,anaCuts::physPtEdge);
+    hTopoCuts = new TH1D(Form("hTopoCuts_minPt%i_%i",(int)(minPtCut*1e3),cent),Form("Topo Cuts %s minPt>%1.2f",anaCuts::physCentralityName[cent].Data(),minPtCut),nBins,minPt,maxPt);
+    hHftMatchingOnly = new TH1D(Form("hHftMatchingOnly_minPt%i_%i",(int)(minPtCut*1e3),cent),Form("HFT Matching Only %s minPt>%1.2f",anaCuts::physCentralityName[cent].Data(),minPtCut),nBins,minPt,maxPt);
+    hTpcOnly = new TH1D(Form("hTpcOnly_minPt%i_%i",(int)(minPtCut*1e3),cent),Form("TPC Only %s minPt>%1.2f",anaCuts::physCentralityName[cent].Data(),minPtCut),nBins,minPt,maxPt);
+    hTpcHftTopo = new TH1D(Form("hTpcHftTopo_minPt%i_%i",(int)(minPtCut*1e3),cent),Form("TPC + HFT + Topo %s minPt>%1.2f",anaCuts::physCentralityName[cent].Data(),minPtCut),nBins,minPt,maxPt);
+    h2MassPt = new TH2D(Form("h2MassPt_minPt%i_%i",(int)(minPtCut*1e3),cent),Form("Invariant Mass vs. Pt %s minPt>%1.2f",anaCuts::physCentralityName[cent].Data(),minPtCut),nBins,minPt,maxPt,210,0,2.1);
 
     hNoCuts->Sumw2();
     hNoCutsPhysBinning->Sumw2();
@@ -152,7 +152,7 @@ struct Hists
     }
   }
 
-  void makeEffciency(TFile* fOut, TH1D* hPass,TH1D* hTotal,TH1D* hTotalPhysBinning=NULL,bool graphAsym=false)
+  void makeEffciency(TDirectory* fOut, TH1D* hPass,TH1D* hTotal,TH1D* hTotalPhysBinning=NULL,bool graphAsym=false)
   {
     fOut->cd();
     TString name = hPass->GetName();
@@ -172,25 +172,40 @@ struct Hists
 
     if(graphAsym)
     {
-      TGraphAsymmErrors* grEff = new TGraphAsymmErrors(hPass,hTotal);
+      TGraphAsymmErrors* grEff = new TGraphAsymmErrors(hPass,hTotal,"n");
       grEff->SetName(Form("grEff%s",name.Data()));
       grEff->SetTitle(Form("%s Eff.",hPass->GetTitle()));
       grEff->Write();
+
+      if(hTotalPhysBinning)
+      {
+        TH1* hPassPhysBinning = hPass->Rebin(anaCuts::physNPtBins,Form("hPassPhysBinning%s",name.Data()),anaCuts::physPtEdge);
+        TGraphAsymmErrors* grEffPhysBinning = new TGraphAsymmErrors(hPassPhysBinning,hTotalPhysBinning,"n");
+        grEffPhysBinning->SetName(Form("grEffPhysBinning%s",name.Data()));
+        grEffPhysBinning->SetTitle(Form("%s Eff. Physics Binning",hPass->GetTitle()));
+        grEffPhysBinning->Write();
+        delete hPassPhysBinning;
+      }
     }
   }
 
   void write(TFile* fOut)
   {
+    TDirectory* dir = NULL;
+    if(!(dir = (TDirectory*)fOut->Get(Form("minPt%iMeV",(int)(minPtCut*1e3)))))
+        dir = (TDirectory*)fOut->mkdir(Form("minPt%iMeV",(int)(minPtCut*1e3)));
+
+    dir->cd();
     hNoCuts->Write();
     hTopoCuts->Write();
     hHftMatchingOnly->Write();
     hTpcOnly->Write();
     hTpcHftTopo->Write();
     h2MassPt->Write();
-    makeEffciency(fOut,hTopoCuts,hNoCuts,hNoCutsPhysBinning,true);
-    makeEffciency(fOut,hHftMatchingOnly,hNoCuts,hNoCutsPhysBinning,true);
-    makeEffciency(fOut,hTpcOnly,hNoCuts,hNoCutsPhysBinning,true);
-    makeEffciency(fOut,hTpcHftTopo,hNoCuts,hNoCutsPhysBinning,true);
+    makeEffciency(dir,hTopoCuts,hNoCuts,hNoCutsPhysBinning,true);
+    makeEffciency(dir,hHftMatchingOnly,hNoCuts,hNoCutsPhysBinning,true);
+    makeEffciency(dir,hTpcOnly,hNoCuts,hNoCutsPhysBinning,true);
+    makeEffciency(dir,hTpcHftTopo,hNoCuts,hNoCutsPhysBinning,true);
   }
 };
 
