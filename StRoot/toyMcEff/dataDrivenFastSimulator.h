@@ -101,6 +101,7 @@ float const pxlLayer1Thickness = 0.00486;
 
 void loadHftRatio()
 {
+  std::cout << "Loading input HFT ratios ..." <<  std::endl;
   TFile fHftRatio1("HFT_Ratio_VsPt_Centrality_Eta_Phi_Vz_Zdcx_v4.root");
 
   for (int iParticle = 0; iParticle < nParticles; ++iParticle)
@@ -123,6 +124,7 @@ void loadHftRatio()
   }
 
   fHftRatio1.Close();
+  std::cout << "Done with loading all files ..." << std::endl;
 }
 
 void loadAllDistributions()
