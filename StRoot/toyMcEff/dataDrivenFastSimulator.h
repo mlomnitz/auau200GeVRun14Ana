@@ -112,8 +112,8 @@ void loadAllDistributions()
    fVertex.Close();
 
    cout << "Loading input HFT ratios and DCA ..." << endl;
-   TFile fHftRatio1("HFT_Ratio_VsPt_Centrality_Eta_Phi_Vz_Zdcx_v3.root");
-   TFile fDca1("2DProjection_simCent_NoBinWidth_3D_Dca_VsPt_Centrality_Eta_Phi_Vz_Zdcx.root");
+   TFile fHftRatio1("HFT_Ratio_VsPt_Centrality_Eta_Phi_Vz_Zdcx_v4.root");
+   TFile fDca1("2DProjection_simCent_NoBinWidth_3D_Dca_VsPt_Centrality_Eta_Phi_Vz_Zdcx_v3.root");
 
    for (int iParticle = 0; iParticle < nParticles; ++iParticle)
    {
@@ -156,10 +156,10 @@ void loadAllDistributions()
 
    cout << " Loading TPC tracking efficiencies " << endl;
 
-   TFile fTpcPiPlus("Eff_PionPlus_embedding_v3.root");
-   TFile fTpcPiMinus("Eff_PionMinus_embedding_v3.root");
-   TFile fTpcKPlus("Eff_KaonPlus_embedding_v3.root");
-   TFile fTpcKMinus("Eff_KaonMinus_embedding_v3.root");
+   TFile fTpcPiPlus("Eff_PionPlus_embedding_v2.root");
+   TFile fTpcPiMinus("Eff_PionMinus_embedding_v2.root");
+   TFile fTpcKPlus("Eff_KaonPlus_embedding_v2.root");
+   TFile fTpcKMinus("Eff_KaonMinus_embedding_v2.root");
 
    for(int iCent = 0; iCent< nCent; ++iCent)
    {
