@@ -42,12 +42,16 @@
 #include "TTree.h"
 #include "TNtuple.h"
 #include "TGraphAsymmErrors.h"
+#include "TGraphErrors.h"
 #endif
 
+#include "dataDrivenFastSimulator.h"
 #include "d0Nt.h"
 #include "anaCuts.h"
 
 using namespace std;
+
+TGraphErrors* gHftRatioCorrection = NULL;
 
 int getD0PtIndex(float const pt)
 {
@@ -134,20 +138,38 @@ struct Hists
   void fill(d0Nt const* const t)
   {
     bool passTopologicalCuts = isGoodPair(t->rPt, t->rY, t->cosTheta, t->pRDca, t->kRDca, t->dca12, t->decayLength, t->dcaD0ToPv);
-    bool passHft = t->kHft > 0 && t->pHft > 0;
+    // bool passHft = t->kHft > 0 && t->pHft > 0;
     bool passTpc = t->kTpc>0 && t->pTpc>0;
     float weight = t->pt * t->w;
+
+    float hftRatioWeight = matchHft(0,t->vz,t->cent,t->pRPt,t->pRPhi,t->pREta);
+    hftRatioWeight      *= matchHft(1,t->vz,t->cent,t->kRPt,t->kRPhi,t->kREta);
+
+    float hftRatioCorrection = 1.0;
 
     hNoCuts->Fill(t->rPt,weight);
     hNoCutsPhysBinning->Fill(t->rPt,weight);
     if (!isGoodTrack(minPtCut,t->kRPt, t->kREta) || !isGoodTrack(minPtCut,t->pRPt, t->pREta)) return;
 
-    if(passTopologicalCuts) hTopoCuts->Fill(t->rPt,weight);
-    if(passHft) hHftMatchingOnly->Fill(t->rPt,weight);
-    if(passTpc) hTpcOnly->Fill(t->rPt,weight);
-    if(passTpc && passHft && passTopologicalCuts) 
+    /*if(t->pRPt>0.6 && t->pRPt<1.99)
     {
-      hTpcHftTopo->Fill(t->rPt,weight);
+      hftRatioCorrection *= gHftRatioCorrection->Eval(t->pRPt);
+    }
+
+    if(t->kRPt>0.6 && t->kRPt<1.99)
+    {
+      hftRatioCorrection *= gHftRatioCorrection->Eval(t->kRPt);
+    }
+    */
+
+    if(passTopologicalCuts) hTopoCuts->Fill(t->rPt,weight);
+    if(passTpc) hTpcOnly->Fill(t->rPt,weight);
+
+    hHftMatchingOnly->Fill(t->rPt,weight * hftRatioCorrection * hftRatioWeight);
+
+    if(passTpc && passTopologicalCuts) 
+    {
+      hTpcHftTopo->Fill(t->rPt,weight * hftRatioCorrection * hftRatioWeight);
       h2MassPt->Fill(t->rPt,t->rM,weight);
     }
   }
@@ -222,12 +244,12 @@ struct TopoHists
   TopoHists(float const minPt)
   {
     minPtCut = minPt;
-    mcPointingAngle = new TH3F(Form("%s_se_us_pointingangle_minPt%i", "mc",(int)minPtCut), "Same Event US pointing angle; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 1000, 0.9, 1.0);
-    mcDecayL = new TH3F(Form("%s_se_us_decayL_minPt%i", "mc",(int)minPtCut), "Same Event US Decay Length; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.1);
-    mcDca12 = new TH3F(Form("%s_se_us_dcaDaughters_minPt%i", "mc",(int)minPtCut), "Same Event US dca daughters; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.05);
-    mcPionDca2Vtx = new TH3F(Form("%s_se_us_pionDca_minPt%i", "mc",(int)minPtCut), "Same Event #pi dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.2);
-    mcKaonDca2Vtx = new TH3F(Form("%s_se_us_kaonDca_minPt%i", "mc",(int)minPtCut), "Same Event US K dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.2);
-    mcD0Dca2Vtx = new TH3F(Form("%s_se_us_D0Dca2Vtx_minPt%i", "mc",(int)minPtCut), "SameEvent US D0 dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.05);
+    mcPointingAngle = new TH3F(Form("%s_se_us_pointingangle_minPt%i", "mc",(int)(minPtCut*1.e3)), "Same Event US pointing angle; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 1000, 0.9, 1.0);
+    mcDecayL = new TH3F(Form("%s_se_us_decayL_minPt%i", "mc",(int)(minPtCut*1.e3)), "Same Event US Decay Length; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.1);
+    mcDca12 = new TH3F(Form("%s_se_us_dcaDaughters_minPt%i", "mc",(int)(minPtCut*1.e3)), "Same Event US dca daughters; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.05);
+    mcPionDca2Vtx = new TH3F(Form("%s_se_us_pionDca_minPt%i", "mc",(int)(minPtCut*1.e3)), "Same Event #pi dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.2);
+    mcKaonDca2Vtx = new TH3F(Form("%s_se_us_kaonDca_minPt%i", "mc",(int)(minPtCut*1.e3)), "Same Event US K dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.2);
+    mcD0Dca2Vtx = new TH3F(Form("%s_se_us_D0Dca2Vtx_minPt%i", "mc",(int)(minPtCut*1.e3)), "SameEvent US D0 dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.05);
 
     mcPointingAngle->Sumw2();
     mcDecayL->Sumw2();
@@ -302,6 +324,10 @@ struct TopoHists
 
 int main(int argc, char **argv)
 {
+   loadHftRatio();
+   TFile* fHftRatioCorrection = new TFile("hftRatioCorrection_v1.root");
+   gHftRatioCorrection = (TGraphErrors*)fHftRatioCorrection->Get("Graph");
+
    std::string file = argv[1];
    d0Nt* t = new d0Nt(file);
 
