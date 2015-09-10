@@ -12,11 +12,17 @@
  * *********************************************************************
 */
 
+#include <iostream>
+
 #include "TFile.h"
 #include "TH1F.h"
 #include "TH1D.h"
 #include "TH2D.h"
 #include "TH3F.h"
+#include "TLorentzVector.h"
+#include "TVector3.h"
+#include "TFile.h"
+#include "TRandom3.h"
 
 
 TLorentzVector smearMom(int iParticleIndex,TLorentzVector const& b);
@@ -93,9 +99,35 @@ float const gVzCut = 6.0e4;
 float const sigmaPos0 = 15.2;
 float const pxlLayer1Thickness = 0.00486;
 
+void loadHftRatio()
+{
+  TFile fHftRatio1("HFT_Ratio_VsPt_Centrality_Eta_Phi_Vz_Zdcx_v4.root");
+
+  for (int iParticle = 0; iParticle < nParticles; ++iParticle)
+  {
+    for(int iCent = 0; iCent < nCent; ++iCent)
+    {
+      // HFT ratio
+      for (int iEta = 0; iEta < nEtasHftRatio; ++iEta)
+      {
+        for (int iVz = 0; iVz < nVzsHftRatio; ++iVz)
+        {
+          for(int iPhi = 0; iPhi < nPhisHftRatio; ++iPhi)
+          {
+            hHftRatio1[iParticle][iEta][iVz][iPhi][iCent] = (TH1D*)(fHftRatio1.Get(Form("mh1HFT1PtCentPartEtaVzPhiRatio_%i_%i_%i_%i_%i", iParticle, iEta, iVz, iPhi, iCent)));
+            hHftRatio1[iParticle][iEta][iVz][iPhi][iCent]->SetDirectory(0);
+          }
+        }
+      }
+    }
+  }
+
+  fHftRatio1.Close();
+}
+
 void loadAllDistributions()
 {
-  cout << "Loading input momentum resolution ..." << endl;
+   std::cout << "Loading input momentum resolution ..." <<  std::endl;
    TFile f("momentum_resolution.root");
    fPionMomResolution = (TF1*)f.Get("fPion")->Clone("fPion");
    fKaonMomResolution = (TF1*)f.Get("fKaon")->Clone("fKaon");
@@ -111,7 +143,7 @@ void loadAllDistributions()
 
    fVertex.Close();
 
-   cout << "Loading input HFT ratios and DCA ..." << endl;
+   std::cout << "Loading input HFT ratios and DCA ..." <<  std::endl;
    TFile fHftRatio1("HFT_Ratio_VsPt_Centrality_Eta_Phi_Vz_Zdcx_v4.root");
    TFile fDca1("2DProjection_simCent_NoBinWidth_3D_Dca_VsPt_Centrality_Eta_Phi_Vz_Zdcx_v3.root");
 
@@ -147,14 +179,14 @@ void loadAllDistributions()
            }
          }
        }
-       cout<<"Finished loading centrality: " << iCent << endl;
+       std::cout<<"Finished loading centrality: " << iCent << std::endl;
      }
    }
 
    fHftRatio1.Close();
    fDca1.Close();
 
-   cout << " Loading TPC tracking efficiencies " << endl;
+   std::cout << " Loading TPC tracking efficiencies " << std::endl;
 
    TFile fTpcPiPlus("Eff_PionPlus_embedding_v2.root");
    TFile fTpcPiMinus("Eff_PionMinus_embedding_v2.root");
@@ -178,7 +210,7 @@ void loadAllDistributions()
    fTpcKPlus.Close();
    fTpcKMinus.Close();
 
-   cout << "Done with loading all files ..." << endl;
+   std::cout << "Done with loading all files ..." << std::endl;
 }
 
 float dca(TVector3 const& p, TVector3 const& pos, TVector3 const& vertex)
@@ -382,12 +414,17 @@ bool tpcReconstructed(int iParticleIndex, float charge, int cent, TLorentzVector
   return gRandom->Rndm() < h->GetBinContent(bin);
 }
 
+bool matchHft(int const iParticleIndex, double const vz, int const cent, float const pt, float const phi, float const eta)
+{
+   int const iEtaIndex = getEtaIndexHftRatio(eta);
+   int const iVzIndex = getVzIndexHftRatio(vz);
+   int const iPhiIndex = getPhiIndexHftRatio(phi);
+
+   int const bin = hHftRatio1[iParticleIndex][iEtaIndex][iVzIndex][iPhiIndex][cent]->FindBin(pt);
+   return gRandom->Rndm() < hHftRatio1[iParticleIndex][iEtaIndex][iVzIndex][iPhiIndex][cent]->GetBinContent(bin);
+}
+
 bool matchHft(int const iParticleIndex, double const vz, int const cent, TLorentzVector const& mom)
 {
-   int const iEtaIndex = getEtaIndexHftRatio(mom.PseudoRapidity());
-   int const iVzIndex = getVzIndexHftRatio(vz);
-   int const iPhiIndex = getPhiIndexHftRatio(mom.Phi());
-
-   int const bin = hHftRatio1[iParticleIndex][iEtaIndex][iVzIndex][iPhiIndex][cent]->FindBin(mom.Perp());
-   return gRandom->Rndm() < hHftRatio1[iParticleIndex][iEtaIndex][iVzIndex][iPhiIndex][cent]->GetBinContent(bin);
+   return matchHft(iParticleIndex,vz,cent,mom.Perp(),mom.PseudoRapidity(),mom.Phi());
 }
