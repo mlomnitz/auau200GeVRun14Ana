@@ -310,6 +310,7 @@ int main(int argc, char **argv)
    Long64_t nEntries = t->GetEntries();
    cout << "nEntries = " << nEntries << endl;
 
+   std::vector<Hists> hists200MeV;
    std::vector<Hists> hists600MeV;
    std::vector<Hists> hists700MeV;
    std::vector<Hists> hists800MeV;
@@ -322,6 +323,7 @@ int main(int argc, char **argv)
 
    for(int iCent = 0; iCent < anaCuts::physNCentralities; ++iCent)
    {
+     hists200MeV.push_back(Hists(0.2,iCent));
      hists600MeV.push_back(Hists(0.6,iCent));
      hists700MeV.push_back(Hists(0.7,iCent));
      hists800MeV.push_back(Hists(0.8,iCent));
@@ -341,6 +343,7 @@ int main(int argc, char **argv)
 
       int d0CentBin = getD0CentIndex(t->cent);
       if(d0CentBin<0) continue;
+      hists200MeV[d0CentBin].fill(t);
       hists600MeV[d0CentBin].fill(t);
       hists700MeV[d0CentBin].fill(t);
       hists800MeV[d0CentBin].fill(t);
@@ -354,6 +357,7 @@ int main(int argc, char **argv)
 
    for(int iCent = 0; iCent < anaCuts::physNCentralities; ++iCent)
    {
+     hists200MeV[iCent].write(fOut);
      hists600MeV[iCent].write(fOut);
      hists700MeV[iCent].write(fOut);
      hists800MeV[iCent].write(fOut);
