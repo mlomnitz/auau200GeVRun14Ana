@@ -89,6 +89,7 @@ bool isGoodPair(float const pt, float const y, float const cosTheta, float const
                 float const dca12, float const decayLength, float const dcaV0ToPv)
 {
    int tmpIndex = getD0PtIndex(pt);
+    if(tmpIndex < 0) return false;
 
    return fabs(y) < anaCuts::rapidity &&
           cosTheta > anaCuts::cosTheta[tmpIndex] &&
@@ -275,6 +276,7 @@ struct TopoHists
 
     float weight = t->pt * t->w;
     int ptIndex = getD0PtIndex(t->rPt);
+    if(ptIndex < 0) return;
 
     //Cos theta
     if (t->pRDca > anaCuts::pDca[ptIndex] && t->kRDca > anaCuts::kDca[ptIndex] &&
