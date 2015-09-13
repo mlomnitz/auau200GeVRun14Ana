@@ -52,6 +52,7 @@
 using namespace std;
 
 TGraphErrors* gHftRatioCorrection = NULL;
+TF1*          gf1AuAu010Weight = NULL;
 
 int getD0PtIndex(float const pt)
 {
@@ -138,10 +139,12 @@ struct Hists
 
   void fill(d0Nt const* const t)
   {
+    if(t->rPt > 10.) return;
     bool passTopologicalCuts = isGoodPair(t->rPt, t->rY, t->cosTheta, t->pRDca, t->kRDca, t->dca12, t->decayLength, t->dcaD0ToPv);
     // bool passHft = t->kHft > 0 && t->pHft > 0;
     bool passTpc = t->kTpc>0 && t->pTpc>0;
-    float weight = t->pt * t->w;
+    // float weight = t->pt * t->w;
+    float weight = gf1AuAu010Weight->Eval(t->pt);
 
     float hftRatioWeight = matchHft(0,t->vz,t->cent,t->pRPt,t->pRPhi,t->pREta);
     hftRatioWeight      *= matchHft(1,t->vz,t->cent,t->kRPt,t->kRPhi,t->kREta);
@@ -335,6 +338,9 @@ int main(int argc, char **argv)
    loadHftRatio();
    TFile* fHftRatioCorrection = new TFile("hftRatioCorrection_v1.root");
    gHftRatioCorrection = (TGraphErrors*)fHftRatioCorrection->Get("Graph");
+
+   TFile* fAuAu010Weight = new TFile("AuAu010_weight.root");
+   gf1AuAu010Weight = (TF1*)fAuAu010Weight->Get("f1Levy010");
 
    std::string file = argv[1];
    d0Nt* t = new d0Nt(file);
