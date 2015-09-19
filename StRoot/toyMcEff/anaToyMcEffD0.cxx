@@ -52,6 +52,7 @@
 using namespace std;
 
 TGraphErrors* gHftRatioCorrection = NULL;
+TF1*          gf1AuAu010Weight = NULL;
 
 int getD0PtIndex(float const pt)
 {
@@ -138,10 +139,12 @@ struct Hists
 
   void fill(d0Nt const* const t)
   {
+    if(t->rPt > 10.) return;
     bool passTopologicalCuts = isGoodPair(t->rPt, t->rY, t->cosTheta, t->pRDca, t->kRDca, t->dca12, t->decayLength, t->dcaD0ToPv);
     // bool passHft = t->kHft > 0 && t->pHft > 0;
     bool passTpc = t->kTpc>0 && t->pTpc>0;
-    float weight = t->pt * t->w;
+    // float weight = t->pt * t->w;
+    float weight = gf1AuAu010Weight->Eval(t->pt);
 
     float hftRatioWeight = matchHft(0,t->vz,t->cent,t->pRPt,t->pRPhi,t->pREta);
     hftRatioWeight      *= matchHft(1,t->vz,t->cent,t->kRPt,t->kRPhi,t->kREta);
@@ -253,9 +256,9 @@ struct TopoHists
     minPtCut = minPt;
     mcPointingAngle = new TH3F(Form("%s_se_us_pointingangle_minPt%i", "mc",(int)(minPtCut*1.e3)), "Same Event US pointing angle; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 1000, 0.9, 1.0);
     mcDecayL = new TH3F(Form("%s_se_us_decayL_minPt%i", "mc",(int)(minPtCut*1.e3)), "Same Event US Decay Length; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, nDcaBins, 0, maxDca);
-    mcDca12 = new TH3F(Form("%s_se_us_dcaDaughters_minPt%i", "mc",(int)(minPtCut*1.e3)), "Same Event US dca daughters; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, nDca12Bins, 100, 0, maxDca12);
-    mcPionDca2Vtx = new TH3F(Form("%s_se_us_pionDca_minPt%i", "mc",(int)(minPtCut*1.e3)), "Same Event #pi dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, nDcaBins, 100, 0, maxDca);
-    mcKaonDca2Vtx = new TH3F(Form("%s_se_us_kaonDca_minPt%i", "mc",(int)(minPtCut*1.e3)), "Same Event US K dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, nDcaBins, 100, 0, maxDca);
+    mcDca12 = new TH3F(Form("%s_se_us_dcaDaughters_minPt%i", "mc",(int)(minPtCut*1.e3)), "Same Event US dca daughters; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 100, nDca12Bins, 0, maxDca12);
+    mcPionDca2Vtx = new TH3F(Form("%s_se_us_pionDca_minPt%i", "mc",(int)(minPtCut*1.e3)), "Same Event #pi dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 100, nDcaBins, 0, maxDca);
+    mcKaonDca2Vtx = new TH3F(Form("%s_se_us_kaonDca_minPt%i", "mc",(int)(minPtCut*1.e3)), "Same Event US K dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 100, nDcaBins, 0, maxDca);
     mcD0Dca2Vtx = new TH3F(Form("%s_se_us_D0Dca2Vtx_minPt%i", "mc",(int)(minPtCut*1.e3)), "SameEvent US D0 dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.05);
 
     mcPointingAngle->Sumw2();
@@ -335,6 +338,9 @@ int main(int argc, char **argv)
    loadHftRatio();
    TFile* fHftRatioCorrection = new TFile("hftRatioCorrection_v1.root");
    gHftRatioCorrection = (TGraphErrors*)fHftRatioCorrection->Get("Graph");
+
+   TFile* fAuAu010Weight = new TFile("AuAu010_weight.root");
+   gf1AuAu010Weight = (TF1*)fAuAu010Weight->Get("f1Levy010");
 
    std::string file = argv[1];
    d0Nt* t = new d0Nt(file);
