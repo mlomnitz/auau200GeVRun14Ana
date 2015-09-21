@@ -139,7 +139,8 @@ float const gVzCut = 6.0e4;
 float const acceptanceRapidity = 1.0;
 float const sigmaPos0 = 15.2;
 float const pxlLayer1Thickness = 0.00486;
-float const sigmaVertexCent[nCent] = {31., 18.1, 12.8, 9.3, 7.2, 5.9, 5., 4.6, 4.};
+// float const sigmaVertexCent[nCent] = {31., 18.1, 12.8, 9.3, 7.2, 5.9, 5., 4.6, 4.};
+float const sigmaVertexCent[nCent] = {52, 45, 40, 36, 32, 25, 21, 18, 14};
 
 //============== main  program ==================
 void toyMcEffZeroDecayLength(int npart = 100)
@@ -214,8 +215,8 @@ void fill(int const kf, TLorentzVector* b, double weight, TLorentzVector const& 
 
    TVector3 const vertex = getVertex(centrality);
    // smear primary vertex
-   // float const sigmaVertex = sigmaVertexCent[cent];
-   // TVector3 const vertex(gRandom->Gaus(0, sigmaVertex), gRandom->Gaus(0, sigmaVertex), gRandom->Gaus(0, sigmaVertex));
+   float const sigmaVertex = sigmaVertexCent[cent];
+   vertex += TVector3(gRandom->Gaus(0, sigmaVertex), gRandom->Gaus(0, sigmaVertex), gRandom->Gaus(0, sigmaVertex));
 
    v00 += vertex;
 
