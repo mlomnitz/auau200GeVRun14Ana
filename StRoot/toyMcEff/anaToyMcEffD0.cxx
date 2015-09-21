@@ -256,9 +256,9 @@ struct TopoHists
     minPtCut = minPt;
     mcPointingAngle = new TH3F(Form("%s_se_us_pointingangle_minPt%i", "mc",(int)(minPtCut*1.e3)), "Same Event US pointing angle; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 1000, 0.9, 1.0);
     mcDecayL = new TH3F(Form("%s_se_us_decayL_minPt%i", "mc",(int)(minPtCut*1.e3)), "Same Event US Decay Length; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, nDcaBins, 0, maxDca);
-    mcDca12 = new TH3F(Form("%s_se_us_dcaDaughters_minPt%i", "mc",(int)(minPtCut*1.e3)), "Same Event US dca daughters; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 100, nDca12Bins, 0, maxDca12);
-    mcPionDca2Vtx = new TH3F(Form("%s_se_us_pionDca_minPt%i", "mc",(int)(minPtCut*1.e3)), "Same Event #pi dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 100, nDcaBins, 0, maxDca);
-    mcKaonDca2Vtx = new TH3F(Form("%s_se_us_kaonDca_minPt%i", "mc",(int)(minPtCut*1.e3)), "Same Event US K dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 100, nDcaBins, 0, maxDca);
+    mcDca12 = new TH3F(Form("%s_se_us_dcaDaughters_minPt%i", "mc",(int)(minPtCut*1.e3)), "Same Event US dca daughters; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, nDca12Bins, 0, maxDca12);
+    mcPionDca2Vtx = new TH3F(Form("%s_se_us_pionDca_minPt%i", "mc",(int)(minPtCut*1.e3)), "Same Event #pi dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, nDcaBins, 0, maxDca);
+    mcKaonDca2Vtx = new TH3F(Form("%s_se_us_kaonDca_minPt%i", "mc",(int)(minPtCut*1.e3)), "Same Event US K dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, nDcaBins, 0, maxDca);
     mcD0Dca2Vtx = new TH3F(Form("%s_se_us_D0Dca2Vtx_minPt%i", "mc",(int)(minPtCut*1.e3)), "SameEvent US D0 dca 2 vertex; p_{T} (GeV/c);centrality", 150, 0, 15, 9, 0, 9, 100, 0, 0.05);
 
     mcPointingAngle->Sumw2();
