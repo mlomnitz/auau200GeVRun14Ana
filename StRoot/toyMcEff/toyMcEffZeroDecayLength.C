@@ -213,9 +213,9 @@ void fill(int const kf, TLorentzVector* b, double weight, TLorentzVector const& 
 {
    int const centrality = floor(nCent * gRandom->Rndm());
 
-   TVector3 const vertex = getVertex(centrality);
+   TVector3 vertex = getVertex(centrality);
    // smear primary vertex
-   float const sigmaVertex = sigmaVertexCent[cent];
+   float const sigmaVertex = sigmaVertexCent[centrality];
    vertex += TVector3(gRandom->Gaus(0, sigmaVertex), gRandom->Gaus(0, sigmaVertex), gRandom->Gaus(0, sigmaVertex));
 
    v00 += vertex;
