@@ -34,6 +34,7 @@
 #include "TMath.h"
 #include "phys_constants.h"
 #include "SystemOfUnits.h"
+#include "dataDrivenFastSimulator.h"
 
 using namespace std;
 
@@ -41,48 +42,20 @@ void setDecayChannels(int const mdme);
 void decayAndFill(int const kf, int const decayChennel, TLorentzVector* b, double const weight, TClonesArray& daughters);
 void fill(int const kf, int const decayChennel, TLorentzVector* b, double weight, TLorentzVector const& kMom, TLorentzVector const& pMom, TVector3 const& v00);
 void getKinematics(TLorentzVector& b, double const mass);
-TLorentzVector smearMom(TLorentzVector const& b, TF1 const * const fMomResolution);
-TVector3 smearPos(TLorentzVector const& mom, TLorentzVector const& rMom, TVector3 const& pos);
-TVector3 smearPosData(int const cent, TLorentzVector const& rMom, TVector3 const& pos);
-float dca(TVector3 const& p, TVector3 const& pos, TVector3 const& vertex);
-float dca1To2(TVector3 const& p1, TVector3 const& pos1, TVector3 const& p2, TVector3 const& pos2, TVector3& v0);
-bool matchHft(int const centrality, TLorentzVector const& mom);
-bool reconstructD0(int const centrality, TLorentzVector const& mom);
+
 void bookObjects();
 void write();
-int getptIndex(double);
-
 TPythia6Decayer* pydecay;
 TNtuple* nt;
 TFile* result;
 
-TF1* fKaonMomResolution = NULL;
-TF1* fPionMomResolution = NULL;
 TF1* fWeightFunction = NULL;
-TGraph* grEff[3];
-const Int_t nCent = 9;
-const Int_t nPtBins = 35;
-const Double_t ptEdge[nPtBins + 1] = { 0.0, 0.2, 0.4,  0.6,  0.8,
-                                       1.0, 1.2, 1.4,  1.6,  1.8,
-                                       2.0, 2.2, 2.4,  2.6,  2.8,
-                                       3.0, 3.2, 3.4,  3.6,  3.8,
-                                       4.0, 4.2, 4.4,  4.6,  4.8,
-                                       5.0, 5.4, 5.8,  6.2,  6.6,
-                                       7.0, 8.0, 9.0, 10.0, 11.0, 12.0,
-                                     };
-
-TH1D* hHftRatio[nCent];
-TH1D* h1DcaZ[nCent][nPtBins];
-TH1D* h1DcaXY[nCent][nPtBins];
 
 string outFileName = "D0Bump.toyMc.root";
 std::pair<int, int> const decayChannels(673, 807);
 std::pair<float, float> const momentumRange(0.3, 12);
 
 float const acceptanceRapidity = 1.0;
-float const sigmaPos0 = 15.2;
-float const pxlLayer1Thickness = 0.00486;
-float const sigmaVertexCent[nCent] = {31., 18.1, 12.8, 9.3, 7.2, 5.9, 5., 4.6, 4.};
 
 //============== main  program ==================
 void toyMcEffD0Bump(int npart = 100)
@@ -330,95 +303,13 @@ void getKinematics(TLorentzVector& b, double const mass)
 
    b.SetPxPyPzE(pt * cos(phi), pt * sin(phi) , pz, E);
 }
-
-float dca(TVector3 const& p, TVector3 const& pos, TVector3 const& vertex)
-{
-   TVector3 posDiff = pos - vertex;
-   return fabs(p.Cross(posDiff.Cross(p)).Unit().Dot(posDiff));
-}
-
-float dca1To2(TVector3 const& p1, TVector3 const& pos1, TVector3 const& p2, TVector3 const& pos2, TVector3& v0)
-{
-   TVector3 posDiff = pos2 - pos1;
-   TVector3 pu1 = p1.Unit();
-   TVector3 pu2 = p2.Unit();
-   double pu1Pu2 = pu1.Dot(pu2);
-   double g = posDiff.Dot(pu1);
-   double k = posDiff.Dot(pu2);
-   double s2 = (k - pu1Pu2 * g) / (pu1Pu2 * pu1Pu2 - 1.);
-   double s1 = g + s2 * pu1Pu2;
-   TVector3 posDca1 = pos1 + pu1 * s1;
-   TVector3 posDca2 = pos2 + pu2 * s2;
-   v0 = 0.5 * (posDca1 + posDca2);
-   return (posDca1 - posDca2).Mag();
-}
-
-TLorentzVector smearMom(TLorentzVector const& b, TF1 const * const fMomResolution)
-{
-   float const pt = b.Perp();
-   float const sPt = gRandom->Gaus(pt, 1.2 * pt * fMomResolution->Eval(pt));
-
-   TLorentzVector sMom;
-   sMom.SetXYZM(sPt * cos(b.Phi()), sPt * sin(b.Phi()), sPt * sinh(b.PseudoRapidity()), b.M());
-   return sMom;
-}
-
-TVector3 smearPos(TLorentzVector const& mom, TLorentzVector const& rMom, TVector3 const& pos)
-{
-   float thetaMCS = 13.6 / mom.Beta() / rMom.P() / 1000 * sqrt(pxlLayer1Thickness / fabs(sin(mom.Theta())));
-   float sigmaMCS = thetaMCS * 28000 / fabs(sin(mom.Theta()));
-   float sigmaPos = sqrt(pow(sigmaMCS, 2) + pow(sigmaPos0, 2));
-
-   return TVector3(gRandom->Gaus(pos.X(), sigmaPos), gRandom->Gaus(pos.Y(), sigmaPos), gRandom->Gaus(pos.Z(), sigmaPos));
-}
-
-int getptIndex(double pT)
-{
-   for (int i = 0; i < nPtBins; i++)
-   {
-      if ((pT >= ptEdge[i]) && (pT < ptEdge[i + 1]))
-         return i;
-   }
-}
-
-TVector3 smearPosData(int const cent, TLorentzVector const& rMom, TVector3 const& pos)
-{
-   int ptIndex = getptIndex(rMom.Perp());
-   float sigmaPosZ = h1DcaZ[cent][ptIndex]->GetRandom() * 1e4;
-   float sigmaPosXY = h1DcaXY[cent][ptIndex]->GetRandom() * 1e4;
-
-   TVector3 newPos(pos);
-   newPos.SetZ(0);
-   TVector3 momPerp(-rMom.Vect().Y(), rMom.Vect().X(), 0.0);
-   newPos += momPerp.Unit() * sigmaPosXY;
-
-   return TVector3(newPos.X(), newPos.Y(), pos.Z() + sigmaPosZ);
-}
-
-bool reconstructD0(int const centrality, TLorentzVector const& mom)
-{
-   TGraph* gr = NULL;
-
-   if (centrality < 4) gr = grEff[0];
-   else if (centrality < 7) gr = grEff[1];
-   else gr = grEff[2];
-
-   return gRandom->Rndm() < gr->Eval(mom.Perp());
-}
-
-bool matchHft(int const cent, TLorentzVector const& mom)
-{
-   int const bin = hHftRatio[cent]->FindBin(mom.Perp());
-   return gRandom->Rndm() < hHftRatio[cent]->GetBinContent(bin);
-}
-
 //___________
 void bookObjects()
 {
    result = new TFile(outFileName.c_str(), "recreate");
    result->cd();
 
-   TH1::AddDirectory(false);
+   int BufSize = (int)pow(2., 16.);
    nt = new TNtuple("nt", "", "decayChannel:cent:vx:vy:vz:"
                     "pid:w:m:pt:eta:y:phi:v0x:v0y:v0z:" // MC D0
                     "rM:misPidM:rPt:rEta:rY:rPhi:reco:" // Rc D0
@@ -427,43 +318,11 @@ void bookObjects()
                     "kRM:kRPt:kREta:kRY:kRPhi:kRVx:kRVy:kRVz:kRDca:" // Rc Kaon
                     "pM:pPt:pEta:pY:pPhi:pDca:" // MC Pion1
                     "pRM:pRPt:pREta:pRY:pRPhi:pRVx:pRVy:pRVz:pRDca:" // Rc Pion1
-                    "kHft:pHft");
-
-   TFile f("momentum_resolution.root");
-   fPionMomResolution = (TF1*)f.Get("fPion")->Clone("fPionMomResolution");
-   fKaonMomResolution = (TF1*)f.Get("fKaon")->Clone("fKaonMomResolution");
-   f.Close();
+                    "kHft:pHft",BufSize);
 
    TFile fPP("pp200_spectra.root");
    fWeightFunction = (TF1*)fPP.Get("run12/f1Levy")->Clone("fWeightFunction");
    fPP.Close();
-
-   TFile fHftRatio("HFT_Ratio_VsPt_Centrality.root");
-   TFile fDca("Dca_VsPt_Centrality.root");
-
-   for (int ii = 0; ii < 9; ++ii)
-   {
-      hHftRatio[ii] = (TH1D*)(fHftRatio.Get(Form("mh1HFTRatio1_%i", ii))->Clone(Form("mh1HFTRatio1_%i", ii)));
-      result->cd();
-      hHftRatio[ii]->Write();
-   }
-
-   result->cd();
-   for (int ii = 0; ii < nCent; ++ii)
-   {
-      for (int jj = 0; jj < nPtBins; ++jj)
-      {
-         h1DcaXY[ii][jj] = (TH1D*)((fDca.Get(Form("mh3DcaXy_Cent%i_Pt%i", ii, jj)))->Clone(Form("mh3DcaXy_Cent%i_Pt%i", ii, jj)));
-         h1DcaZ[ii][jj]  = (TH1D*)((fDca.Get(Form("mh3DcaZ_Cent%i_Pt%i", ii, jj)))->Clone(Form("mh3DcaZ_Cent%i_Pt%i", ii, jj)));
-      }
-   }
-
-   fHftRatio.Close();
-   fDca.Close();
-
-   grEff[0] = new TGraph("eff_4080.csv", "%lg %lg", ",");
-   grEff[1] = new TGraph("eff_1040.csv", "%lg %lg", ",");
-   grEff[2] = new TGraph("eff_010.csv", "%lg %lg", ",");
 }
 //___________
 void write()

@@ -4,8 +4,6 @@
 // from TChain nt/
 //////////////////////////////////////////////////////////
 
-#include <string>
-
 #ifndef d0Nt_h
 #define d0Nt_h
 
@@ -64,6 +62,9 @@ public :
    Float_t         kRVy;
    Float_t         kRVz;
    Float_t         kRDca;
+   Float_t         kRSDca;
+   Float_t         kRDcaXY;
+   Float_t         kRDcaZ;
    Float_t         kTpc;
    Float_t         pM;
    Float_t         pPt;
@@ -80,6 +81,9 @@ public :
    Float_t         pRVy;
    Float_t         pRVz;
    Float_t         pRDca;
+   Float_t         pRSDca;
+   Float_t         pRDcaXY;
+   Float_t         pRDcaZ;
    Float_t         pTpc;
    Float_t         kHft;
    Float_t         pHft;
@@ -126,6 +130,9 @@ public :
    TBranch        *b_kRVy;   //!
    TBranch        *b_kRVz;   //!
    TBranch        *b_kRDca;   //!
+   TBranch        *b_kRSDca;   //!
+   TBranch        *b_kRDcaXY;   //!
+   TBranch        *b_kRDcaZ;   //!
    TBranch        *b_kTpc;   //!
    TBranch        *b_pM;   //!
    TBranch        *b_pPt;   //!
@@ -142,11 +149,14 @@ public :
    TBranch        *b_pRVy;   //!
    TBranch        *b_pRVz;   //!
    TBranch        *b_pRDca;   //!
+   TBranch        *b_pRSDca;   //!
+   TBranch        *b_pRDcaXY;   //!
+   TBranch        *b_pRDcaZ;   //!
    TBranch        *b_pTpc;   //!
    TBranch        *b_kHft;   //!
    TBranch        *b_pHft;   //!
 
-   d0Nt(std::string file);
+   d0Nt(TTree *tree=0);
    virtual ~d0Nt();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
@@ -161,13 +171,31 @@ public :
 #endif
 
 #ifdef d0Nt_cxx
-d0Nt::d0Nt(std::string file) : fChain(0) 
+d0Nt::d0Nt(TTree *tree) : fChain(0) 
 {
+// if parameter tree is not specified (or zero), connect the file
+// used to generate this class and read the Tree.
+   if (tree == 0) {
 
-  TChain * chain = new TChain("nt","");
-  chain->Add(file.c_str());
-  TTree* tree = chain;
+#ifdef SINGLE_TREE
+      // The following code should be used if you want this class to access
+      // a single tree instead of a chain
+      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("Memory Directory");
+      if (!f || !f->IsOpen()) {
+         f = new TFile("Memory Directory");
+      }
+      f->GetObject("nt",tree);
 
+#else // SINGLE_TREE
+
+      // The following code should be used if you want this class to access a chain
+      // of trees.
+      TChain * chain = new TChain("nt","");
+      chain->Add("D0.zeroDecayLength.toyMc.root");
+      tree = chain;
+#endif // SINGLE_TREE
+
+   }
    Init(tree);
 }
 
@@ -253,6 +281,9 @@ void d0Nt::Init(TTree *tree)
    fChain->SetBranchAddress("kRVy", &kRVy, &b_kRVy);
    fChain->SetBranchAddress("kRVz", &kRVz, &b_kRVz);
    fChain->SetBranchAddress("kRDca", &kRDca, &b_kRDca);
+   fChain->SetBranchAddress("kRSDca", &kRSDca, &b_kRSDca);
+   fChain->SetBranchAddress("kRDcaXY", &kRDcaXY, &b_kRDcaXY);
+   fChain->SetBranchAddress("kRDcaZ", &kRDcaZ, &b_kRDcaZ);
    fChain->SetBranchAddress("kTpc", &kTpc, &b_kTpc);
    fChain->SetBranchAddress("pM", &pM, &b_pM);
    fChain->SetBranchAddress("pPt", &pPt, &b_pPt);
@@ -269,6 +300,9 @@ void d0Nt::Init(TTree *tree)
    fChain->SetBranchAddress("pRVy", &pRVy, &b_pRVy);
    fChain->SetBranchAddress("pRVz", &pRVz, &b_pRVz);
    fChain->SetBranchAddress("pRDca", &pRDca, &b_pRDca);
+   fChain->SetBranchAddress("pRSDca", &pRSDca, &b_pRSDca);
+   fChain->SetBranchAddress("pRDcaXY", &pRDcaXY, &b_pRDcaXY);
+   fChain->SetBranchAddress("pRDcaZ", &pRDcaZ, &b_pRDcaZ);
    fChain->SetBranchAddress("pTpc", &pTpc, &b_pTpc);
    fChain->SetBranchAddress("kHft", &kHft, &b_kHft);
    fChain->SetBranchAddress("pHft", &pHft, &b_pHft);

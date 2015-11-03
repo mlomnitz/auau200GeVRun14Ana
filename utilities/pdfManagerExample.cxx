@@ -32,14 +32,14 @@ int main()
   // plot events statistics
   pdf->newPage(2,1,"First page"); // divide the page into 2x1 canvases
   pdf->draw(h1);
-  pdf->draw(h2,"colz",false,false,false,true);
+  pdf->draw(h2,"colz");
 
   pdf->newPage(2,1); // divide the page into 2x1 canvases
   pdf->draw(h2->ProjectionX(),h2->ProjectionY()); // plot two histograms in the same canvas
 
   gStyle->SetOptStat(0);
   pdf->newLegend("testing legend"); // create a new legend
-  pdf->draw(h2->ProjectionX(),h1,"",true); // plot two histograms in the same canvas and add legend
+  pdf->draw(h2->ProjectionX(),h1); // plot two histograms in the same canvas and add legend
 
   pdf->close();
 
