@@ -25,15 +25,16 @@
 #include "StPicoD0AnaHists.h"
 #include "StAnaCuts.h"
 #include "StRoot/StRefMultCorr/StRefMultCorr.h"
+#include "kfEvent.h"
 
 #include "StMemStat.h"
 
 ClassImp(StPicoD0AnaMaker)
 
-StPicoD0AnaMaker::StPicoD0AnaMaker(char const * name, TString const inputFilesList,
+StPicoD0AnaMaker::StPicoD0AnaMaker(char const * name, TString const inputFilesList, char const * kfFileList,
                                    TString const outFileBaseName, StPicoDstMaker* picoDstMaker, StRefMultCorr* grefmultCorrUtil):
-   StMaker(name), mPicoDstMaker(picoDstMaker), mPicoD0Event(NULL), mGRefMultCorrUtil(grefmultCorrUtil),
-   mInputFilesList(inputFilesList), mOutFileBaseName(outFileBaseName), mChain(NULL), mEventCounter(0),
+   StMaker(name), mPicoDstMaker(picoDstMaker), mPicoD0Event(NULL), mGRefMultCorrUtil(grefmultCorrUtil), mKfEvent(NULL),
+   mInputFilesList(inputFilesList), mKfFileList(kfFileList), mOutFileBaseName(outFileBaseName), mChain(NULL), mKfChain(NULL), mEventCounter(0),
    mHists(NULL)
 {}
 
@@ -61,6 +62,27 @@ Int_t StPicoD0AnaMaker::Init()
    mChain->GetBranch("dEvent")->SetAutoDelete(kFALSE);
    mChain->SetBranchAddress("dEvent", &mPicoD0Event);
 
+   // -------------Next is include KfVertex tree
+   // mKfEvent = new kfEvent();
+   mKfChain = new TChain("kfEvent");
+   std::ifstream listOfKfFiles;
+   listOfKfFiles.open(mKfFileList);
+   if (listOfKfFiles.is_open())
+   {
+      std::string kffile;
+      while (getline(listOfKfFiles, kffile))
+      {
+         LOG_INFO << "StPicoD0AnaMaker - Adding kfVertex tree:" << kffile << endm;
+         mKfChain->Add(kffile.c_str());
+      }
+   }
+   else
+   {
+      LOG_ERROR << "StPicoD0AnaMaker - Could not open list of corresponding kfEvent files. ABORT!" << endm;
+      return kStErr;
+   }
+   mKfEvent = new kfEvent(mKfChain);
+
    // -------------- USER VARIABLES -------------------------
    mHists = new StPicoD0AnaHists(mOutFileBaseName);
 
@@ -69,7 +91,6 @@ Int_t StPicoD0AnaMaker::Init()
 //-----------------------------------------------------------------------------
 StPicoD0AnaMaker::~StPicoD0AnaMaker()
 {
-   delete mGRefMultCorrUtil;
 }
 //-----------------------------------------------------------------------------
 Int_t StPicoD0AnaMaker::Finish()
@@ -97,11 +118,11 @@ Int_t StPicoD0AnaMaker::Make()
       return kStWarn;
    }
 
-   if (mPicoD0Event->runId() != picoDst->event()->runId() ||
-         mPicoD0Event->eventId() != picoDst->event()->eventId())
+   if (mPicoD0Event->runId() != picoDst->event()->runId() ||  mPicoD0Event->runId() != mKfEvent->mRunId  ||
+         mPicoD0Event->eventId() != picoDst->event()->eventId() || mPicoD0Event->eventId() != mKfEvent->mEventId)
    {
       LOG_ERROR << " StPicoD0AnaMaker - !!!!!!!!!!!! ATTENTION !!!!!!!!!!!!!" << endm;
-      LOG_ERROR << " StPicoD0AnaMaker - SOMETHING TERRIBLE JUST HAPPENED. StPicoEvent and StPicoD0Event are not in sync." << endm;
+      LOG_ERROR << " StPicoD0AnaMaker - SOMETHING TERRIBLE JUST HAPPENED. StPicoEvent and StPicoD0Event and KfEvent are not in sync." << endm;
       exit(1);
    }
 
@@ -116,6 +137,12 @@ Int_t StPicoD0AnaMaker::Make()
       StThreeVectorF const pVtx = picoDst->event()->primaryVertex();
       StThreeVectorF const pVtxErr = picoDst->event()->primaryVertexError();
 
+      if ( pVtx.x() != mKfEvent->mVx )             // || pVtx.y() != mKfEvent->mVy || pVtx.z() != mKfEvent->mVz
+      {
+         LOG_ERROR << " StPicoD0AnaMaker - !!!!!!!!!!!! ATTENTION !!!!!!!!!!!!!" << endm;
+         LOG_ERROR << " StPicoD0AnaMaker - SOMETHING TERRIBLE JUST HAPPENED. StPicoD0Event and KfEvent vertex are not in sync." << endm;
+         exit(1);
+      }
 
       if (!mGRefMultCorrUtil)
       {
