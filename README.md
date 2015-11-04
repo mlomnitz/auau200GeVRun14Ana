@@ -30,6 +30,12 @@ RHIC year 2014 Run, with Heavy Flavor Tracker
 15. [D<sup>0</sup> Bump](http://www.star.bnl.gov/protected/heavy/mstftsm/run14/talks/2015-06-22-Soft-Hadron.pdf), Mustafa, HF PWG, 2015-07-16  
 16. [Vertex resolution studies with KFVertex and Minuit Vertex ](http://drupal.star.bnl.gov/STAR/system/files/2015July22_VtxResolution.pdf), Guannan, HF PWG, 2015-07-23  
 17. [D<sup>0</sup> Tree with KFVertex](https://drupal.star.bnl.gov/STAR/system/files/2015July22_KfD0Tree_FinalCheck.pdf), Guannan, HF PWG, 2015-07-23  
+18. [Vertex resolution studies with KFVertex and Minuit Vertex (update) ](https://drupal.star.bnl.gov/STAR/system/files/2015July27_VtxResolution_nTracks_Tof.pdf), Guannan, 2015-07-27  
+19. [Secondary Track Dca contribution study](https://drupal.star.bnl.gov/STAR/system/files/2015Aug9_SeconaryTrack_Dca.pdf), Guannan, 2015-08-11  
+20. [D<sup>0</sup> Production for Run14 AuAu200 GeV HF workshop](https://drupal.star.bnl.gov/STAR/system/files/2015Aug20HFTWorkShop.pdf), Guannan, LBL HF Workshop, 2015-08-20 
+21. [D<sup>0</sup> Production for Run14 AuAu200 GeV short summary](https://drupal.star.bnl.gov/STAR/system/files/2015Sep10_HFPWG.pdf), Guannan, HF PWG, 2015-09-10  
+22. [D<sup>0</sup> Systematic Error Study short summary](https://drupal.star.bnl.gov/STAR/system/files/2015Sep27_PWG_D0SystematicErrStudy.pdf), Guannan, HF PWG,2015-09-27  
+23. [R_AA of D<sup>0</sup> Meson in Au+Au Collisions at 200GeV](https://drupal.star.bnl.gov/STAR/files/GuannanX_DMesonQM15_V0.11_0.pdf), Guannan, QM15,2015-10-28  
 
 - - -
 ### Preliminary results:
