@@ -37,7 +37,8 @@ RHIC year 2014 Run, with Heavy Flavor Tracker
 22. [D<sup>0</sup> Production for Run14 AuAu200 GeV short summary](https://drupal.star.bnl.gov/STAR/system/files/2015Sep10_HFPWG.pdf), Guannan, HF PWG, 2015-09-10  
 23. [Data Driven Fast Simulator - D<sup>0</sup>](http://www.star.bnl.gov/protected/heavy/mstftsm/run14/talks/2015-09-10-Mustafa-Xin.pdf), Mustafa, HF PWG, 2015-09-11
 24. [D<sup>0</sup> Systematic Error Study short summary](https://drupal.star.bnl.gov/STAR/system/files/2015Sep27_PWG_D0SystematicErrStudy.pdf), Guannan, HF PWG,2015-09-27  
-25. [R_AA of D<sup>0</sup> Meson in Au+Au Collisions at 200GeV](https://drupal.star.bnl.gov/STAR/files/GuannanX_DMesonQM15_V0.11_0.pdf), Guannan, QM15,2015-10-28  
+25. [Systematics of Ultimate Cuts II - Using Fast Sim](http://www.star.bnl.gov/protected/heavy/mstftsm/run14/talks/2015-09-27-PWG.pdf), Mustafa, HF PWG,2015-09-27  
+26. [R_AA of D<sup>0</sup> Meson in Au+Au Collisions at 200GeV](https://drupal.star.bnl.gov/STAR/files/GuannanX_DMesonQM15_V0.11_0.pdf), Guannan, QM15,2015-10-28  
 
 - - -
 ### Preliminary results:
