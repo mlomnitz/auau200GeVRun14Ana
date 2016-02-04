@@ -28,10 +28,14 @@ void runPicoD0AnaMaker(TString d0list, TString outFileName, TString badRunListFi
   gSystem->Exec(command.Data());
   command = "sed -i 's/picoD0/picoDst/g' correspondingPico.list";
   gSystem->Exec(command.Data());
+  command = "sed -i 's/kfProd2/physics2/g' correspondingPico.list";
+  gSystem->Exec(command.Data());
   // create list of kfVertex files
   TString command = "sed 's/d0tree/kfVertex/g' " + d0list + " >correspondingkfVertex.list";
   gSystem->Exec(command.Data());
   command = "sed -i 's/picoD0/kfVertex/g' correspondingkfVertex.list";
+  gSystem->Exec(command.Data());
+  command = "sed -i 's/kfProd2/physics2/g' correspondingkfVertex.list";
   gSystem->Exec(command.Data());
   StPicoDstMaker* picoDstMaker = new StPicoDstMaker(0, "correspondingPico.list", "picoDstMaker");
   StRefMultCorr* grefmultCorrUtil  = CentralityMaker::instance()->getgRefMultCorr();
