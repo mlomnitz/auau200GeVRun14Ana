@@ -121,7 +121,7 @@ Int_t StPicoD0AnaMaker::Make()
    if (mPicoD0Event->runId() != picoDst->event()->runId() ||  mPicoD0Event->runId() != mKfEvent->mRunId  ||
          mPicoD0Event->eventId() != picoDst->event()->eventId() || mPicoD0Event->eventId() != mKfEvent->mEventId)
    {
-      LOG_ERROR << " StPicoD0AnaMaker - !!!!!!!!!!!! ATTENTION !!!!!!!!!!!!!" << endm;
+      LOG_ERROR << " StPicoD0AnaMaker - !!!!!!!!!!!! ATTENTION !!!!!!!!!!!!!" << "\n";
       LOG_ERROR << " StPicoD0AnaMaker - SOMETHING TERRIBLE JUST HAPPENED. StPicoEvent and StPicoD0Event and KfEvent are not in sync." << endm;
       exit(1);
    }
@@ -145,14 +145,14 @@ Int_t StPicoD0AnaMaker::Make()
    mHists->addEventBeforeCut(picoDst->event());
    if (isGoodEvent(picoDst->event()))
    {
-      TClonesArray const * aKaonPion = mPicoD0Event->kaonPionArray();
+      TClonesArray const* aKaonPion = mPicoD0Event->kaonPionArray();
       if (aKaonPion->GetEntries()) mHists->addEvent(picoDst->event());
 
       StThreeVectorF const pVtx = picoDst->event()->primaryVertex();
 
       if ( pVtx.x() != mKfEvent->mVx )             // || pVtx.y() != mKfEvent->mVy || pVtx.z() != mKfEvent->mVz
       {
-         LOG_ERROR << " StPicoD0AnaMaker - !!!!!!!!!!!! ATTENTION !!!!!!!!!!!!!" << endm;
+         LOG_ERROR << " StPicoD0AnaMaker - !!!!!!!!!!!! ATTENTION !!!!!!!!!!!!!" << "\n";
          LOG_ERROR << " StPicoD0AnaMaker - SOMETHING TERRIBLE JUST HAPPENED. StPicoD0Event and KfEvent vertex are not in sync." << endm;
          exit(1);
       }
