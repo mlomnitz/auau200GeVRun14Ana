@@ -61,8 +61,8 @@ class StPicoD0AnaMaker : public StMaker
     StRefMultCorr* mGRefMultCorrUtil;
     kfEvent* mKfEvent;
 
-    char const *mKfFileList;
     TString mInputFilesList;
+    TString mKfFileList;
     TString mOutFileBaseName;
     TChain* mChain;
     TChain* mKfChain;
