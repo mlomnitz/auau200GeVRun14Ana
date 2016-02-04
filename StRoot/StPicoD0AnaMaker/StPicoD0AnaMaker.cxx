@@ -135,7 +135,6 @@ Int_t StPicoD0AnaMaker::Make()
       if (aKaonPion->GetEntries()) mHists->addEvent(picoDst->event());
 
       StThreeVectorF const pVtx = picoDst->event()->primaryVertex();
-      StThreeVectorF const pVtxErr = picoDst->event()->primaryVertexError();
 
       if ( pVtx.x() != mKfEvent->mVx )             // || pVtx.y() != mKfEvent->mVy || pVtx.z() != mKfEvent->mVz
       {
