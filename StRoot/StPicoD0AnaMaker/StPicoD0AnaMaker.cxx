@@ -240,7 +240,7 @@ Int_t StPicoD0AnaMaker::Make()
    return kStOK;
 }
 //-----------------------------------------------------------------------------
-int StPicoD0AnaMaker::getD0PtIndex(StKaonPion const * kp) const
+int StPicoD0AnaMaker::getD0PtIndex(StKaonPion const* const kp) const
 {
    for (int i = 0; i < anaCuts::nPtBins; i++)
    {
@@ -250,7 +250,7 @@ int StPicoD0AnaMaker::getD0PtIndex(StKaonPion const * kp) const
    return anaCuts::nPtBins - 1;
 }
 //-----------------------------------------------------------------------------
-bool StPicoD0AnaMaker::isGoodEvent(StPicoEvent const * const picoEvent) const
+bool StPicoD0AnaMaker::isGoodEvent(StPicoEvent const* const picoEvent) const
 {
    return (picoEvent->triggerWord() & anaCuts::triggerWord) &&
           fabs(picoEvent->primaryVertex().z()) < anaCuts::vz &&
@@ -259,12 +259,12 @@ bool StPicoD0AnaMaker::isGoodEvent(StPicoEvent const * const picoEvent) const
           sqrt(TMath::Power(picoEvent->primaryVertex().x(), 2) + TMath::Power(picoEvent->primaryVertex().y(), 2)) <=  anaCuts::Vrcut;
 }
 //-----------------------------------------------------------------------------
-bool StPicoD0AnaMaker::isGoodQaTrack(StPicoTrack const * const trk, StThreeVectorF const momentum, const double dca) const
+bool StPicoD0AnaMaker::isGoodQaTrack(StPicoTrack const* const trk, StThreeVectorF const momentum, double const dca) const
 {
    return trk->gPt() > anaCuts::qaGPt && trk->nHitsFit() >= anaCuts::qaNHitsFit;
 }
 //-----------------------------------------------------------------------------
-bool StPicoD0AnaMaker::isGoodTrack(StPicoTrack const * const trk) const
+bool StPicoD0AnaMaker::isGoodTrack(StPicoTrack const* const trk) const
 {
    StThreeVectorF mom = trk->gMom(mPicoDstMaker->picoDst()->event()->primaryVertex(), mPicoDstMaker->picoDst()->event()->bField());
 
@@ -273,12 +273,12 @@ bool StPicoD0AnaMaker::isGoodTrack(StPicoTrack const * const trk) const
           fabs(mom.pseudoRapidity()) <= anaCuts::Eta;
 }
 //-----------------------------------------------------------------------------
-bool StPicoD0AnaMaker::isTpcPion(StPicoTrack const * const trk) const
+bool StPicoD0AnaMaker::isTpcPion(StPicoTrack const* const trk) const
 {
    return fabs(trk->nSigmaPion()) < anaCuts::nSigmaPion;
 }
 //-----------------------------------------------------------------------------
-bool StPicoD0AnaMaker::isTpcKaon(StPicoTrack const * const trk) const
+bool StPicoD0AnaMaker::isTpcKaon(StPicoTrack const* const trk) const
 {
    return fabs(trk->nSigmaKaon()) < anaCuts::nSigmaKaon;
 }
@@ -294,13 +294,13 @@ bool StPicoD0AnaMaker::isGoodPair(StKaonPion const* const kp) const
           ((kp->decayLength()) * sin(kp->pointingAngle())) < anaCuts::dcaV0ToPv[tmpIndex];
 }
 //-----------------------------------------------------------------------------
-bool StPicoD0AnaMaker::isTofKaon(StPicoTrack const * const trk, float beta) const
+bool StPicoD0AnaMaker::isTofKaon(StPicoTrack const* const trk, float beta) const
 {
    bool tofKaon = false;
 
    if (beta > 0)
    {
-      double ptot = trk->dcaGeometry().momentum().mag();
+      double ptot = trk->gPtot();
       float beta_k = ptot / sqrt(ptot * ptot + M_KAON_PLUS * M_KAON_PLUS);
       tofKaon = fabs(1 / beta - 1 / beta_k) < anaCuts::kTofBetaDiff ? true : false;
    }
@@ -308,13 +308,13 @@ bool StPicoD0AnaMaker::isTofKaon(StPicoTrack const * const trk, float beta) cons
    return tofKaon;
 }
 //-----------------------------------------------------------------------------
-bool StPicoD0AnaMaker::isTofPion(StPicoTrack const * const trk, float beta) const
+bool StPicoD0AnaMaker::isTofPion(StPicoTrack const* const trk, float beta) const
 {
    bool tofPion = false;
 
    if (beta > 0)
    {
-      double ptot = trk->dcaGeometry().momentum().mag();
+      double ptot = trk->gPtot();
       float beta_pi = ptot / sqrt(ptot * ptot + M_PION_PLUS * M_PION_PLUS);
       tofPion = fabs(1 / beta - 1 / beta_pi) < anaCuts::pTofBetaDiff ? true : false;
    }
@@ -322,7 +322,7 @@ bool StPicoD0AnaMaker::isTofPion(StPicoTrack const * const trk, float beta) cons
    return tofPion;
 }
 //-----------------------------------------------------------------------------
-float StPicoD0AnaMaker::getTofBeta(StPicoTrack const * const trk, StThreeVectorF const* const pVtx) const
+float StPicoD0AnaMaker::getTofBeta(StPicoTrack const* const trk, StThreeVectorF const* const pVtx) const
 {
    int index2tof = trk->bTofPidTraitsIndex();
 
@@ -330,7 +330,7 @@ float StPicoD0AnaMaker::getTofBeta(StPicoTrack const * const trk, StThreeVectorF
 
    if (index2tof >= 0)
    {
-      StPicoBTofPidTraits *tofPid = mPicoDstMaker->picoDst()->btofPidTraits(index2tof);
+      StPicoBTofPidTraits const* const tofPid = mPicoDstMaker->picoDst()->btofPidTraits(index2tof);
 
       if (tofPid)
       {
