@@ -128,6 +128,20 @@ Int_t StPicoD0AnaMaker::Make()
 
    // -------------- USER ANALYSIS -------------------------
 
+   mGRefMultCorrUtil->init(picoDst->event()->runId());
+
+   if (!mGRefMultCorrUtil)
+   {
+     LOG_WARN << " No mGRefMultCorrUtil! Skip! " << endl;
+     return kStWarn;
+   }
+
+   if (mGRefMultCorrUtil->isBadRun(picoDst->event()->runId()))
+   {
+     //cout<<"This is a bad run from mGRefMultCorrUtil! Skip! " << endl;
+     return kStOK;
+   }
+
    mHists->addEventBeforeCut(picoDst->event());
    if (isGoodEvent(picoDst->event()))
    {
@@ -142,19 +156,8 @@ Int_t StPicoD0AnaMaker::Make()
          LOG_ERROR << " StPicoD0AnaMaker - SOMETHING TERRIBLE JUST HAPPENED. StPicoD0Event and KfEvent vertex are not in sync." << endm;
          exit(1);
       }
-
-      if (!mGRefMultCorrUtil)
-      {
-         LOG_WARN << " No mGRefMultCorrUtil! Skip! " << endl;
-         return kStWarn;
-      }
-      mGRefMultCorrUtil->init(picoDst->event()->runId());
+      
       mGRefMultCorrUtil->initEvent(picoDst->event()->grefMult(), pVtx.z(), picoDst->event()->ZDCx()) ;
-      if (mGRefMultCorrUtil->isBadRun(picoDst->event()->runId()))
-      {
-         //cout<<"This is a bad run from mGRefMultCorrUtil! Skip! " << endl;
-         return kStOK;
-      }
 
       int centrality  = mGRefMultCorrUtil->getCentralityBin9();
       const double reweight = mGRefMultCorrUtil->getWeight();
