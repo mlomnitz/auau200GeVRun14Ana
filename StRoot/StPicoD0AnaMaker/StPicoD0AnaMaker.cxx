@@ -84,7 +84,7 @@ Int_t StPicoD0AnaMaker::Init()
    mKfEvent = new kfEvent(mKfChain);
 
    // -------------- USER VARIABLES -------------------------
-   mHists = new StPicoD0AnaHists(mOutFileBaseName);
+   mHists = new StPicoD0AnaHists(mOutFileBaseName,false);
 
    return kStOK;
 }
@@ -166,42 +166,46 @@ Int_t StPicoD0AnaMaker::Make()
 
       //Basiclly add some QA plots
       UInt_t nTracks = picoDst->numberOfTracks();
-      for (unsigned short iTrack = 0; iTrack < nTracks; ++iTrack)
+
+      if(false)
       {
-         StPicoTrack const* trk = picoDst->track(iTrack);
-         if (!trk) continue;
-         StPhysicalHelixD helix = trk->helix();
-         float dca = float(helix.geometricSignedDistance(pVtx));
-         StThreeVectorF momentum = trk->gMom(pVtx, picoDst->event()->bField());
+        for (unsigned short iTrack = 0; iTrack < nTracks; ++iTrack)
+        {
+          StPicoTrack const* trk = picoDst->track(iTrack);
+          if (!trk) continue;
+          StPhysicalHelixD helix = trk->helix();
+          float dca = float(helix.geometricSignedDistance(pVtx));
+          StThreeVectorF momentum = trk->gMom(pVtx, picoDst->event()->bField());
 
-         bool tofMatch = getTofBeta(trk, &pVtx) > 0;
+          bool tofMatch = getTofBeta(trk, &pVtx) > 0;
 
-         int tofMatchFlag =  tofMatch ? 1 : 0 ;
-         int hftMatchFlag =  trk->isHFTTrack() ? 1 : 0 ;
+          int tofMatchFlag =  tofMatch ? 1 : 0 ;
+          int hftMatchFlag =  trk->isHFTTrack() ? 1 : 0 ;
 
-         if (!isGoodQaTrack(trk, momentum, dca)) continue;
+          if (!isGoodQaTrack(trk, momentum, dca)) continue;
 
-         StThreeVectorF dcaPoint = helix.at(helix.pathLength(pVtx.x(), pVtx.y()));
-         float dcaZ = dcaPoint.z() - pVtx.z();
-         double dcaXy = helix.geometricSignedDistance(pVtx.x(), pVtx.y());
+          StThreeVectorF dcaPoint = helix.at(helix.pathLength(pVtx.x(), pVtx.y()));
+          float dcaZ = dcaPoint.z() - pVtx.z();
+          double dcaXy = helix.geometricSignedDistance(pVtx.x(), pVtx.y());
 
-         bool isPion = kFALSE;
-         bool isKaon = kFALSE;
-         if (fabs(trk->nSigmaPion()) < anaCuts::nSigmaPion)  isPion = kTRUE;
-         if (fabs(trk->nSigmaKaon()) < anaCuts::nSigmaKaon)  isKaon = kTRUE;
-         if (trk && tofMatch && fabs(dca) < 1.0 && trk->isHFTTrack() && (isPion || isKaon))
-         {
+          bool isPion = kFALSE;
+          bool isKaon = kFALSE;
+          if (fabs(trk->nSigmaPion()) < anaCuts::nSigmaPion)  isPion = kTRUE;
+          if (fabs(trk->nSigmaKaon()) < anaCuts::nSigmaKaon)  isKaon = kTRUE;
+          if (trk && tofMatch && fabs(dca) < 1.0 && trk->isHFTTrack() && (isPion || isKaon))
+          {
             mHists->addDcaPtCent(dca, dcaXy, dcaZ, isPion, isKaon, momentum.perp(), centrality, momentum.pseudoRapidity(), momentum.phi(), pVtx.z(), picoDst->event()->ZDCx() / 1000.); //add Dca distribution
-         }
-         if (trk && tofMatch && fabs(dca) < 1.5 && (isPion || isKaon))
-         {
+          }
+          if (trk && tofMatch && fabs(dca) < 1.5 && (isPion || isKaon))
+          {
             mHists->addTpcDenom1(isPion, isKaon, momentum.perp(), centrality, momentum.pseudoRapidity(), momentum.phi(), pVtx.z(), picoDst->event()->ZDCx() / 1000.); //Dca cut on 1.5cm, add Tpc Denominator
-         }
-         if (trk && tofMatch && fabs(dca) < 1.5 && trk->isHFTTrack() && (isPion || isKaon))
-         {
+          }
+          if (trk && tofMatch && fabs(dca) < 1.5 && trk->isHFTTrack() && (isPion || isKaon))
+          {
             mHists->addHFTNumer1(isPion, isKaon, momentum.perp(), centrality,  momentum.pseudoRapidity(), momentum.phi(), pVtx.z(), picoDst->event()->ZDCx() / 1000.); //Dca cut on 1.5cm, add HFT Numerator
-         }
-      } // .. end tracks loop
+          }
+        } // .. end tracks loop
+      }
 
       for (int idx = 0; idx < aKaonPion->GetEntries(); ++idx)
       {

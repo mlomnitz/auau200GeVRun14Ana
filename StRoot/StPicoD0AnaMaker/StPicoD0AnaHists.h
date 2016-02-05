@@ -27,7 +27,7 @@ class TNtuple;
 class StPicoD0AnaHists
 {
   public:
-   StPicoD0AnaHists(TString fileBaseName);
+   StPicoD0AnaHists(TString fileBaseName,bool fillQaHists=true);
    virtual ~StPicoD0AnaHists();
    void addEvent(StPicoEvent const *);
    void addEventBeforeCut(StPicoEvent const *);
@@ -46,6 +46,7 @@ class StPicoD0AnaHists
   private:
    StPicoD0AnaHists(){}
 
+   bool mFillQaHists;
    StPicoPrescales* mPrescales;
    TFile* mOutFile;
    TH1F* mh1TotalEventsInRun;

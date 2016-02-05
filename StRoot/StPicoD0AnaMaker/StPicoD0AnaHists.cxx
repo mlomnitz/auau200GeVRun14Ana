@@ -1,4 +1,7 @@
 #include <cmath>
+
+#include "St_base/StMessMgr.h"
+
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TH3F.h"
@@ -15,7 +18,7 @@
 #include "StPicoD0AnaHists.h"
 
 //-----------------------------------------------------------------------
-StPicoD0AnaHists::StPicoD0AnaHists(TString fileBaseName) : mPrescales(NULL), mOutFile(NULL),
+StPicoD0AnaHists::StPicoD0AnaHists(TString fileBaseName, bool fillQaHists) : mFillQaHists(fillQaHists), mPrescales(NULL), mOutFile(NULL),
    mh2InvariantMassVsPt(NULL), mh2InvariantMassVsPtLike(NULL), mh2InvariantMassVsPtTof(NULL), mh2InvariantMassVsPtTofLike(NULL),
    mh1Cent(NULL), mh1CentWg(NULL), mh1gRefmultCor(NULL), mh1gRefmultCorWg(NULL), mh2CentVz(NULL), mh2CentVzWg(NULL), mh3InvariantMassVsPtVsCent(NULL), mh3InvariantMassVsPtVsCentLike(NULL), mh3InvariantMassVsPtVsCentTof(NULL), mh3InvariantMassVsPtVsCentTofLike(NULL), mh2Tpc1PtCent(NULL),  mh2Tpc1PhiVz(NULL), mh2HFT1PtCent(NULL),  mh2HFT1PhiVz(NULL),  mh3DcaXyPtCent(NULL), mh3DcaZPtCent(NULL)
 {
@@ -90,6 +93,13 @@ StPicoD0AnaHists::StPicoD0AnaHists(TString fileBaseName) : mPrescales(NULL), mOu
    mh3InvariantMassVsPtVsCentLike    = new TH3F("mh3InvariantMassVsPtVsCentLike", "invariantMassVsPtVsCentLike;p_{T}(K#pi)(GeV/c);Cent;m_{K#pi}(GeV/c^{2})", 120, 0, 12, 10, -1.5, 8.5, 50, 1.6, 2.1);
    mh3InvariantMassVsPtVsCentTof     = new TH3F("mh3InvariantMassVsPtVsCentTof", "invariantMassVsPtVsCentTof;p_{T}(K#pi)(GeV/c);Cent;m_{K#pi}(GeV/c^{2})", 120, 0, 12, 10, -1.5, 8.5, 50, 1.6, 2.1);
    mh3InvariantMassVsPtVsCentTofLike = new TH3F("mh3InvariantMassVsPtVsCentTofLike", "invariantMassVsPtVsCentTofLike;p_{T}(K#pi)(GeV/c);Cent;m_{K#pi}(GeV/c^{2})", 120, 0, 12, 10, -1.5, 8.5, 50, 1.6, 2.1);
+
+   /******************************************************************************************/
+   /*             NOTE: All histograms below will not be defined if mFillQaHists is not true */ 
+   /******************************************************************************************/
+
+   if(!mFillQaHists) return;
+
    //Add some HFT ratio plots
    mh2Tpc1PtCent  = new TH2F("mh2Tpc1PtCent", "Tpc tacks;p_{T}(GeV/c);cent", 120, 0, 12, 10, -1.5, 8.5); //Dca 1.5cm
    mh2HFT1PtCent  = new TH2F("mh2HFT1PtCent", "HFT tacks;p_{T}(GeV/c);cent", 120, 0, 12, 10, -1.5, 8.5); //Dca 1.5cm
@@ -208,6 +218,11 @@ void StPicoD0AnaHists::addCent(const double refmultCor, int centrality, const do
 //-----------------------------------------------------------------------
 void StPicoD0AnaHists::addTpcDenom1(bool IsPion, bool IsKaon, float pt, int centrality, float Eta, float Phi, float Vz, float ZdcX)
 {
+   if(!mFillQaHists)
+   {
+     LOG_ERROR << " You are trying to fill QA histograms but StPicoD0AnaHists::mFillQaHists is false -- ignoring attemp! " << endm;
+   }
+
    int EtaIndex = getEtaIndex(Eta);
    int PhiIndex = getPhiIndex(Phi);
    int VzIndex = getVzIndex(Vz);
@@ -233,6 +248,10 @@ void StPicoD0AnaHists::addTpcDenom1(bool IsPion, bool IsKaon, float pt, int cent
 //-----------------------------------------------------------------------
 void StPicoD0AnaHists::addHFTNumer1(bool IsPion, bool IsKaon, float pt, int centrality, float Eta, float Phi, float Vz, float ZdcX)
 {
+   if(!mFillQaHists)
+   {
+     LOG_ERROR << " You are trying to fill QA histograms but StPicoD0AnaHists::mFillQaHists is false -- ignoring attemp! " << endm;
+   }
 
    int EtaIndex = getEtaIndex(Eta);
    int PhiIndex = getPhiIndex(Phi);
@@ -276,6 +295,11 @@ void StPicoD0AnaHists::addKaonPion(StKaonPion const* const kp, bool unlike, bool
 //---------------------------------------------------------------------
 void StPicoD0AnaHists::addDcaPtCent(float dca, float dcaXy, float dcaZ, bool IsPion, bool IsKaon, float pt,  int centrality, float Eta, float Phi, float Vz, float ZdcX)
 {
+   if(!mFillQaHists)
+   {
+     LOG_ERROR << " You are trying to fill QA histograms but StPicoD0AnaHists::mFillQaHists is false -- ignoring attemp! " << endm;
+   }
+
    int EtaIndex = getEtaIndex(Eta);
    int PhiIndex = getPhiIndex(Phi);
    int VzIndex = getVzIndex(Vz);
@@ -368,6 +392,9 @@ void StPicoD0AnaHists::closeFile()
    mh3InvariantMassVsPtVsCentLike->Write();
    mh3InvariantMassVsPtVsCentTof->Write();
    mh3InvariantMassVsPtVsCentTofLike->Write();
+
+   if(!mFillQaHists) return;
+
    //HFT ratio QA
    mh2Tpc1PtCent->Write();
    mh2Tpc1PhiVz->Write();
