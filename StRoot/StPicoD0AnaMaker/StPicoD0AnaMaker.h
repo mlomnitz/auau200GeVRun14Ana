@@ -46,7 +46,7 @@ class StPicoD0AnaMaker : public StMaker
     void readNextEvent();
 
     int  getD0PtIndex(StKaonPion const* ) const;
-    bool isGoodEvent(StPicoEvent const*) const;
+    bool isGoodEvent(StPicoEvent const*, StThreeVectorF const& vtx) const;
     bool isGoodQaTrack(StPicoTrack const * ,StThreeVectorF const momentum ,const double dca) const;
     bool isGoodTrack(StPicoTrack const*) const;
     bool isTpcPion(StPicoTrack const*) const;
