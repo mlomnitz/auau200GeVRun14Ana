@@ -217,25 +217,18 @@ Int_t StPicoD0AnaMaker::Make()
 
          if (!isGoodTrack(kaon) || !isGoodTrack(pion)) continue;
 
-         bool tpcPion = isTpcPion(pion);
-         bool tpcKaon = isTpcKaon(kaon);
+         // PID
+         if(!isTpcPion(pion) || !isTpcKaon(kaon)) continue;
          float pBeta = getTofBeta(pion, &kfVtx);
          float kBeta = getTofBeta(kaon, &kfVtx);
-         bool pTofAvailable = pBeta > 0;
-         bool kTofAvailable = kBeta > 0;
-         bool tofPion = isTofPion(pion, pBeta);
-         bool tofKaon = isTofKaon(kaon, kBeta);
+         bool pTofAvailable = !isnan(pBeta) && pBeta > 0;
+         bool kTofAvailable = !isnan(kBeta) && kBeta > 0;
+         bool tofPion = pTofAvailable ? isTofPion(pion, pBeta) : true;
+         bool tofKaon = kTofAvailable ? isTofKaon(kaon, kBeta) : true;
+         bool tof = tofPion && tofKaon;
 
-         bool goodPion = (pTofAvailable && tofPion) || (!pTofAvailable && tpcPion);
-         bool goodKaon = (kTofAvailable && tofKaon) || (!kTofAvailable && tpcKaon);
-         bool tof = goodPion && goodKaon;
-         bool tpc = tpcPion && tpcKaon;
-
-         if (tpc || tof)
-         {
-            bool unlike = kaon->charge() * pion->charge() < 0 ? true : false;
-            mHists->addKaonPion(kp, unlike, tpc, tof, centrality, reweight);
-         }
+         bool unlike = kaon->charge() * pion->charge() < 0 ? true : false;
+         mHists->addKaonPion(kp, unlike, true, tof, centrality, reweight);
 
       } // end of kaonPion loop
    } // end of isGoodEvent
