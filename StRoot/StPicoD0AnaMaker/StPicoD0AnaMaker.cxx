@@ -143,13 +143,13 @@ Int_t StPicoD0AnaMaker::Make()
 
    mHists->addEventBeforeCut(picoDst->event());
 
-   StThreeVectorF const kfVtx(mKfEvent->mKfVx, mKfEvent->mKfVy, mKfEvent->mKfVz);
-   if (picoEvent->primaryVertex().x() != mKfEvent->mVx)
+   if (picoDst->event()->primaryVertex().x() != mKfEvent->mVx)
    {
       LOG_ERROR << " StPicoMixedEventMaker - !!!!!!!!!!!! ATTENTION !!!!!!!!!!!!!" << "\n";
       LOG_ERROR << " StPicoMixedEventMaker - SOMETHING TERRIBLE JUST HAPPENED. StPicoDst and KfEvent vertex are not in sync." << endm;
       exit(1);
    }
+   StThreeVectorF const kfVtx(mKfEvent->mKfVx, mKfEvent->mKfVy, mKfEvent->mKfVz);
 
    if (isGoodEvent(picoDst->event(),kfVtx))
    {
