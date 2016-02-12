@@ -184,7 +184,7 @@ Int_t StPicoD0AnaMaker::Make()
 
          bool tpcPion = isTpcPion(trk);
          bool tpcKaon = isTpcKaon(trk);
-         float pBeta = getTofBeta(trk, &kfVtx);
+         float pBeta = getTofBeta(trk, kfVtx);
          float kBeta = pBeta;
          bool pTofAvailable = !isnan(pBeta) && pBeta > 0;
          bool kTofAvailable = !isnan(kBeta) && kBeta > 0;
@@ -268,14 +268,14 @@ bool StPicoD0AnaMaker::isGoodEvent(StPicoEvent const* const picoEvent, StThreeVe
           sqrt(TMath::Power(kfVtx.x(), 2) + TMath::Power(kfVtx.y(), 2)) <=  anaCuts::Vrcut;
 }
 //-----------------------------------------------------------------------------
-bool StPicoD0AnaMaker::isGoodQaTrack(StPicoTrack const* const trk, StThreeVectorF const momentum, double const dca) const
+bool StPicoD0AnaMaker::isGoodQaTrack(StPicoTrack const* const trk, StThreeVectorF const& momentum, double const dca) const
 {
    return trk->gPt() > anaCuts::qaGPt && trk->nHitsFit() >= anaCuts::qaNHitsFit && fabs(momentum.pseudoRapidity()) <= anaCuts::Eta;
 }
 //-----------------------------------------------------------------------------
-bool StPicoD0AnaMaker::isGoodTrack(StPicoTrack const* const trk, StThreeVectorF const kfVtx) const
+bool StPicoD0AnaMaker::isGoodTrack(StPicoTrack const* const trk, StThreeVectorF const& vtx) const
 {
-   StThreeVectorF mom = trk->gMom(kfVtx, mPicoDstMaker->picoDst()->event()->bField());
+   StThreeVectorF mom = trk->gMom(vtx, mPicoDstMaker->picoDst()->event()->bField());
 
 
    return mom.perp() > anaCuts::minPt &&
@@ -304,13 +304,13 @@ bool StPicoD0AnaMaker::isGoodPair(StKaonPion const* const kp) const
           ((kp->decayLength()) * sin(kp->pointingAngle())) < anaCuts::dcaV0ToPv[tmpIndex];
 }
 //-----------------------------------------------------------------------------
-bool StPicoD0AnaMaker::isTofKaon(StPicoTrack const* const trk, float beta, StThreeVectorF const kfVtx) const
+bool StPicoD0AnaMaker::isTofKaon(StPicoTrack const* const trk, float beta, StThreeVectorF const& vtx) const
 {
    bool tofKaon = false;
 
    if (beta > 0)
    {
-      double ptot = trk->gMom(kfVtx, mPicoDstMaker->picoDst()->event()->bField()).mag();
+      double ptot = trk->gMom(vtx, mPicoDstMaker->picoDst()->event()->bField()).mag();
       float beta_k = ptot / sqrt(ptot * ptot + M_KAON_PLUS * M_KAON_PLUS);
       tofKaon = fabs(1 / beta - 1 / beta_k) < anaCuts::kTofBetaDiff ? true : false;
    }
@@ -318,13 +318,13 @@ bool StPicoD0AnaMaker::isTofKaon(StPicoTrack const* const trk, float beta, StThr
    return tofKaon;
 }
 //-----------------------------------------------------------------------------
-bool StPicoD0AnaMaker::isTofPion(StPicoTrack const* const trk, float beta, StThreeVectorF const kfVtx) const
+bool StPicoD0AnaMaker::isTofPion(StPicoTrack const* const trk, float beta, StThreeVectorF const& vtx) const
 {
    bool tofPion = false;
 
    if (beta > 0)
    {
-      double ptot = trk->gMom(kfVtx, mPicoDstMaker->picoDst()->event()->bField()).mag();
+      double ptot = trk->gMom(vtx, mPicoDstMaker->picoDst()->event()->bField()).mag();
       float beta_pi = ptot / sqrt(ptot * ptot + M_PION_PLUS * M_PION_PLUS);
       tofPion = fabs(1 / beta - 1 / beta_pi) < anaCuts::pTofBetaDiff ? true : false;
    }
@@ -332,7 +332,7 @@ bool StPicoD0AnaMaker::isTofPion(StPicoTrack const* const trk, float beta, StThr
    return tofPion;
 }
 //-----------------------------------------------------------------------------
-float StPicoD0AnaMaker::getTofBeta(StPicoTrack const* const trk, StThreeVectorF const* const kfVtx) const
+float StPicoD0AnaMaker::getTofBeta(StPicoTrack const* const trk, StThreeVectorF const& vtx) const
 {
    int index2tof = trk->bTofPidTraitsIndex();
 
@@ -351,7 +351,7 @@ float StPicoD0AnaMaker::getTofBeta(StPicoTrack const* const trk, StThreeVectorF 
             StThreeVectorF const btofHitPos = tofPid->btofHitPos();
 
             StPhysicalHelixD helix = trk->helix();
-            float L = tofPathLength(kfVtx, &btofHitPos, helix.curvature());
+            float L = tofPathLength(&vtx, &btofHitPos, helix.curvature());
             float tof = tofPid->btof();
             if (tof > 0) beta = L / (tof * (C_C_LIGHT / 1.e9));
             else beta = std::numeric_limits<float>::quiet_NaN();
@@ -362,9 +362,9 @@ float StPicoD0AnaMaker::getTofBeta(StPicoTrack const* const trk, StThreeVectorF 
    return beta;
 }
 //-----------------------------------------------------------------------------
-int StPicoD0AnaMaker::trkHalf(StPicoTrack const* const trk, StThreeVectorF const kfVtx) const
+int StPicoD0AnaMaker::trkHalf(StPicoTrack const* const trk, StThreeVectorF const& vtx) const
 {
-   StThreeVectorF mom = trk->gMom(kfVtx, mPicoDstMaker->picoDst()->event()->bField());
+   StThreeVectorF mom = trk->gMom(vtx, mPicoDstMaker->picoDst()->event()->bField());
    if (mom.phi() > anaCuts:: rightHalfLowEdge && mom.phi() < anaCuts:: rightHalfHighEdge) return +1; //right side
    else return -1;//lest side
 

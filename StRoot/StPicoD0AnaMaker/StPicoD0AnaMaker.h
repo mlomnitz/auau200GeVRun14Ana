@@ -48,15 +48,15 @@ class StPicoD0AnaMaker : public StMaker
 
     int  getD0PtIndex(StKaonPion const* ) const;
     bool isGoodEvent(StPicoEvent const*, StThreeVectorF const& vtx) const;
-    bool isGoodQaTrack(StPicoTrack const * ,StThreeVectorF const momentum ,const double dca) const;
-    bool isGoodTrack(StPicoTrack const*, StThreeVectorF const) const;
+    bool isGoodQaTrack(StPicoTrack const* ,StThreeVectorF const& momentum ,double dca) const;
+    bool isGoodTrack(StPicoTrack const*, StThreeVectorF const&) const;
     bool isTpcPion(StPicoTrack const*) const;
     bool isTpcKaon(StPicoTrack const*) const;
-    bool isTofPion(StPicoTrack const* const, float beta, StThreeVectorF const) const;
-    bool isTofKaon(StPicoTrack const* const, float beta, StThreeVectorF const) const;
+    bool isTofPion(StPicoTrack const*, float beta, StThreeVectorF const& vtx) const;
+    bool isTofKaon(StPicoTrack const*, float beta, StThreeVectorF const& vtx) const;
     bool isGoodPair(StKaonPion const*) const;
-    float getTofBeta(StPicoTrack const*,StThreeVectorF const* kfVtx) const;
-    int trkHalf(StPicoTrack const* const, StThreeVectorF const kfVtx) const;
+    float getTofBeta(StPicoTrack const*,StThreeVectorF const& vtx) const;
+    int trkHalf(StPicoTrack const*, StThreeVectorF const& vtx) const;
 
     StPicoDstMaker* mPicoDstMaker;
     StPicoD0Event* mPicoD0Event;
