@@ -32,7 +32,7 @@ class StPicoD0AnaHists
    void addEvent(StPicoEvent const *);
    void addEventBeforeCut(StPicoEvent const *);
    void addCent(const double refmultCor,int centrality, const double reweight, const float vz);
-   void addKaonPion(StKaonPion const*, bool unlike, bool isd0, bool isPosLike, bool tpc, bool tof, int centrality, const double reweight);
+   void addKaonPion(StKaonPion const*, bool unlike, bool isd0, bool isPosLike, bool isLeft, bool isRight, bool isMixed, bool tpc, bool tof, int centrality, const double reweight);
    void addTpcDenom1(bool IsPion, bool IsKaon, float pt, int centrality, float Eta, float Phi, float Vz, float ZdcX);
    void addHFTNumer1(bool IsPion, bool IsKaon, float pt, int centrality, float Eta, float Phi, float Vz, float ZdcX);
    void addQaNtuple(int, float, float, float, float, float, int, const double, float, int, int);
@@ -81,6 +81,21 @@ class StPicoD0AnaHists
    //LikeSign Pos+Neg
    TH3F* mh3InvariantMassVsPtVsCentLikeNeg;
    TH3F* mh3InvariantMassVsPtVsCentTofLikeNeg;
+   //HFT Left
+   TH3F* mh3InvariantMassVsPtVsCentLeft;
+   TH3F* mh3InvariantMassVsPtVsCentLikeLeft;
+   TH3F* mh3InvariantMassVsPtVsCentTofLeft;
+   TH3F* mh3InvariantMassVsPtVsCentTofLikeLeft;
+   //HFT Right
+   TH3F* mh3InvariantMassVsPtVsCentRight;
+   TH3F* mh3InvariantMassVsPtVsCentLikeRight;
+   TH3F* mh3InvariantMassVsPtVsCentTofRight;
+   TH3F* mh3InvariantMassVsPtVsCentTofLikeRight;
+   //HFT Mixed
+   TH3F* mh3InvariantMassVsPtVsCentMixed;
+   TH3F* mh3InvariantMassVsPtVsCentLikeMixed;
+   TH3F* mh3InvariantMassVsPtVsCentTofMixed;
+   TH3F* mh3InvariantMassVsPtVsCentTofLikeMixed;
    //HFT ratio QA
    TH2F* mh2Tpc1PtCent;
    TH2F* mh2Tpc1PhiVz;

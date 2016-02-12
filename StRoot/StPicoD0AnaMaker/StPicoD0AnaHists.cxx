@@ -20,7 +20,10 @@
 //-----------------------------------------------------------------------
 StPicoD0AnaHists::StPicoD0AnaHists(TString fileBaseName, bool fillQaHists) : mFillQaHists(fillQaHists), mPrescales(NULL), mOutFile(NULL),
    mh2InvariantMassVsPt(NULL), mh2InvariantMassVsPtLike(NULL), mh2InvariantMassVsPtTof(NULL), mh2InvariantMassVsPtTofLike(NULL),
-   mh1Cent(NULL), mh1CentWg(NULL), mh1gRefmultCor(NULL), mh1gRefmultCorWg(NULL), mh2CentVz(NULL), mh2CentVzWg(NULL), mh3InvariantMassVsPtVsCent(NULL), mh3InvariantMassVsPtVsCentLike(NULL), mh3InvariantMassVsPtVsCentTof(NULL), mh3InvariantMassVsPtVsCentTofLike(NULL), mh2Tpc1PtCent(NULL),  mh2Tpc1PhiVz(NULL), mh2HFT1PtCent(NULL),  mh2HFT1PhiVz(NULL),  mh3DcaXyPtCent(NULL), mh3DcaZPtCent(NULL), mh3d0InvariantMassVsPtVsCent(NULL), mh3InvariantMassVsPtVsCentLikePos(NULL), mh3d0InvariantMassVsPtVsCentTof(NULL), mh3InvariantMassVsPtVsCentTofLikePos(NULL), mh3d0barInvariantMassVsPtVsCent(NULL), mh3InvariantMassVsPtVsCentLikeNeg(NULL), mh3d0barInvariantMassVsPtVsCentTof(NULL), mh3InvariantMassVsPtVsCentTofLikeNeg(NULL)
+   mh1Cent(NULL), mh1CentWg(NULL), mh1gRefmultCor(NULL), mh1gRefmultCorWg(NULL), mh2CentVz(NULL), mh2CentVzWg(NULL), mh3InvariantMassVsPtVsCent(NULL), mh3InvariantMassVsPtVsCentLike(NULL), mh3InvariantMassVsPtVsCentTof(NULL), mh3InvariantMassVsPtVsCentTofLike(NULL),
+   // mh2Tpc1PtCent(NULL),  mh2Tpc1PhiVz(NULL), mh2HFT1PtCent(NULL),  mh2HFT1PhiVz(NULL),  mh3DcaXyPtCent(NULL), mh3DcaZPtCent(NULL), 
+   mh3d0InvariantMassVsPtVsCent(NULL), mh3InvariantMassVsPtVsCentLikePos(NULL), mh3d0InvariantMassVsPtVsCentTof(NULL), mh3InvariantMassVsPtVsCentTofLikePos(NULL), mh3d0barInvariantMassVsPtVsCent(NULL), mh3InvariantMassVsPtVsCentLikeNeg(NULL), mh3d0barInvariantMassVsPtVsCentTof(NULL), mh3InvariantMassVsPtVsCentTofLikeNeg(NULL), 
+   mh3InvariantMassVsPtVsCentLeft(NULL), mh3InvariantMassVsPtVsCentLikeLeft(NULL), mh3InvariantMassVsPtVsCentTofLeft(NULL), mh3InvariantMassVsPtVsCentTofLikeLeft(NULL), mh3InvariantMassVsPtVsCentRight(NULL), mh3InvariantMassVsPtVsCentLikeRight(NULL), mh3InvariantMassVsPtVsCentTofRight(NULL), mh3InvariantMassVsPtVsCentTofLikeRight(NULL), mh3InvariantMassVsPtVsCentMixed(NULL), mh3InvariantMassVsPtVsCentLikeMixed(NULL), mh3InvariantMassVsPtVsCentTofMixed(NULL), mh3InvariantMassVsPtVsCentTofLikeMixed(NULL)
 {
    mPrescales = new StPicoPrescales(anaCuts::prescalesFilesDirectoryName);
 
@@ -74,6 +77,7 @@ StPicoD0AnaHists::StPicoD0AnaHists(TString fileBaseName, bool fillQaHists) : mFi
    mh1gRefmultCorWg  = new TH1F("mh1gRefmultCorWg", "gRefmultCorWg;gRefmultCorWg;Counts", 700, 0, 700);
    mh2CentVz         = new TH2F("mh2CentVz", "CentralityVsVz;cent;Vz", 10, -1.5, 8.5, 200, -10, 10);
    mh2CentVzWg         = new TH2F("mh2CentVzWg", "CentralityVsVzWg;cent;Vz", 10, -1.5, 8.5, 200, -10, 10);
+
    mh3InvariantMassVsPtVsCent        = new TH3F("mh3InvariantMassVsPtVsCent", "invariantMassVsPtVsCent;p_{T}(K#pi)(GeV/c);Cent;m_{K#pi}(GeV/c^{2})", 120, 0, 12, 10, -1.5, 8.5, 50, 1.6, 2.1);
    mh3InvariantMassVsPtVsCentLike    = new TH3F("mh3InvariantMassVsPtVsCentLike", "invariantMassVsPtVsCentLike;p_{T}(K#pi)(GeV/c);Cent;m_{K#pi}(GeV/c^{2})", 120, 0, 12, 10, -1.5, 8.5, 50, 1.6, 2.1);
    mh3InvariantMassVsPtVsCentTof     = new TH3F("mh3InvariantMassVsPtVsCentTof", "invariantMassVsPtVsCentTof;p_{T}(K#pi)(GeV/c);Cent;m_{K#pi}(GeV/c^{2})", 120, 0, 12, 10, -1.5, 8.5, 50, 1.6, 2.1);
@@ -92,6 +96,21 @@ StPicoD0AnaHists::StPicoD0AnaHists(TString fileBaseName, bool fillQaHists) : mFi
    mh3InvariantMassVsPtVsCentLikeNeg    = new TH3F("mh3InvariantMassVsPtVsCentLikeNeg", "invariantMassVsPtVsCentLikeNeg;p_{T}(K#pi)(GeV/c);Cent;m_{K#pi}(GeV/c^{2})", 120, 0, 12, 10, -1.5, 8.5, 50, 1.6, 2.1);
    mh3InvariantMassVsPtVsCentTofLikeNeg = new TH3F("mh3InvariantMassVsPtVsCentTofLikeNeg", "invariantMassVsPtVsCentTofLikeNeg;p_{T}(K#pi)(GeV/c);Cent;m_{K#pi}(GeV/c^{2})", 120, 0, 12, 10, -1.5, 8.5, 50, 1.6, 2.1);
 
+   //HFT Left
+   mh3InvariantMassVsPtVsCentLeft        = new TH3F("mh3InvariantMassVsPtVsCentLeft", "invariantMassVsPtVsCentLeft;p_{T}(K#pi)(GeV/c);Cent;m_{K#pi}(GeV/c^{2})", 120, 0, 12, 10, -1.5, 8.5, 50, 1.6, 2.1);
+   mh3InvariantMassVsPtVsCentLikeLeft    = new TH3F("mh3InvariantMassVsPtVsCentLikeLeft", "invariantMassVsPtVsCentLikeLeft;p_{T}(K#pi)(GeV/c);Cent;m_{K#pi}(GeV/c^{2})", 120, 0, 12, 10, -1.5, 8.5, 50, 1.6, 2.1);
+   mh3InvariantMassVsPtVsCentTofLeft     = new TH3F("mh3InvariantMassVsPtVsCentTofLeft", "invariantMassVsPtVsCentTofLeft;p_{T}(K#pi)(GeV/c);Cent;m_{K#pi}(GeV/c^{2})", 120, 0, 12, 10, -1.5, 8.5, 50, 1.6, 2.1);
+   mh3InvariantMassVsPtVsCentTofLikeLeft = new TH3F("mh3InvariantMassVsPtVsCentTofLikeLeft", "invariantMassVsPtVsCentTofLikeLeft;p_{T}(K#pi)(GeV/c);Cent;m_{K#pi}(GeV/c^{2})", 120, 0, 12, 10, -1.5, 8.5, 50, 1.6, 2.1);
+   //HFT Right
+   mh3InvariantMassVsPtVsCentRight        = new TH3F("mh3InvariantMassVsPtVsCentRight", "invariantMassVsPtVsCentRight;p_{T}(K#pi)(GeV/c);Cent;m_{K#pi}(GeV/c^{2})", 120, 0, 12, 10, -1.5, 8.5, 50, 1.6, 2.1);
+   mh3InvariantMassVsPtVsCentLikeRight    = new TH3F("mh3InvariantMassVsPtVsCentLikeRight", "invariantMassVsPtVsCentLikeRight;p_{T}(K#pi)(GeV/c);Cent;m_{K#pi}(GeV/c^{2})", 120, 0, 12, 10, -1.5, 8.5, 50, 1.6, 2.1);
+   mh3InvariantMassVsPtVsCentTofRight     = new TH3F("mh3InvariantMassVsPtVsCentTofRight", "invariantMassVsPtVsCentTofRight;p_{T}(K#pi)(GeV/c);Cent;m_{K#pi}(GeV/c^{2})", 120, 0, 12, 10, -1.5, 8.5, 50, 1.6, 2.1);
+   mh3InvariantMassVsPtVsCentTofLikeRight = new TH3F("mh3InvariantMassVsPtVsCentTofLikeRight", "invariantMassVsPtVsCentTofLikeRight;p_{T}(K#pi)(GeV/c);Cent;m_{K#pi}(GeV/c^{2})", 120, 0, 12, 10, -1.5, 8.5, 50, 1.6, 2.1);
+   //HFT Mixed
+   mh3InvariantMassVsPtVsCentMixed        = new TH3F("mh3InvariantMassVsPtVsCentMixed", "invariantMassVsPtVsCentMixed;p_{T}(K#pi)(GeV/c);Cent;m_{K#pi}(GeV/c^{2})", 120, 0, 12, 10, -1.5, 8.5, 50, 1.6, 2.1);
+   mh3InvariantMassVsPtVsCentLikeMixed    = new TH3F("mh3InvariantMassVsPtVsCentLikeMixed", "invariantMassVsPtVsCentLikeMixed;p_{T}(K#pi)(GeV/c);Cent;m_{K#pi}(GeV/c^{2})", 120, 0, 12, 10, -1.5, 8.5, 50, 1.6, 2.1);
+   mh3InvariantMassVsPtVsCentTofMixed     = new TH3F("mh3InvariantMassVsPtVsCentTofMixed", "invariantMassVsPtVsCentTofMixed;p_{T}(K#pi)(GeV/c);Cent;m_{K#pi}(GeV/c^{2})", 120, 0, 12, 10, -1.5, 8.5, 50, 1.6, 2.1);
+   mh3InvariantMassVsPtVsCentTofLikeMixed = new TH3F("mh3InvariantMassVsPtVsCentTofLikeMixed", "invariantMassVsPtVsCentTofLikeMixed;p_{T}(K#pi)(GeV/c);Cent;m_{K#pi}(GeV/c^{2})", 120, 0, 12, 10, -1.5, 8.5, 50, 1.6, 2.1);
    /******************************************************************************************/
    /*             NOTE: All histograms below will not be defined if mFillQaHists is not true */ 
    /******************************************************************************************/
@@ -219,7 +238,7 @@ void StPicoD0AnaHists::addHFTNumer1(bool IsPion, bool IsKaon, float pt, int cent
    if (fabs(Eta) < 0.1 && pt > 3.0) mh2HFT1PhiVz->Fill(Phi, Vz);
 }
 //-----------------------------------------------------------------------
-void StPicoD0AnaHists::addKaonPion(StKaonPion const* const kp, bool unlike, bool isd0, bool isPosLike, bool tpc, bool tof, int centrality, const double reweight)
+void StPicoD0AnaHists::addKaonPion(StKaonPion const* const kp, bool unlike, bool isd0, bool isPosLike, bool isLeft, bool isRight, bool isMixed, bool tpc, bool tof, int centrality, const double reweight)
 {
    if (unlike)
    {
@@ -238,6 +257,23 @@ void StPicoD0AnaHists::addKaonPion(StKaonPion const* const kp, bool unlike, bool
       if (tpc) mh3d0barInvariantMassVsPtVsCent->Fill(kp->pt(), centrality, kp->m(), reweight);
       if (tof) mh3d0barInvariantMassVsPtVsCentTof->Fill(kp->pt(), centrality, kp->m(), reweight);
       }
+
+      if(isLeft)//add for d0d0bar histogram// Left unlike
+      {
+      if (tpc) mh3InvariantMassVsPtVsCentLeft->Fill(kp->pt(), centrality, kp->m(), reweight);
+      if (tof) mh3InvariantMassVsPtVsCentTofLeft->Fill(kp->pt(), centrality, kp->m(), reweight);
+      }
+      else if(isRight)//add for d0d0bar histogram// Right unlike
+      {
+      if (tpc) mh3InvariantMassVsPtVsCentRight->Fill(kp->pt(), centrality, kp->m(), reweight);
+      if (tof) mh3InvariantMassVsPtVsCentTofRight->Fill(kp->pt(), centrality, kp->m(), reweight);
+      }
+      else if(isMixed)//add for d0d0bar histogram// Mixed unlike
+      {
+      if (tpc) mh3InvariantMassVsPtVsCentMixed->Fill(kp->pt(), centrality, kp->m(), reweight);
+      if (tof) mh3InvariantMassVsPtVsCentTofMixed->Fill(kp->pt(), centrality, kp->m(), reweight);
+      }
+
    }
    else
    {
@@ -255,6 +291,22 @@ void StPicoD0AnaHists::addKaonPion(StKaonPion const* const kp, bool unlike, bool
       {
       if (tpc) mh3InvariantMassVsPtVsCentLikeNeg->Fill(kp->pt(), centrality, kp->m(), reweight);
       if (tof) mh3InvariantMassVsPtVsCentTofLikeNeg->Fill(kp->pt(), centrality, kp->m(), reweight);
+      }
+
+      if(isLeft)//add for d0d0bar histogram// Left likesign
+      {
+      if (tpc) mh3InvariantMassVsPtVsCentLikeLeft->Fill(kp->pt(), centrality, kp->m(), reweight);
+      if (tof) mh3InvariantMassVsPtVsCentTofLikeLeft->Fill(kp->pt(), centrality, kp->m(), reweight);
+      }
+      else if(isRight)//add for d0d0bar histogram// Right likesign
+      {
+      if (tpc) mh3InvariantMassVsPtVsCentLikeRight->Fill(kp->pt(), centrality, kp->m(), reweight);
+      if (tof) mh3InvariantMassVsPtVsCentTofLikeRight->Fill(kp->pt(), centrality, kp->m(), reweight);
+      }
+      else if(isMixed)//add for d0d0bar histogram// Mixed likesign
+      {
+      if (tpc) mh3InvariantMassVsPtVsCentLikeMixed->Fill(kp->pt(), centrality, kp->m(), reweight);
+      if (tof) mh3InvariantMassVsPtVsCentTofLikeMixed->Fill(kp->pt(), centrality, kp->m(), reweight);
       }
 
    }
@@ -395,6 +447,22 @@ void StPicoD0AnaHists::closeFile()
    //Likesign Pos + Neg
    mh3InvariantMassVsPtVsCentLikeNeg->Write();
    mh3InvariantMassVsPtVsCentTofLikeNeg->Write();
+
+   //HFT  Left
+   mh3InvariantMassVsPtVsCentLeft->Write();
+   mh3InvariantMassVsPtVsCentLikeLeft->Write();
+   mh3InvariantMassVsPtVsCentTofLeft->Write();
+   mh3InvariantMassVsPtVsCentTofLikeLeft->Write();
+   //HFT  Right
+   mh3InvariantMassVsPtVsCentRight->Write();
+   mh3InvariantMassVsPtVsCentLikeRight->Write();
+   mh3InvariantMassVsPtVsCentTofRight->Write();
+   mh3InvariantMassVsPtVsCentTofLikeRight->Write();
+   //HFT  Mixed
+   mh3InvariantMassVsPtVsCentMixed->Write();
+   mh3InvariantMassVsPtVsCentLikeMixed->Write();
+   mh3InvariantMassVsPtVsCentTofMixed->Write();
+   mh3InvariantMassVsPtVsCentTofLikeMixed->Write();
 
    if(!mFillQaHists) 
    {
