@@ -223,8 +223,8 @@ Int_t StPicoD0AnaMaker::Make()
 
          // PID
          if(!isTpcPion(pion) || !isTpcKaon(kaon)) continue;
-         float pBeta = getTofBeta(pion, &kfVtx);
-         float kBeta = getTofBeta(kaon, &kfVtx);
+         float pBeta = getTofBeta(pion, kfVtx);
+         float kBeta = getTofBeta(kaon, kfVtx);
          bool pTofAvailable = !isnan(pBeta) && pBeta > 0;
          bool kTofAvailable = !isnan(kBeta) && kBeta > 0;
          bool tofPion = pTofAvailable ? isTofPion(pion, pBeta, kfVtx) : true;//this is bybrid pid, not always require tof
