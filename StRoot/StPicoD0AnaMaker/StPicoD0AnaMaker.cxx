@@ -188,10 +188,8 @@ Int_t StPicoD0AnaMaker::Make()
          float kBeta = pBeta;
          bool pTofAvailable = !isnan(pBeta) && pBeta > 0;
          bool kTofAvailable = !isnan(kBeta) && kBeta > 0;
-         // bool tofPion = isTofPion(trk, pBeta, kfVtx);
-         // bool tofKaon = isTofKaon(trk, kBeta, kfVtx);
-         bool tofPion = isTofPion(trk, pBeta );
-         bool tofKaon = isTofKaon(trk, kBeta );
+         bool tofPion = isTofPion(trk, pBeta, kfVtx);
+         bool tofKaon = isTofKaon(trk, kBeta, kfVtx);
 
          bool goodPion = (pTofAvailable && tofPion && tpcPion) || (!pTofAvailable && tpcPion);//Always require TPC
          bool goodKaon = (kTofAvailable && tofKaon && tpcKaon) || (!kTofAvailable && tpcKaon);
@@ -221,7 +219,7 @@ Int_t StPicoD0AnaMaker::Make()
          StPicoTrack const* kaon = picoDst->track(kp->kaonIdx());
          StPicoTrack const* pion = picoDst->track(kp->pionIdx());
 
-         if (!isGoodTrack(kaon) || !isGoodTrack(pion)) continue;
+         if (!isGoodTrack(kaon, kfVtx) || !isGoodTrack(pion, kfVtx)) continue;
 
          // PID
          if(!isTpcPion(pion) || !isTpcKaon(kaon)) continue;
@@ -229,8 +227,8 @@ Int_t StPicoD0AnaMaker::Make()
          float kBeta = getTofBeta(kaon, &kfVtx);
          bool pTofAvailable = !isnan(pBeta) && pBeta > 0;
          bool kTofAvailable = !isnan(kBeta) && kBeta > 0;
-         bool tofPion = pTofAvailable ? isTofPion(pion, pBeta) : true;
-         bool tofKaon = kTofAvailable ? isTofKaon(kaon, kBeta) : true;
+         bool tofPion = pTofAvailable ? isTofPion(pion, pBeta, kfVtx) : true;
+         bool tofKaon = kTofAvailable ? isTofKaon(kaon, kBeta, kfVtx) : true;
          bool tof = tofPion && tofKaon;
 
          bool unlike = kaon->charge() * pion->charge() < 0 ? true : false;
@@ -266,11 +264,11 @@ bool StPicoD0AnaMaker::isGoodQaTrack(StPicoTrack const* const trk, StThreeVector
    return trk->gPt() > anaCuts::qaGPt && trk->nHitsFit() >= anaCuts::qaNHitsFit && fabs(momentum.pseudoRapidity()) <= anaCuts::Eta;
 }
 //-----------------------------------------------------------------------------
-bool StPicoD0AnaMaker::isGoodTrack(StPicoTrack const* const trk) const
+bool StPicoD0AnaMaker::isGoodTrack(StPicoTrack const* const trk, StThreeVectorF const kfVtx) const
 {
-   StThreeVectorF mom = trk->gMom(mPicoDstMaker->picoDst()->event()->primaryVertex(), mPicoDstMaker->picoDst()->event()->bField());
+   StThreeVectorF mom = trk->gMom(kfVtx, mPicoDstMaker->picoDst()->event()->bField());
 
-   return trk->gPt() > anaCuts::minPt &&
+   return mom.perp() > anaCuts::minPt &&
           trk->nHitsFit() >= anaCuts::nHitsFit &&
           fabs(mom.pseudoRapidity()) <= anaCuts::Eta;
 }
@@ -296,13 +294,13 @@ bool StPicoD0AnaMaker::isGoodPair(StKaonPion const* const kp) const
           ((kp->decayLength()) * sin(kp->pointingAngle())) < anaCuts::dcaV0ToPv[tmpIndex];
 }
 //-----------------------------------------------------------------------------
-bool StPicoD0AnaMaker::isTofKaon(StPicoTrack const* const trk, float beta) const
+bool StPicoD0AnaMaker::isTofKaon(StPicoTrack const* const trk, float beta, StThreeVectorF const kfVtx) const
 {
    bool tofKaon = false;
 
    if (beta > 0)
    {
-      double ptot = trk->gPtot();
+      double ptot = trk->gMom(kfVtx, mPicoDstMaker->picoDst()->event()->bField()).mag();
       float beta_k = ptot / sqrt(ptot * ptot + M_KAON_PLUS * M_KAON_PLUS);
       tofKaon = fabs(1 / beta - 1 / beta_k) < anaCuts::kTofBetaDiff ? true : false;
    }
@@ -310,13 +308,13 @@ bool StPicoD0AnaMaker::isTofKaon(StPicoTrack const* const trk, float beta) const
    return tofKaon;
 }
 //-----------------------------------------------------------------------------
-bool StPicoD0AnaMaker::isTofPion(StPicoTrack const* const trk, float beta) const
+bool StPicoD0AnaMaker::isTofPion(StPicoTrack const* const trk, float beta, StThreeVectorF const kfVtx) const
 {
    bool tofPion = false;
 
    if (beta > 0)
    {
-      double ptot = trk->gPtot();
+      double ptot = trk->gMom(kfVtx, mPicoDstMaker->picoDst()->event()->bField()).mag();
       float beta_pi = ptot / sqrt(ptot * ptot + M_PION_PLUS * M_PION_PLUS);
       tofPion = fabs(1 / beta - 1 / beta_pi) < anaCuts::pTofBetaDiff ? true : false;
    }

@@ -48,11 +48,11 @@ class StPicoD0AnaMaker : public StMaker
     int  getD0PtIndex(StKaonPion const* ) const;
     bool isGoodEvent(StPicoEvent const*, StThreeVectorF const& vtx) const;
     bool isGoodQaTrack(StPicoTrack const * ,StThreeVectorF const momentum ,const double dca) const;
-    bool isGoodTrack(StPicoTrack const*) const;
+    bool isGoodTrack(StPicoTrack const*, StThreeVectorF const) const;
     bool isTpcPion(StPicoTrack const*) const;
     bool isTpcKaon(StPicoTrack const*) const;
-    bool isTofPion(StPicoTrack const* const, float beta) const;
-    bool isTofKaon(StPicoTrack const* const, float beta) const;
+    bool isTofPion(StPicoTrack const* const, float beta, StThreeVectorF const) const;
+    bool isTofKaon(StPicoTrack const* const, float beta, StThreeVectorF const) const;
     bool isGoodPair(StKaonPion const*) const;
     float getTofBeta(StPicoTrack const*,StThreeVectorF const* pVtx) const;
 
