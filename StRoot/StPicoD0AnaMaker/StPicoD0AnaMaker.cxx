@@ -176,33 +176,37 @@ Int_t StPicoD0AnaMaker::Make()
           float dca = float(helix.geometricSignedDistance(kfVtx));
           StThreeVectorF momentum = trk->gMom(kfVtx, picoDst->event()->bField());
 
-          bool tofMatch = getTofBeta(trk, &kfVtx) > 0;
-
-          int tofMatchFlag =  tofMatch ? 1 : 0 ;
-          int hftMatchFlag =  trk->isHFTTrack() ? 1 : 0 ;
-
           if (!isGoodQaTrack(trk, momentum, dca)) continue;
 
           StThreeVectorF dcaPoint = helix.at(helix.pathLength(kfVtx.x(), kfVtx.y()));
           float dcaZ = dcaPoint.z() - kfVtx.z();
           double dcaXy = helix.geometricSignedDistance(kfVtx.x(), kfVtx.y());
 
-          bool isPion = kFALSE;
-          bool isKaon = kFALSE;
-          if (fabs(trk->nSigmaPion()) < anaCuts::nSigmaPion)  isPion = kTRUE;
-          if (fabs(trk->nSigmaKaon()) < anaCuts::nSigmaKaon)  isKaon = kTRUE;
-          if (trk && tofMatch && fabs(dca) < 1.0 && trk->isHFTTrack() && (isPion || isKaon))
-          {
-            mHists->addDcaPtCent(dca, dcaXy, dcaZ, isPion, isKaon, momentum.perp(), centrality, momentum.pseudoRapidity(), momentum.phi(), kfVtx.z(), picoDst->event()->ZDCx() / 1000.); //add Dca distribution
-          }
-          if (trk && tofMatch && fabs(dca) < 1.5 && (isPion || isKaon))
-          {
-            mHists->addTpcDenom1(isPion, isKaon, momentum.perp(), centrality, momentum.pseudoRapidity(), momentum.phi(), kfVtx.z(), picoDst->event()->ZDCx() / 1000.); //Dca cut on 1.5cm, add Tpc Denominator
-          }
-          if (trk && tofMatch && fabs(dca) < 1.5 && trk->isHFTTrack() && (isPion || isKaon))
-          {
-            mHists->addHFTNumer1(isPion, isKaon, momentum.perp(), centrality,  momentum.pseudoRapidity(), momentum.phi(), kfVtx.z(), picoDst->event()->ZDCx() / 1000.); //Dca cut on 1.5cm, add HFT Numerator
-          }
+         bool tpcPion = isTpcPion(trk);
+         bool tpcKaon = isTpcKaon(trk);
+         float pBeta = getTofBeta(trk, &kfVtx);
+         float kBeta = pBeta;
+         bool pTofAvailable = !isnan(pBeta) && pBeta > 0;
+         bool kTofAvailable = !isnan(kBeta) && kBeta > 0;
+         bool tofPion = isTofPion(trk, pBeta, kfVtx);
+         bool tofKaon = isTofKaon(trk, kBeta, kfVtx);
+
+         bool goodPion = (pTofAvailable && tofPion && tpcPion) || (!pTofAvailable && tpcPion);//Always require TPC
+         bool goodKaon = (kTofAvailable && tofKaon && tpcKaon) || (!kTofAvailable && tpcKaon);
+         // bool goodKaon = (momentum.perp() <= 1.6 && kTofAvailable && tofKaon && tpcKaon) || (momentum.perp() > 1.6 && tpcKaon);//strict Kaon pid
+
+         if (trk  && fabs(dca) < 1.5 && trk->isHFTTrack() && (goodPion || goodKaon ))
+         {
+            mHists->addDcaPtCent(dca, dcaXy, dcaZ, goodPion, goodKaon, momentum.perp(), centrality, momentum.pseudoRapidity(), momentum.phi(), kfVtx.z(), picoDst->event()->ZDCx() / 1000.); //add Dca distribution
+         }
+         if (trk  && fabs(dca) < 1.5 && (goodPion || goodKaon ))
+         {
+            mHists->addTpcDenom1(goodPion, goodKaon, momentum.perp(), centrality, momentum.pseudoRapidity(), momentum.phi(), kfVtx.z(), picoDst->event()->ZDCx() / 1000.); //Dca cut on 1.5cm, add Tpc Denominator
+         }
+         if (trk && fabs(dca) < 1.5 && trk->isHFTTrack() && (goodPion || goodKaon ) && fabs(dcaXy) < 1. && fabs(dcaZ) < 1.)
+         {
+            mHists->addHFTNumer1(goodPion, goodKaon, momentum.perp(), centrality,  momentum.pseudoRapidity(), momentum.phi(), kfVtx.z(), picoDst->event()->ZDCx() / 1000.); //Dca cut on 1.5cm, add HFT Numerator
+         }
         } // .. end tracks loop
       }
 
@@ -215,7 +219,7 @@ Int_t StPicoD0AnaMaker::Make()
          StPicoTrack const* kaon = picoDst->track(kp->kaonIdx());
          StPicoTrack const* pion = picoDst->track(kp->pionIdx());
 
-         if (!isGoodTrack(kaon) || !isGoodTrack(pion)) continue;
+         if (!isGoodTrack(kaon, kfVtx) || !isGoodTrack(pion, kfVtx)) continue;
 
          // PID
          if(!isTpcPion(pion) || !isTpcKaon(kaon)) continue;
@@ -223,12 +227,21 @@ Int_t StPicoD0AnaMaker::Make()
          float kBeta = getTofBeta(kaon, &kfVtx);
          bool pTofAvailable = !isnan(pBeta) && pBeta > 0;
          bool kTofAvailable = !isnan(kBeta) && kBeta > 0;
-         bool tofPion = pTofAvailable ? isTofPion(pion, pBeta) : true;
-         bool tofKaon = kTofAvailable ? isTofKaon(kaon, kBeta) : true;
+         bool tofPion = pTofAvailable ? isTofPion(pion, pBeta, kfVtx) : true;//this is bybrid pid, not always require tof
+         bool tofKaon = kTofAvailable ? isTofKaon(kaon, kBeta, kfVtx) : true;//this is bybrid pid, not always require tof
          bool tof = tofPion && tofKaon;
 
          bool unlike = kaon->charge() * pion->charge() < 0 ? true : false;
-         mHists->addKaonPion(kp, unlike, true, tof, centrality, reweight);
+         bool isd0 = (unlike && pion->charge() > 0 && kaon->charge() < 0) ? true : false;//d0--> pi+ k-
+         bool isPosLike = (!unlike && pion->charge() > 0 && kaon->charge() > 0 ) ? true : false;//positive like sign  pi+ k+
+
+         int pionRegion = trkHalf(pion, kfVtx);// -1 -> left half ,  +1 -> right half side
+         int kaonRegion = trkHalf(kaon, kfVtx);// -1 -> left half ,  +1 -> right half side
+         bool isLeft  = (pionRegion+kaonRegion) < 0  ? true : false;
+         bool isRight = (pionRegion+kaonRegion) > 0  ? true : false;
+         bool isMixed = (pionRegion+kaonRegion) == 0 ? true : false;
+
+         mHists->addKaonPion(kp, unlike, isd0, isPosLike, isLeft, isRight, isMixed, true, tof, centrality, reweight);
 
       } // end of kaonPion loop
    } // end of isGoodEvent
@@ -246,25 +259,26 @@ int StPicoD0AnaMaker::getD0PtIndex(StKaonPion const* const kp) const
    return anaCuts::nPtBins - 1;
 }
 //-----------------------------------------------------------------------------
-bool StPicoD0AnaMaker::isGoodEvent(StPicoEvent const* const picoEvent, StThreeVectorF const& pVtx) const
+bool StPicoD0AnaMaker::isGoodEvent(StPicoEvent const* const picoEvent, StThreeVectorF const& kfVtx) const
 {
    return (picoEvent->triggerWord() & anaCuts::triggerWord) &&
-          fabs(pVtx.z()) < anaCuts::vz &&
-          fabs(pVtx.z() - picoEvent->vzVpd()) < anaCuts::vzVpdVz &&
-          !(fabs(pVtx.x()) < anaCuts::Verror && fabs(pVtx.y()) < anaCuts::Verror && fabs(pVtx.z()) < anaCuts::Verror) &&
-          sqrt(TMath::Power(pVtx.x(), 2) + TMath::Power(pVtx.y(), 2)) <=  anaCuts::Vrcut;
+          fabs(kfVtx.z()) < anaCuts::vz &&
+          fabs(kfVtx.z() - picoEvent->vzVpd()) < anaCuts::vzVpdVz &&
+          !(fabs(kfVtx.x()) < anaCuts::Verror && fabs(kfVtx.y()) < anaCuts::Verror && fabs(kfVtx.z()) < anaCuts::Verror) &&
+          sqrt(TMath::Power(kfVtx.x(), 2) + TMath::Power(kfVtx.y(), 2)) <=  anaCuts::Vrcut;
 }
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isGoodQaTrack(StPicoTrack const* const trk, StThreeVectorF const momentum, double const dca) const
 {
-   return trk->gPt() > anaCuts::qaGPt && trk->nHitsFit() >= anaCuts::qaNHitsFit;
+   return trk->gPt() > anaCuts::qaGPt && trk->nHitsFit() >= anaCuts::qaNHitsFit && fabs(momentum.pseudoRapidity()) <= anaCuts::Eta;
 }
 //-----------------------------------------------------------------------------
-bool StPicoD0AnaMaker::isGoodTrack(StPicoTrack const* const trk) const
+bool StPicoD0AnaMaker::isGoodTrack(StPicoTrack const* const trk, StThreeVectorF const kfVtx) const
 {
-   StThreeVectorF mom = trk->gMom(mPicoDstMaker->picoDst()->event()->primaryVertex(), mPicoDstMaker->picoDst()->event()->bField());
+   StThreeVectorF mom = trk->gMom(kfVtx, mPicoDstMaker->picoDst()->event()->bField());
 
-   return trk->gPt() > anaCuts::minPt &&
+
+   return mom.perp() > anaCuts::minPt &&
           trk->nHitsFit() >= anaCuts::nHitsFit &&
           fabs(mom.pseudoRapidity()) <= anaCuts::Eta;
 }
@@ -290,13 +304,13 @@ bool StPicoD0AnaMaker::isGoodPair(StKaonPion const* const kp) const
           ((kp->decayLength()) * sin(kp->pointingAngle())) < anaCuts::dcaV0ToPv[tmpIndex];
 }
 //-----------------------------------------------------------------------------
-bool StPicoD0AnaMaker::isTofKaon(StPicoTrack const* const trk, float beta) const
+bool StPicoD0AnaMaker::isTofKaon(StPicoTrack const* const trk, float beta, StThreeVectorF const kfVtx) const
 {
    bool tofKaon = false;
 
    if (beta > 0)
    {
-      double ptot = trk->gPtot();
+      double ptot = trk->gMom(kfVtx, mPicoDstMaker->picoDst()->event()->bField()).mag();
       float beta_k = ptot / sqrt(ptot * ptot + M_KAON_PLUS * M_KAON_PLUS);
       tofKaon = fabs(1 / beta - 1 / beta_k) < anaCuts::kTofBetaDiff ? true : false;
    }
@@ -304,13 +318,13 @@ bool StPicoD0AnaMaker::isTofKaon(StPicoTrack const* const trk, float beta) const
    return tofKaon;
 }
 //-----------------------------------------------------------------------------
-bool StPicoD0AnaMaker::isTofPion(StPicoTrack const* const trk, float beta) const
+bool StPicoD0AnaMaker::isTofPion(StPicoTrack const* const trk, float beta, StThreeVectorF const kfVtx) const
 {
    bool tofPion = false;
 
    if (beta > 0)
    {
-      double ptot = trk->gPtot();
+      double ptot = trk->gMom(kfVtx, mPicoDstMaker->picoDst()->event()->bField()).mag();
       float beta_pi = ptot / sqrt(ptot * ptot + M_PION_PLUS * M_PION_PLUS);
       tofPion = fabs(1 / beta - 1 / beta_pi) < anaCuts::pTofBetaDiff ? true : false;
    }
@@ -318,7 +332,7 @@ bool StPicoD0AnaMaker::isTofPion(StPicoTrack const* const trk, float beta) const
    return tofPion;
 }
 //-----------------------------------------------------------------------------
-float StPicoD0AnaMaker::getTofBeta(StPicoTrack const* const trk, StThreeVectorF const* const pVtx) const
+float StPicoD0AnaMaker::getTofBeta(StPicoTrack const* const trk, StThreeVectorF const* const kfVtx) const
 {
    int index2tof = trk->bTofPidTraitsIndex();
 
@@ -337,7 +351,7 @@ float StPicoD0AnaMaker::getTofBeta(StPicoTrack const* const trk, StThreeVectorF 
             StThreeVectorF const btofHitPos = tofPid->btofHitPos();
 
             StPhysicalHelixD helix = trk->helix();
-            float L = tofPathLength(pVtx, &btofHitPos, helix.curvature());
+            float L = tofPathLength(kfVtx, &btofHitPos, helix.curvature());
             float tof = tofPid->btof();
             if (tof > 0) beta = L / (tof * (C_C_LIGHT / 1.e9));
             else beta = std::numeric_limits<float>::quiet_NaN();
@@ -346,4 +360,12 @@ float StPicoD0AnaMaker::getTofBeta(StPicoTrack const* const trk, StThreeVectorF 
    }
 
    return beta;
+}
+//-----------------------------------------------------------------------------
+int StPicoD0AnaMaker::trkHalf(StPicoTrack const* const trk, StThreeVectorF const kfVtx) const
+{
+   StThreeVectorF mom = trk->gMom(kfVtx, mPicoDstMaker->picoDst()->event()->bField());
+   if (mom.phi() > anaCuts:: rightHalfLowEdge && mom.phi() < anaCuts:: rightHalfHighEdge) return +1; //right side
+   else return -1;//lest side
+
 }
