@@ -234,7 +234,14 @@ Int_t StPicoD0AnaMaker::Make()
          bool unlike = kaon->charge() * pion->charge() < 0 ? true : false;
          bool isd0 = (unlike && pion->charge() > 0 && kaon->charge() < 0) ? true : false;//d0--> pi+ k-
          bool isPosLike = (!unlike && pion->charge() > 0 && kaon->charge() > 0 ) ? true : false;//positive like sign  pi+ k+
-         mHists->addKaonPion(kp, unlike, isd0, isPosLike, true, tof, centrality, reweight);
+
+         int pionRegion = trkHalf(pion, kfVtx);// -1 -> left half ,  +1 -> right half side
+         int kaonRegion = trkHalf(kaon, kfVtx);// -1 -> left half ,  +1 -> right half side
+         bool isLeft  = (pionRegion+kaonRegion) < 0  ? true : false;
+         bool isRight = (pionRegion+kaonRegion) > 0  ? true : false;
+         bool isMixed = (pionRegion+kaonRegion) == 0 ? true : false;
+
+         mHists->addKaonPion(kp, unlike, isd0, isPosLike, isLeft, isRight, isMixed, true, tof, centrality, reweight);
 
       } // end of kaonPion loop
    } // end of isGoodEvent
@@ -269,6 +276,7 @@ bool StPicoD0AnaMaker::isGoodQaTrack(StPicoTrack const* const trk, StThreeVector
 bool StPicoD0AnaMaker::isGoodTrack(StPicoTrack const* const trk, StThreeVectorF const kfVtx) const
 {
    StThreeVectorF mom = trk->gMom(kfVtx, mPicoDstMaker->picoDst()->event()->bField());
+
 
    return mom.perp() > anaCuts::minPt &&
           trk->nHitsFit() >= anaCuts::nHitsFit &&
@@ -352,4 +360,12 @@ float StPicoD0AnaMaker::getTofBeta(StPicoTrack const* const trk, StThreeVectorF 
    }
 
    return beta;
+}
+//-----------------------------------------------------------------------------
+int StPicoD0AnaMaker::trkHalf(StPicoTrack const* const trk, StThreeVectorF const kfVtx) const
+{
+   StThreeVectorF mom = trk->gMom(kfVtx, mPicoDstMaker->picoDst()->event()->bField());
+   if (mom.phi() > anaCuts:: rightHalfLowEdge && mom.phi() < anaCuts:: rightHalfHighEdge) return +1; //right side
+   else return -1;//lest side
+
 }
