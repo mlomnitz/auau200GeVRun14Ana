@@ -37,10 +37,13 @@ class StPicoD0AnaHists
    void addHFTNumer1(bool IsPion, bool IsKaon, float pt, int centrality, float Eta, float Phi, float Vz, float ZdcX);
    void addQaNtuple(int, float, float, float, float, float, int, const double, float, int, int);
    void addDcaPtCent(float dca, float dcaXy, float  dcaZ, bool IsPion, bool IsKaon, float pt,  int centrality, float Eta, float Phi, float Vz, float ZdcX);
-   int getEtaIndex(float Eta) ;
-   int getPhiIndex(float Phi) ;
-   int getVzIndex(float Vz) ;
-   int getZdcxIndex(float ZdcX) ;
+   int getEtaIndexDca(float Eta) ;
+   int getPhiIndexDca(float Phi) ;
+   int getVzIndexDca(float Vz) ;
+   // int getZdcxIndex(float ZdcX) ;
+   int getEtaIndexRatio(float Eta) ;
+   int getPhiIndexRatio(float Phi) ;
+   int getVzIndexRatio(float Vz) ;
    void closeFile();
 
   private:
@@ -71,25 +74,16 @@ class StPicoD0AnaHists
    TH2F* mh2Tpc1PhiVz;
    TH2F* mh2HFT1PtCent;
    TH2F* mh2HFT1PhiVz;
-   TH2F* mh2Tpc1PtCentPartEtaVz[anaCuts::nParticles][anaCuts::nEtas][anaCuts::nVzs];
-   TH2F* mh2Tpc1PtCentPartEtaVzPhi[anaCuts::nParticles][anaCuts::nEtas][anaCuts::nVzs][anaCuts::nPhis];
-   TH2F* mh2Tpc1PtCentPartPhi[anaCuts::nParticles][anaCuts::nPhis];
-   TH2F* mh2Tpc1PtCentPartZdcx[anaCuts::nParticles][anaCuts::nZdcxs];
-   TH2F* mh2HFT1PtCentPartEtaVz[anaCuts::nParticles][anaCuts::nEtas][anaCuts::nVzs];
-   TH2F* mh2HFT1PtCentPartEtaVzPhi[anaCuts::nParticles][anaCuts::nEtas][anaCuts::nVzs][anaCuts::nPhis];
-   TH2F* mh2HFT1PtCentPartPhi[anaCuts::nParticles][anaCuts::nPhis];
-   TH2F* mh2HFT1PtCentPartZdcx[anaCuts::nParticles][anaCuts::nZdcxs];
+   TH2F* mh2Tpc1PtCentPartEtaVzPhi[anaCuts::nParticles][anaCuts::nEtasRatio][anaCuts::nVzsRatio][anaCuts::nPhisRatio];
+   TH2F* mh2HFT1PtCentPartEtaVzPhi[anaCuts::nParticles][anaCuts::nEtasRatio][anaCuts::nVzsRatio][anaCuts::nPhisRatio];
 
    //HFT Dca 
-   TH3F* mh3DcaXyPtCentPartEtaVz[anaCuts::nParticles][anaCuts::nEtas][anaCuts::nVzs];
-   TH3F* mh3DcaXyPtCentPartPhi[anaCuts::nParticles][anaCuts::nPhis];
-   TH3F* mh3DcaXyPtCentPartZdcx[anaCuts::nParticles][anaCuts::nZdcxs];
-   TH3F* mh3DcaZPtCentPartEtaVz[anaCuts::nParticles][anaCuts::nEtas][anaCuts::nVzs];
-   TH3F* mh3DcaZPtCentPartPhi[anaCuts::nParticles][anaCuts::nPhis];
-   TH3F* mh3DcaZPtCentPartZdcx[anaCuts::nParticles][anaCuts::nZdcxs];
+   TH3F* mh3DcaXyZPtCentPartEtaVzPhi[anaCuts::nParticles][anaCuts::nEtasDca][anaCuts::nVzsDca][anaCuts::nCentsDca][anaCuts::nPhisDca];
+
+   TH3F* mh3DcaPtCent;
    TH3F* mh3DcaXyPtCent;
    TH3F* mh3DcaZPtCent;
 
-   //TNtuple* nt;
+   TNtuple* nt;
 };
 #endif
