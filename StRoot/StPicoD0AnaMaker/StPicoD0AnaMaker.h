@@ -40,6 +40,7 @@ class StPicoD0AnaMaker : public StMaker
     virtual Int_t Finish();
 
     int getEntries() const;
+    void fillQaHistograms(bool b = true);
 
   private:
     StPicoD0AnaMaker() {}
@@ -68,6 +69,7 @@ class StPicoD0AnaMaker : public StMaker
     TChain* mChain;
     TChain* mKfChain;
     int mEventCounter;
+    bool mFillQaHists;
 
     // -------------- USER variables -------------------------
     // add your member variables here. 

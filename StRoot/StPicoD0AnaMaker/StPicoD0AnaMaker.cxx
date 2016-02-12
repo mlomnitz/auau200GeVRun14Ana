@@ -33,8 +33,8 @@ ClassImp(StPicoD0AnaMaker)
 StPicoD0AnaMaker::StPicoD0AnaMaker(char const * name, TString const inputFilesList, char const * kfFileList,
                                    TString const outFileBaseName, StPicoDstMaker* picoDstMaker, StRefMultCorr* grefmultCorrUtil):
    StMaker(name), mPicoDstMaker(picoDstMaker), mPicoD0Event(NULL), mGRefMultCorrUtil(grefmultCorrUtil), mKfEvent(NULL),
-   mInputFilesList(inputFilesList), mKfFileList(kfFileList), mOutFileBaseName(outFileBaseName), mChain(NULL), mKfChain(NULL), mEventCounter(0),
-   mHists(NULL)
+   mInputFilesList(inputFilesList), mKfFileList(kfFileList), mOutFileBaseName(outFileBaseName),
+   mChain(NULL), mKfChain(NULL), mEventCounter(0), mFillQaHists(false), mHists(NULL)
 {}
 
 Int_t StPicoD0AnaMaker::Init()
@@ -83,7 +83,7 @@ Int_t StPicoD0AnaMaker::Init()
    mKfEvent = new kfEvent(mKfChain);
 
    // -------------- USER VARIABLES -------------------------
-   mHists = new StPicoD0AnaHists(mOutFileBaseName,false);
+   mHists = new StPicoD0AnaHists(mOutFileBaseName,mFillQaHists);
 
    return kStOK;
 }
@@ -166,7 +166,7 @@ Int_t StPicoD0AnaMaker::Make()
       //Basiclly add some QA plots
       UInt_t nTracks = picoDst->numberOfTracks();
 
-      if(false)
+      if(mFillQaHists)
       {
         for (unsigned short iTrack = 0; iTrack < nTracks; ++iTrack)
         {
