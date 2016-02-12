@@ -232,7 +232,9 @@ Int_t StPicoD0AnaMaker::Make()
          bool tof = tofPion && tofKaon;
 
          bool unlike = kaon->charge() * pion->charge() < 0 ? true : false;
-         mHists->addKaonPion(kp, unlike, true, tof, centrality, reweight);
+         bool isd0 = (unlike && pion->charge() > 0 && kaon->charge() < 0) ? true : false;//d0--> pi+ k-
+         bool isPosLike = (!unlike && pion->charge() > 0 && kaon->charge() > 0 ) ? true : false;//positive like sign  pi+ k+
+         mHists->addKaonPion(kp, unlike, isd0, isPosLike, true, tof, centrality, reweight);
 
       } // end of kaonPion loop
    } // end of isGoodEvent
