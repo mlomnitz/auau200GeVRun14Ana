@@ -227,8 +227,8 @@ Int_t StPicoD0AnaMaker::Make()
          float kBeta = getTofBeta(kaon, &kfVtx);
          bool pTofAvailable = !isnan(pBeta) && pBeta > 0;
          bool kTofAvailable = !isnan(kBeta) && kBeta > 0;
-         bool tofPion = pTofAvailable ? isTofPion(pion, pBeta, kfVtx) : true;
-         bool tofKaon = kTofAvailable ? isTofKaon(kaon, kBeta, kfVtx) : true;
+         bool tofPion = pTofAvailable ? isTofPion(pion, pBeta, kfVtx) : true;//this is bybrid pid, not always require tof
+         bool tofKaon = kTofAvailable ? isTofKaon(kaon, kBeta, kfVtx) : true;//this is bybrid pid, not always require tof
          bool tof = tofPion && tofKaon;
 
          bool unlike = kaon->charge() * pion->charge() < 0 ? true : false;
