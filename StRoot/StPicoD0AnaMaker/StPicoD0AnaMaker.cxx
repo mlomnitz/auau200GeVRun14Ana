@@ -250,13 +250,13 @@ int StPicoD0AnaMaker::getD0PtIndex(StKaonPion const* const kp) const
    return anaCuts::nPtBins - 1;
 }
 //-----------------------------------------------------------------------------
-bool StPicoD0AnaMaker::isGoodEvent(StPicoEvent const* const picoEvent, StThreeVectorF const& pVtx) const
+bool StPicoD0AnaMaker::isGoodEvent(StPicoEvent const* const picoEvent, StThreeVectorF const& kfVtx) const
 {
    return (picoEvent->triggerWord() & anaCuts::triggerWord) &&
-          fabs(pVtx.z()) < anaCuts::vz &&
-          fabs(pVtx.z() - picoEvent->vzVpd()) < anaCuts::vzVpdVz &&
-          !(fabs(pVtx.x()) < anaCuts::Verror && fabs(pVtx.y()) < anaCuts::Verror && fabs(pVtx.z()) < anaCuts::Verror) &&
-          sqrt(TMath::Power(pVtx.x(), 2) + TMath::Power(pVtx.y(), 2)) <=  anaCuts::Vrcut;
+          fabs(kfVtx.z()) < anaCuts::vz &&
+          fabs(kfVtx.z() - picoEvent->vzVpd()) < anaCuts::vzVpdVz &&
+          !(fabs(kfVtx.x()) < anaCuts::Verror && fabs(kfVtx.y()) < anaCuts::Verror && fabs(kfVtx.z()) < anaCuts::Verror) &&
+          sqrt(TMath::Power(kfVtx.x(), 2) + TMath::Power(kfVtx.y(), 2)) <=  anaCuts::Vrcut;
 }
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isGoodQaTrack(StPicoTrack const* const trk, StThreeVectorF const momentum, double const dca) const
@@ -322,7 +322,7 @@ bool StPicoD0AnaMaker::isTofPion(StPicoTrack const* const trk, float beta, StThr
    return tofPion;
 }
 //-----------------------------------------------------------------------------
-float StPicoD0AnaMaker::getTofBeta(StPicoTrack const* const trk, StThreeVectorF const* const pVtx) const
+float StPicoD0AnaMaker::getTofBeta(StPicoTrack const* const trk, StThreeVectorF const* const kfVtx) const
 {
    int index2tof = trk->bTofPidTraitsIndex();
 
@@ -341,7 +341,7 @@ float StPicoD0AnaMaker::getTofBeta(StPicoTrack const* const trk, StThreeVectorF 
             StThreeVectorF const btofHitPos = tofPid->btofHitPos();
 
             StPhysicalHelixD helix = trk->helix();
-            float L = tofPathLength(pVtx, &btofHitPos, helix.curvature());
+            float L = tofPathLength(kfVtx, &btofHitPos, helix.curvature());
             float tof = tofPid->btof();
             if (tof > 0) beta = L / (tof * (C_C_LIGHT / 1.e9));
             else beta = std::numeric_limits<float>::quiet_NaN();
