@@ -210,15 +210,15 @@ void StPicoD0AnaHists::addKaonPion(StKaonPion const* const kp, bool unlike, bool
 {
    if (unlike)
    {
-      if (tpc) mh2InvariantMassVsPt->Fill(kp->pt(), kp->m());
-      if (tof) mh2InvariantMassVsPtTof->Fill(kp->pt(), kp->m());
+      if (tpc) mh2InvariantMassVsPt->Fill(kp->pt(), kp->m(), reweight);
+      if (tof) mh2InvariantMassVsPtTof->Fill(kp->pt(), kp->m(), reweight);
       if (tpc) mh3InvariantMassVsPtVsCent->Fill(kp->pt(), centrality, kp->m(), reweight);
       if (tof) mh3InvariantMassVsPtVsCentTof->Fill(kp->pt(), centrality, kp->m(), reweight);
    }
    else
    {
-      if (tpc) mh2InvariantMassVsPtLike->Fill(kp->pt(), kp->m());
-      if (tof) mh2InvariantMassVsPtTofLike->Fill(kp->pt(), kp->m());
+      if (tpc) mh2InvariantMassVsPtLike->Fill(kp->pt(), kp->m(), reweight);
+      if (tof) mh2InvariantMassVsPtTofLike->Fill(kp->pt(), kp->m(), reweight);
       if (tpc) mh3InvariantMassVsPtVsCentLike->Fill(kp->pt(), centrality, kp->m(), reweight);
       if (tof) mh3InvariantMassVsPtVsCentTofLike->Fill(kp->pt(), centrality, kp->m(), reweight);
    }
