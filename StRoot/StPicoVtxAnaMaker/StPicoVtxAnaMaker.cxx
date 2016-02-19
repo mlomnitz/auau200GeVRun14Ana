@@ -16,7 +16,7 @@
 ClassImp(StPicoVtxAnaMaker)
 
 StPicoVtxAnaMaker::StPicoVtxAnaMaker(char const* makerName, StPicoDstMaker* picoMaker, char const* fileBaseName)
-   : StMaker(makerName), mPicoDstMaker(picoMaker), mPicoEvent(NULL), mKfVertexFitter(), mVtxEvent(fileBaseName),
+   : StMaker(makerName), mPicoDstMaker(picoMaker), mPicoEvent(NULL), mKfVertexFitter(), mVtxEvent(fileBaseName)
 {
 }
 
@@ -31,7 +31,7 @@ Int_t StPicoVtxAnaMaker::Init()
 
 Int_t StPicoVtxAnaMaker::Finish()
 {
-   mKfVertexEvent.closeFile();
+   mVtxEvent.closeFile();
    return kStOK;
 }
 

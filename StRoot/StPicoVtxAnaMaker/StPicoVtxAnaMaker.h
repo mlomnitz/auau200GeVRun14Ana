@@ -46,7 +46,6 @@ class StPicoVtxAnaMaker : public StMaker
 
     StPicoDstMaker* mPicoDstMaker;
     StPicoEvent*    mPicoEvent;
-    StPicoD0Hists*  mPicoD0Hists;
     StPicoKFVertexFitter mKfVertexFitter;
     StPicoVtxAnaEvent mVtxEvent;
 
