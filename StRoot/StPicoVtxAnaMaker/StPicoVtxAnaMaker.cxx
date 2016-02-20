@@ -84,8 +84,8 @@ Int_t StPicoVtxAnaMaker::Make()
         std::random_shuffle(allTracksForVtxFit.begin(),allTracksForVtxFit.end());
 
         int middleElement = static_cast<int>(allTracksForVtxFit.size()/2);
-        std::vector<int> tracksForVtxFitSub1(allTracksForVtxFit.size()-middleElement);
-        std::vector<int> tracksForVtxFitSub2(middleElement);
+        std::vector<int> tracksForVtxFitSub1(middleElement);
+        std::vector<int> tracksForVtxFitSub2(allTracksForVtxFit.size()-middleElement);
 
         std::copy(allTracksForVtxFit.begin(),allTracksForVtxFit.begin()+middleElement,tracksForVtxFitSub1.begin());
         std::copy(allTracksForVtxFit.begin()+middleElement,allTracksForVtxFit.end(),tracksForVtxFitSub2.begin());
