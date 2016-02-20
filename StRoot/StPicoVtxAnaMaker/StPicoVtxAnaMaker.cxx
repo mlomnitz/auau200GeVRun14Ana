@@ -112,7 +112,7 @@ Int_t StPicoVtxAnaMaker::Make()
          else leftTracksForVtxFit.push_back(iTrack);
       } // .. end tracks loop
 
-      if(allTracksForVtxFit.size())
+      if(!allTracksForVtxFit.empty())
       {
         // std::random_device rd;
         // std::mt19937 g(rd());
@@ -134,7 +134,7 @@ Int_t StPicoVtxAnaMaker::Make()
         kfVtxSubEvt2 = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,tracksForVtxFitSub2);
       }
 
-      if(hftTracksForVtxFit.size())
+      if(!hftTracksForVtxFit.empty())
       {
         // std::random_device rd;
         // std::mt19937 g(rd());
@@ -154,28 +154,28 @@ Int_t StPicoVtxAnaMaker::Make()
 
         kfHftVtx = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,hftTracksForVtxFit);
         kfHftVtxSubEvt1 = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,hftTracksForVtxFitSub1);
-        kfHftVtxSubEvt2 = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,hftTracksForVtxFitSub1);
+        kfHftVtxSubEvt2 = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,hftTracksForVtxFitSub2);
       }
 
-      if(topTracksForVtxFit.size())
+      if(!topTracksForVtxFit.empty())
       {
         nTrksTop = topTracksForVtxFit.size();
         kfTopVtx = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,topTracksForVtxFit);
       }
 
-      if(bottomTracksForVtxFit.size())
+      if(!bottomTracksForVtxFit.empty())
       {
         nTrksBottom = bottomTracksForVtxFit.size();
         kfBottomVtx = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,bottomTracksForVtxFit);
       }
 
-      if(rightTracksForVtxFit.size())
+      if(!rightTracksForVtxFit.empty())
       {
         nTrksRight = rightTracksForVtxFit.size();
         kfRightVtx = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,rightTracksForVtxFit);
       }
 
-      if(leftTracksForVtxFit.size())
+      if(!leftTracksForVtxFit.empty())
       {
         nTrksLeft = leftTracksForVtxFit.size();
         kfLeftVtx = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,leftTracksForVtxFit);
@@ -192,7 +192,7 @@ Int_t StPicoVtxAnaMaker::Make()
                       kfVtxSubEvt1,
                       kfVtxSubEvt1,
                       kfHftVtxSubEvt1,
-                      kfHftVtxSubEvt1,
+                      kfHftVtxSubEvt2,
                       nTrks,
                       nTrksHft,
                       nTrksTop,
