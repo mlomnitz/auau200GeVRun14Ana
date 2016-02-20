@@ -77,7 +77,7 @@ void StPicoVtxAnaEvent::closeFile()
   mOutputFile->Close();
 }
 
-void StPicoVtxAnaEvent::addEvent(StPicoEvent const&,
+void StPicoVtxAnaEvent::addEvent(StPicoEvent const& picoEvent,
                  StThreeVectorF const& kfVtx, 
                  StThreeVectorF const& kfHftVtx,
                  StThreeVectorF const& kfTopVtx,

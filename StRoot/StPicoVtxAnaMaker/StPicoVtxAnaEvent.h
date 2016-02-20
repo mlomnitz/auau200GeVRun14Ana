@@ -53,7 +53,7 @@ private:
    int   mNTracksHft;
    int   mNTracksTop;
    int   mNTracksBottom;
-   int   mNTrackRight;
+   int   mNTracksRight;
    int   mNTracksLeft;
    int   mNTracksSubEvt1;
    int   mNTracksSubEvt2;

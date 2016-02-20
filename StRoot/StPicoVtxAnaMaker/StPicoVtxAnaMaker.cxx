@@ -1,7 +1,7 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
-#include <random>
+// #include <random>
 
 #include "TTree.h"
 #include "TFile.h"
@@ -60,10 +60,10 @@ Int_t StPicoVtxAnaMaker::Make()
 
    StThreeVectorF kfVtx(-999.,-999.,-999.);
    StThreeVectorF kfHftVtx(-999.,-999.,-999.);
-   StThreeVectorF kfTop(-999.,-999.,-999.);
-   StThreeVectorF kfBottom(-999.,-999.,-999.);
-   StThreeVectorF kfRight(-999.,-999.,-999.);
-   StThreeVectorF kfLeft(-999.,-999.,-999.);
+   StThreeVectorF kfTopVtx(-999.,-999.,-999.);
+   StThreeVectorF kfBottomVtx(-999.,-999.,-999.);
+   StThreeVectorF kfRightVtx(-999.,-999.,-999.);
+   StThreeVectorF kfLeftVtx(-999.,-999.,-999.);
    StThreeVectorF kfVtxSubEvt1(-999.,-999.,-999.);
    StThreeVectorF kfVtxSubEvt2(-999.,-999.,-999.);
    StThreeVectorF kfHftVtxSubEvt1(-999.,-999.,-999.);
@@ -114,9 +114,9 @@ Int_t StPicoVtxAnaMaker::Make()
 
       if(allTracksForVtxFit.size())
       {
-        std::random_device rd;
-        std::mt19937 g(rd());
-        std::random_shuffle(allTracksForVtxFit.begin(),allTracksForVtxFit.end(),g);
+        // std::random_device rd;
+        // std::mt19937 g(rd());
+        std::random_shuffle(allTracksForVtxFit.begin(),allTracksForVtxFit.end());
 
         int middleElement = static_cast<int>(allTracksForVtxFit.size()/2);
         std::vector<int> tracksForVtxFitSub1(middleElement);
@@ -130,22 +130,23 @@ Int_t StPicoVtxAnaMaker::Make()
         nTrksSubEvt2 = tracksForVtxFitSub2.size();
 
         kfVtx = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,allTracksForVtxFit);
-        kfVertexSubEvt1 = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,tracksForVtxFitSub1);
-        kfVertexSubEvt2 = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,tracksForVtxFitSub2);
+        kfVtxSubEvt1 = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,tracksForVtxFitSub1);
+        kfVtxSubEvt2 = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,tracksForVtxFitSub2);
       }
 
       if(hftTracksForVtxFit.size())
       {
-        std::random_device rd;
-        std::mt19937 g(rd());
-        std::random_shuffle(hftTracksForVtxFit.begin(),hftTracksForVtxFit.end(),g);
+        // std::random_device rd;
+        // std::mt19937 g(rd());
+        // std::random_shuffle(hftTracksForVtxFit.begin(),hftTracksForVtxFit.end(),g);
+        std::random_shuffle(hftTracksForVtxFit.begin(),hftTracksForVtxFit.end());
 
         int middleElement = static_cast<int>(hftTracksForVtxFit.size()/2);
         std::vector<int> hftTracksForVtxFitSub1(middleElement);
         std::vector<int> hftTracksForVtxFitSub2(hftTracksForVtxFit.size()-middleElement);
 
-        std::copy(hftTracksForVtxFit.begin(),hftTracksForVtxFit.begin()+middleElement,tracksForVtxFitSub1.begin());
-        std::copy(hftTracksForVtxFit.begin()+middleElement,hftTracksForVtxFit.end(),tracksForVtxFitSub2.begin());
+        std::copy(hftTracksForVtxFit.begin(),hftTracksForVtxFit.begin()+middleElement,hftTracksForVtxFitSub1.begin());
+        std::copy(hftTracksForVtxFit.begin()+middleElement,hftTracksForVtxFit.end(),hftTracksForVtxFitSub2.begin());
 
         nTrksHft = hftTracksForVtxFit.size();
         nTrksHftSubEvt1 = hftTracksForVtxFitSub1.size();
