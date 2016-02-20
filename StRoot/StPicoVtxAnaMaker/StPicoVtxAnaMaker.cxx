@@ -67,7 +67,6 @@ Int_t StPicoVtxAnaMaker::Make()
    {
       UInt_t nTracks = picoDst->numberOfTracks();
 
-      std::vector<int> idxTracksToRejectFromVtx;
       std::vector<int> allTracksForVtxFit;
 
       StThreeVectorF const pVtx = mPicoEvent->primaryVertex();
@@ -77,8 +76,7 @@ Int_t StPicoVtxAnaMaker::Make()
          StPicoTrack* trk = picoDst->track(iTrack);
          if(!trk) continue;
 
-         if(!isGoodForVertexFit(trk,pVtx)) idxTracksToRejectFromVtx.push_back(iTrack);
-         else allTracksForVtxFit.push_back(iTrack);
+         if(isGoodForVertexFit(trk,pVtx)) allTracksForVtxFit.push_back(iTrack);
       } // .. end tracks loop
 
       if(allTracksForVtxFit.size())
@@ -86,25 +84,19 @@ Int_t StPicoVtxAnaMaker::Make()
         std::random_shuffle(allTracksForVtxFit.begin(),allTracksForVtxFit.end());
 
         int middleElement = static_cast<int>(allTracksForVtxFit.size()/2);
-        std::vector<int> idxTracksToRejectFromVtxSub1(allTracksForVtxFit.size()-middleElement);
-        std::vector<int> idxTracksToRejectFromVtxSub2(middleElement);
+        std::vector<int> tracksForVtxFitSub1(allTracksForVtxFit.size()-middleElement);
+        std::vector<int> tracksForVtxFitSub2(middleElement);
 
-        std::copy(allTracksForVtxFit.begin(),allTracksForVtxFit.begin()+middleElement,idxTracksToRejectFromVtxSub2.begin());
-        std::copy(allTracksForVtxFit.begin()+middleElement,allTracksForVtxFit.end(),idxTracksToRejectFromVtxSub1.begin());
+        std::copy(allTracksForVtxFit.begin(),allTracksForVtxFit.begin()+middleElement,tracksForVtxFitSub1.begin());
+        std::copy(allTracksForVtxFit.begin()+middleElement,allTracksForVtxFit.end(),tracksForVtxFitSub2.begin());
 
         nTracksFullEvt = allTracksForVtxFit.size();
-        nTracksSubEvt1 = allTracksForVtxFit.size() - idxTracksToRejectFromVtxSub1.size();
-        nTracksSubEvt2 = allTracksForVtxFit.size() - idxTracksToRejectFromVtxSub2.size();
+        nTracksSubEvt1 = tracksForVtxFitSub1.size();
+        nTracksSubEvt2 = tracksForVtxFitSub2.size();
 
-        for(size_t ij=0;ij<idxTracksToRejectFromVtx.size();++ij)
-        {
-          idxTracksToRejectFromVtxSub1.push_back(idxTracksToRejectFromVtx[ij]);
-          idxTracksToRejectFromVtxSub2.push_back(idxTracksToRejectFromVtx[ij]);
-        }
-
-        kfVertex = mKfVertexFitter.primaryVertexRefit(picoDst,idxTracksToRejectFromVtx);
-        kfVertexSubEvt1 = mKfVertexFitter.primaryVertexRefit(picoDst,idxTracksToRejectFromVtxSub1);
-        kfVertexSubEvt2 = mKfVertexFitter.primaryVertexRefit(picoDst,idxTracksToRejectFromVtxSub2);
+        kfVertex = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,allTracksForVtxFit);
+        kfVertexSubEvt1 = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,tracksForVtxFitSub1);
+        kfVertexSubEvt2 = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,tracksForVtxFitSub2);
       }
    } //.. end of good event fill
 
