@@ -21,9 +21,27 @@ class StPicoVtxAnaEvent
 {
 public:
    StPicoVtxAnaEvent(char const*);
-   void addEvent(StPicoEvent const&,StThreeVectorF const* kfFullEvent,
-       StThreeVectorF const* kfSubEvt1=NULL,StThreeVectorF const* kfSubEvt2=NULL,
-       int nTracksFullEvt=0,int nTracksSubEvt1=0,int nTracksSubEvt2=0);
+   void addEvent(StPicoEvent const&,
+                 StThreeVectorF const& kfVtx, 
+                 StThreeVectorF const& kfHftVtx,
+                 StThreeVectorF const& kfTopVtx,
+                 StThreeVectorF const& kfBottomVtx,
+                 StThreeVectorF const& kfRightVtx,
+                 StThreeVectorF const& kfLeftVtx,
+                 StThreeVectorF const& kfSubEvt1,
+                 StThreeVectorF const& kfSubEvt2,
+                 StThreeVectorF const& kfHftSubEvt1,
+                 StThreeVectorF const& kfHftSubEvt2,
+                 int nTrks=0,
+                 int nTrksHft=0,
+                 int nTrksTop=0,
+                 int nTrksBottom=0,
+                 int nTrksRight=0,
+                 int nTrksLeft=0,
+                 int nTrksSubEvt1=0,
+                 int nTrksSubEvt2=0,
+                 int nTrksHftSubEvt1=0,
+                 int nTrksHftSubEvt2=0);
    void closeFile();
 
 private:
@@ -32,8 +50,15 @@ private:
    int   mEventId;
    int   mRefMult;
    int   mNTracks;
+   int   mNTracksHft;
+   int   mNTracksTop;
+   int   mNTracksBottom;
+   int   mNTrackRight;
+   int   mNTracksLeft;
    int   mNTracksSubEvt1;
    int   mNTracksSubEvt2;
+   int   mNTracksHftSubEvt1;
+   int   mNTracksHftSubEvt2;
    int   mGRefMult;
 
    float mVx;
@@ -44,6 +69,26 @@ private:
    float mKfVy;
    float mKfVz;
 
+   float mKfHftVx;
+   float mKfHftVy;
+   float mKfHftVz;
+
+   float mKfTopVx;
+   float mKfTopVy;
+   float mKfTopVz;
+
+   float mKfBottomVx;
+   float mKfBottomVy;
+   float mKfBottomVz;
+
+   float mKfRightVx;
+   float mKfRightVy;
+   float mKfRightVz;
+
+   float mKfLeftVx;
+   float mKfLeftVy;
+   float mKfLeftVz;
+
    float mKfSubEvt1Vx;
    float mKfSubEvt1Vy;
    float mKfSubEvt1Vz;
@@ -51,6 +96,14 @@ private:
    float mKfSubEvt2Vx;
    float mKfSubEvt2Vy;
    float mKfSubEvt2Vz;
+
+   float mKfHftSubEvt1Vx;
+   float mKfHftSubEvt1Vy;
+   float mKfHftSubEvt1Vz;
+
+   float mKfHftSubEvt2Vx;
+   float mKfHftSubEvt2Vy;
+   float mKfHftSubEvt2Vz;
 
    TFile* mOutputFile;
    TTree* mTree;

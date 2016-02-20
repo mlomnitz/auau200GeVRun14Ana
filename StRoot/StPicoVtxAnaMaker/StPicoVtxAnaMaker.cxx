@@ -1,9 +1,11 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
+#include <random>
 
 #include "TTree.h"
 #include "TFile.h"
+#include "TMath.h"
 #include "TString.h"
 #include "../StPicoDstMaker/StPicoDst.h"
 #include "../StPicoDstMaker/StPicoDstMaker.h"
@@ -56,18 +58,38 @@ Int_t StPicoVtxAnaMaker::Make()
 
    mPicoEvent = picoDst->event();
 
-   StThreeVectorF kfVertex(-999.,-999.,-999.);
-   StThreeVectorF kfVertexSubEvt1(-999.,-999.,-999.);
-   StThreeVectorF kfVertexSubEvt2(-999.,-999.,-999.);
-   int nTracksFullEvt = 0;
-   int nTracksSubEvt1 = 0;
-   int nTracksSubEvt2 = 0;
+   StThreeVectorF kfVtx(-999.,-999.,-999.);
+   StThreeVectorF kfHftVtx(-999.,-999.,-999.);
+   StThreeVectorF kfTop(-999.,-999.,-999.);
+   StThreeVectorF kfBottom(-999.,-999.,-999.);
+   StThreeVectorF kfRight(-999.,-999.,-999.);
+   StThreeVectorF kfLeft(-999.,-999.,-999.);
+   StThreeVectorF kfVtxSubEvt1(-999.,-999.,-999.);
+   StThreeVectorF kfVtxSubEvt2(-999.,-999.,-999.);
+   StThreeVectorF kfHftVtxSubEvt1(-999.,-999.,-999.);
+   StThreeVectorF kfHftVtxSubEvt2(-999.,-999.,-999.);
+
+   int nTrks = 0;
+   int nTrksHft = 0;
+   int nTrksTop = 0;
+   int nTrksBottom = 0;
+   int nTrksRight = 0;
+   int nTrksLeft = 0;
+   int nTrksSubEvt1 = 0;
+   int nTrksSubEvt2 = 0;
+   int nTrksHftSubEvt1 = 0;
+   int nTrksHftSubEvt2 = 0;
    
    if (isGoodEvent())
    {
       UInt_t nTracks = picoDst->numberOfTracks();
 
       std::vector<int> allTracksForVtxFit;
+      std::vector<int> hftTracksForVtxFit;
+      std::vector<int> topTracksForVtxFit;
+      std::vector<int> bottomTracksForVtxFit;
+      std::vector<int> rightTracksForVtxFit;
+      std::vector<int> leftTracksForVtxFit;
 
       StThreeVectorF const pVtx = mPicoEvent->primaryVertex();
 
@@ -76,12 +98,25 @@ Int_t StPicoVtxAnaMaker::Make()
          StPicoTrack* trk = picoDst->track(iTrack);
          if(!trk) continue;
 
-         if(isGoodForVertexFit(trk,pVtx)) allTracksForVtxFit.push_back(iTrack);
+         if(!isGoodForVertexFit(trk,pVtx)) continue;
+
+         allTracksForVtxFit.push_back(iTrack);
+         if(trk->isHFTTrack()) hftTracksForVtxFit.push_back(iTrack);
+
+         float phi = trk->gMom(pVtx,mPicoEvent->bField()).phi();
+
+         if(phi > 0 && phi < TMath::Pi()) topTracksForVtxFit.push_back(iTrack);
+         else bottomTracksForVtxFit.push_back(iTrack);
+
+         if(phi > -TMath::Pi()/2. && phi < TMath::Pi()/2.) rightTracksForVtxFit.push_back(iTrack);
+         else leftTracksForVtxFit.push_back(iTrack);
       } // .. end tracks loop
 
       if(allTracksForVtxFit.size())
       {
-        std::random_shuffle(allTracksForVtxFit.begin(),allTracksForVtxFit.end());
+        std::random_device rd;
+        std::mt19937 g(rd());
+        std::random_shuffle(allTracksForVtxFit.begin(),allTracksForVtxFit.end(),g);
 
         int middleElement = static_cast<int>(allTracksForVtxFit.size()/2);
         std::vector<int> tracksForVtxFitSub1(middleElement);
@@ -90,18 +125,83 @@ Int_t StPicoVtxAnaMaker::Make()
         std::copy(allTracksForVtxFit.begin(),allTracksForVtxFit.begin()+middleElement,tracksForVtxFitSub1.begin());
         std::copy(allTracksForVtxFit.begin()+middleElement,allTracksForVtxFit.end(),tracksForVtxFitSub2.begin());
 
-        nTracksFullEvt = allTracksForVtxFit.size();
-        nTracksSubEvt1 = tracksForVtxFitSub1.size();
-        nTracksSubEvt2 = tracksForVtxFitSub2.size();
+        nTrks = allTracksForVtxFit.size();
+        nTrksSubEvt1 = tracksForVtxFitSub1.size();
+        nTrksSubEvt2 = tracksForVtxFitSub2.size();
 
-        kfVertex = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,allTracksForVtxFit);
+        kfVtx = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,allTracksForVtxFit);
         kfVertexSubEvt1 = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,tracksForVtxFitSub1);
         kfVertexSubEvt2 = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,tracksForVtxFitSub2);
       }
+
+      if(hftTracksForVtxFit.size())
+      {
+        std::random_device rd;
+        std::mt19937 g(rd());
+        std::random_shuffle(hftTracksForVtxFit.begin(),hftTracksForVtxFit.end(),g);
+
+        int middleElement = static_cast<int>(hftTracksForVtxFit.size()/2);
+        std::vector<int> hftTracksForVtxFitSub1(middleElement);
+        std::vector<int> hftTracksForVtxFitSub2(hftTracksForVtxFit.size()-middleElement);
+
+        std::copy(hftTracksForVtxFit.begin(),hftTracksForVtxFit.begin()+middleElement,tracksForVtxFitSub1.begin());
+        std::copy(hftTracksForVtxFit.begin()+middleElement,hftTracksForVtxFit.end(),tracksForVtxFitSub2.begin());
+
+        nTrksHft = hftTracksForVtxFit.size();
+        nTrksHftSubEvt1 = hftTracksForVtxFitSub1.size();
+        nTrksHftSubEvt2 = hftTracksForVtxFitSub2.size();
+
+        kfHftVtx = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,hftTracksForVtxFit);
+        kfHftVtxSubEvt1 = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,hftTracksForVtxFitSub1);
+        kfHftVtxSubEvt2 = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,hftTracksForVtxFitSub1);
+      }
+
+      if(topTracksForVtxFit.size())
+      {
+        nTrksTop = topTracksForVtxFit.size();
+        kfTopVtx = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,topTracksForVtxFit);
+      }
+
+      if(bottomTracksForVtxFit.size())
+      {
+        nTrksBottom = bottomTracksForVtxFit.size();
+        kfBottomVtx = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,bottomTracksForVtxFit);
+      }
+
+      if(rightTracksForVtxFit.size())
+      {
+        nTrksRight = rightTracksForVtxFit.size();
+        kfRightVtx = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,rightTracksForVtxFit);
+      }
+
+      if(leftTracksForVtxFit.size())
+      {
+        nTrksLeft = leftTracksForVtxFit.size();
+        kfLeftVtx = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,leftTracksForVtxFit);
+      }
    } //.. end of good event fill
 
-   mVtxEvent.addEvent(*mPicoEvent,&kfVertex,&kfVertexSubEvt1,&kfVertexSubEvt2,
-                            nTracksFullEvt,nTracksSubEvt1,nTracksSubEvt2);
+   mVtxEvent.addEvent(*mPicoEvent,
+                      kfVtx,
+                      kfHftVtx,
+                      kfTopVtx,
+                      kfBottomVtx,
+                      kfRightVtx,
+                      kfLeftVtx,
+                      kfVtxSubEvt1,
+                      kfVtxSubEvt1,
+                      kfHftVtxSubEvt1,
+                      kfHftVtxSubEvt1,
+                      nTrks,
+                      nTrksHft,
+                      nTrksTop,
+                      nTrksBottom,
+                      nTrksRight,
+                      nTrksLeft,
+                      nTrksSubEvt1,
+                      nTrksSubEvt2,
+                      nTrksHftSubEvt1,
+                      nTrksHftSubEvt2);
    return kStOK;
 }
 
