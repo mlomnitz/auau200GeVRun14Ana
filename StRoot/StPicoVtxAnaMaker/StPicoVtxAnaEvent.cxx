@@ -45,6 +45,10 @@ StPicoVtxAnaEvent::StPicoVtxAnaEvent(char const* fileBaseName): mOutputFile(NULL
    mTree->Branch("mKfTopVy    ", &mKfTopVy    , "mKfTopVy/F");
    mTree->Branch("mKfTopVz    ", &mKfTopVz    , "mKfTopVz/F");
 
+   mTree->Branch("mKfBottomVx    ", &mKfBottomVx    , "mKfBottomVx/F");
+   mTree->Branch("mKfBottomVy    ", &mKfBottomVy    , "mKfBottomVy/F");
+   mTree->Branch("mKfBottomVz    ", &mKfBottomVz    , "mKfBottomVz/F");
+
    mTree->Branch("mKfRightVx    ", &mKfRightVx    , "mKfRightVx/F");
    mTree->Branch("mKfRightVy    ", &mKfRightVy    , "mKfRightVy/F");
    mTree->Branch("mKfRightVz    ", &mKfRightVz    , "mKfRightVz/F");
