@@ -190,7 +190,7 @@ Int_t StPicoVtxAnaMaker::Make()
                       kfRightVtx,
                       kfLeftVtx,
                       kfVtxSubEvt1,
-                      kfVtxSubEvt1,
+                      kfVtxSubEvt2,
                       kfHftVtxSubEvt1,
                       kfHftVtxSubEvt2,
                       nTrks,
