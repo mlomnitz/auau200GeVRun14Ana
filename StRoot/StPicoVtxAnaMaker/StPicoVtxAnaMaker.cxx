@@ -68,6 +68,7 @@ Int_t StPicoVtxAnaMaker::Make()
    StThreeVectorF kfVtxSubEvt2(-999.,-999.,-999.);
    StThreeVectorF kfHftVtxSubEvt1(-999.,-999.,-999.);
    StThreeVectorF kfHftVtxSubEvt2(-999.,-999.,-999.);
+   StThreeVectorF kfPxlSecVtx[10];
 
    int nTrks = 0;
    int nTrksHft = 0;
@@ -79,7 +80,14 @@ Int_t StPicoVtxAnaMaker::Make()
    int nTrksSubEvt2 = 0;
    int nTrksHftSubEvt1 = 0;
    int nTrksHftSubEvt2 = 0;
+   int nTrksPxlSec[10];
    
+   for(int i=0; i<10; ++i)
+   { 
+     kfPxlSecVtx[i].set(-999.,-999.,-999.);
+     nTrksPxlSec[i] = 0;
+   }
+
    if (isGoodEvent())
    {
       UInt_t nTracks = picoDst->numberOfTracks();
@@ -90,6 +98,7 @@ Int_t StPicoVtxAnaMaker::Make()
       std::vector<int> bottomTracksForVtxFit;
       std::vector<int> rightTracksForVtxFit;
       std::vector<int> leftTracksForVtxFit;
+      std::vector<int> tracksPerPxlSecForVtxFit[10];
 
       StThreeVectorF const pVtx = mPicoEvent->primaryVertex();
 
@@ -110,6 +119,11 @@ Int_t StPicoVtxAnaMaker::Make()
 
          if(phi > -TMath::Pi()/2. && phi < TMath::Pi()/2.) rightTracksForVtxFit.push_back(iTrack);
          else leftTracksForVtxFit.push_back(iTrack);
+
+         if(int nSec = cuts::getPxlSectorNumber(phi))
+         {
+           tracksPerPxlSecForVtxFit[nSec-1].push_back(iTrack);
+         }
       } // .. end tracks loop
 
       if(!allTracksForVtxFit.empty())
@@ -180,6 +194,15 @@ Int_t StPicoVtxAnaMaker::Make()
         nTrksLeft = leftTracksForVtxFit.size();
         kfLeftVtx = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,leftTracksForVtxFit);
       }
+
+      for(int iSec = 0; iSec < 10; ++iSec)
+      {
+        if(!tracksPerPxlSecForVtxFit[iSec].empty())
+        {
+          nTrksPxlSec[iSec] = tracksPerPxlSecForVtxFit[iSec].size();
+          kfPxlSecVtx[iSec] = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,tracksPerPxlSecForVtxFit[iSec]);
+        }
+      }
    } //.. end of good event fill
 
    mVtxEvent.addEvent(*mPicoEvent,
@@ -193,6 +216,7 @@ Int_t StPicoVtxAnaMaker::Make()
                       kfVtxSubEvt2,
                       kfHftVtxSubEvt1,
                       kfHftVtxSubEvt2,
+                      kfPxlSecVtx,
                       nTrks,
                       nTrksHft,
                       nTrksTop,
@@ -202,7 +226,8 @@ Int_t StPicoVtxAnaMaker::Make()
                       nTrksSubEvt1,
                       nTrksSubEvt2,
                       nTrksHftSubEvt1,
-                      nTrksHftSubEvt2);
+                      nTrksHftSubEvt2,
+                      nTrksPxlSec);
    return kStOK;
 }
 

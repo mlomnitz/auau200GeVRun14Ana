@@ -28,6 +28,7 @@ StPicoVtxAnaEvent::StPicoVtxAnaEvent(char const* fileBaseName): mOutputFile(NULL
    mTree->Branch("mNTracksSubEvt2" , &mNTracksSubEvt2,  "mNTracksSubEvt2/I");
    mTree->Branch("mNTracksHftSubEvt1" , &mNTracksHftSubEvt1,  "mNTracksHftSubEvt1/I");
    mTree->Branch("mNTracksHftSubEvt2" , &mNTracksHftSubEvt2,  "mNTracksHftSubEvt2/I");
+   mTree->Branch("mNTracksPxlSec" , &mNTracksPxlSec,  "mNTracksPxlSec[10]/I");
    
    mTree->Branch("mVx      ", &mVx      , "mVx/F");
    mTree->Branch("mVy      ", &mVy      , "mVy/F");
@@ -72,6 +73,10 @@ StPicoVtxAnaEvent::StPicoVtxAnaEvent(char const* fileBaseName): mOutputFile(NULL
    mTree->Branch("mKfHftSubEvt2Vx    ", &mKfHftSubEvt2Vx    , "mKfHftSubEvt2Vx/F");
    mTree->Branch("mKfHftSubEvt2Vy    ", &mKfHftSubEvt2Vy    , "mKfHftSubEvt2Vy/F");
    mTree->Branch("mKfHftSubEvt2Vz    ", &mKfHftSubEvt2Vz    , "mKfHftSubEvt2Vz/F");
+
+   mTree->Branch("mKfPxlSecVx", &mKfPxlSecVx, "mKfPxlSecVx[10]/F");
+   mTree->Branch("mKfPxlSecVy", &mKfPxlSecVy, "mKfPxlSecVy[10]/F");
+   mTree->Branch("mKfPxlSecVz", &mKfPxlSecVz, "mKfPxlSecVz[10]/F");
 }
 
 void StPicoVtxAnaEvent::closeFile()
@@ -92,6 +97,7 @@ void StPicoVtxAnaEvent::addEvent(StPicoEvent const& picoEvent,
                  StThreeVectorF const& kfSubEvt2,
                  StThreeVectorF const& kfHftSubEvt1,
                  StThreeVectorF const& kfHftSubEvt2,
+                 StThreeVectorF const* kfPxlSecVtx,
                  int nTrks,
                  int nTrksHft,
                  int nTrksTop,
@@ -101,7 +107,8 @@ void StPicoVtxAnaEvent::addEvent(StPicoEvent const& picoEvent,
                  int nTrksSubEvt1,
                  int nTrksSubEvt2,
                  int nTrksHftSubEvt1,
-                 int nTrksHftSubEvt2)
+                 int nTrksHftSubEvt2,
+                 int* nTrksPxlSec)
 {
   mRunId    = picoEvent.runId();
   mEventId  = picoEvent.eventId();
@@ -162,6 +169,15 @@ void StPicoVtxAnaEvent::addEvent(StPicoEvent const& picoEvent,
   mKfHftSubEvt2Vx     = kfHftSubEvt2.x();
   mKfHftSubEvt2Vy     = kfHftSubEvt2.y();
   mKfHftSubEvt2Vz     = kfHftSubEvt2.z();
+
+  for(int iSec=0; iSec<10; ++iSec)
+  {
+    mKfPxlSecVx[iSec] = kfPxlSecVtx[iSec].x();
+    mKfPxlSecVy[iSec] = kfPxlSecVtx[iSec].y();
+    mKfPxlSecVz[iSec] = kfPxlSecVtx[iSec].z();
+
+    mNTracksPxlSec[iSec] = nTrksPxlSec[iSec];
+  }
 
   mTree->Fill();
 }

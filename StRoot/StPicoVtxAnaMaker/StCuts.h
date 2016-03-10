@@ -37,11 +37,13 @@ namespace cuts
    {
      for (int i = 0; i < nPxlPhiEdges; ++i)
      {
-       if (phi > PxlPhiEdges[i] && phi < PxlPhiEdges[i+1])
+       if (phi > PxlPhiEdges[i] && phi <= PxlPhiEdges[i+1])
        {
          return PxlSectorNumber[i];
        }
      }
+
+     return 0;
    }
 }
 #endif
