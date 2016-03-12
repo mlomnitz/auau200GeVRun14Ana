@@ -28,7 +28,8 @@ StPicoVtxAnaEvent::StPicoVtxAnaEvent(char const* fileBaseName): mOutputFile(NULL
    mTree->Branch("mNTracksSubEvt2" , &mNTracksSubEvt2,  "mNTracksSubEvt2/I");
    mTree->Branch("mNTracksHftSubEvt1" , &mNTracksHftSubEvt1,  "mNTracksHftSubEvt1/I");
    mTree->Branch("mNTracksHftSubEvt2" , &mNTracksHftSubEvt2,  "mNTracksHftSubEvt2/I");
-   mTree->Branch("mNTracksPxlSec" , &mNTracksPxlSec,  "mNTracksPxlSec[10]/I");
+   mTree->Branch("mNTracksHftPxlSec" , &mNTracksHftPxlSec,  "mNTracksHftPxlSec[10]/I");
+   mTree->Branch("mNTracksHftHighPtPxlSec" , &mNTracksHftHighPtPxlSec,  "mNTracksHftHighPtPxlSec[10]/I");
    
    mTree->Branch("mVx      ", &mVx      , "mVx/F");
    mTree->Branch("mVy      ", &mVy      , "mVy/F");
@@ -74,9 +75,13 @@ StPicoVtxAnaEvent::StPicoVtxAnaEvent(char const* fileBaseName): mOutputFile(NULL
    mTree->Branch("mKfHftSubEvt2Vy    ", &mKfHftSubEvt2Vy    , "mKfHftSubEvt2Vy/F");
    mTree->Branch("mKfHftSubEvt2Vz    ", &mKfHftSubEvt2Vz    , "mKfHftSubEvt2Vz/F");
 
-   mTree->Branch("mKfPxlSecVx", &mKfPxlSecVx, "mKfPxlSecVx[10]/F");
-   mTree->Branch("mKfPxlSecVy", &mKfPxlSecVy, "mKfPxlSecVy[10]/F");
-   mTree->Branch("mKfPxlSecVz", &mKfPxlSecVz, "mKfPxlSecVz[10]/F");
+   mTree->Branch("mKfHftPxlSecVx", &mKfHftPxlSecVx, "mKfHftPxlSecVx[10]/F");
+   mTree->Branch("mKfHftPxlSecVy", &mKfHftPxlSecVy, "mKfHftPxlSecVy[10]/F");
+   mTree->Branch("mKfHftPxlSecVz", &mKfHftPxlSecVz, "mKfHftPxlSecVz[10]/F");
+
+   mTree->Branch("mKfHftHighPtPxlSecVx", &mKfHftHighPtPxlSecVx, "mKfHftHighPtPxlSecVx[10]/F");
+   mTree->Branch("mKfHftHighPtPxlSecVy", &mKfHftHighPtPxlSecVy, "mKfHftHighPtPxlSecVy[10]/F");
+   mTree->Branch("mKfHftHighPtPxlSecVz", &mKfHftHighPtPxlSecVz, "mKfHftHighPtPxlSecVz[10]/F");
 }
 
 void StPicoVtxAnaEvent::closeFile()
@@ -97,7 +102,8 @@ void StPicoVtxAnaEvent::addEvent(StPicoEvent const& picoEvent,
                  StThreeVectorF const& kfSubEvt2,
                  StThreeVectorF const& kfHftSubEvt1,
                  StThreeVectorF const& kfHftSubEvt2,
-                 StThreeVectorF const* kfPxlSecVtx,
+                 StThreeVectorF const* kfHftPxlSecVtx,
+                 StThreeVectorF const* kfHftHighPtPxlSecVtx,
                  int nTrks,
                  int nTrksHft,
                  int nTrksTop,
@@ -108,7 +114,8 @@ void StPicoVtxAnaEvent::addEvent(StPicoEvent const& picoEvent,
                  int nTrksSubEvt2,
                  int nTrksHftSubEvt1,
                  int nTrksHftSubEvt2,
-                 int* nTrksPxlSec)
+                 int* nTrksHftPxlSec,
+                 int* nTrksHftHighPtPxlSec)
 {
   mRunId    = picoEvent.runId();
   mEventId  = picoEvent.eventId();
@@ -172,11 +179,16 @@ void StPicoVtxAnaEvent::addEvent(StPicoEvent const& picoEvent,
 
   for(int iSec=0; iSec<10; ++iSec)
   {
-    mKfPxlSecVx[iSec] = kfPxlSecVtx[iSec].x();
-    mKfPxlSecVy[iSec] = kfPxlSecVtx[iSec].y();
-    mKfPxlSecVz[iSec] = kfPxlSecVtx[iSec].z();
+    mKfHftPxlSecVx[iSec] = kfHftPxlSecVtx[iSec].x();
+    mKfHftPxlSecVy[iSec] = kfHftPxlSecVtx[iSec].y();
+    mKfHftPxlSecVz[iSec] = kfHftPxlSecVtx[iSec].z();
 
-    mNTracksPxlSec[iSec] = nTrksPxlSec[iSec];
+    mKfHftHighPtPxlSecVx[iSec] = kfHftHighPtPxlSecVtx[iSec].x();
+    mKfHftHighPtPxlSecVy[iSec] = kfHftHighPtPxlSecVtx[iSec].y();
+    mKfHftHighPtPxlSecVz[iSec] = kfHftHighPtPxlSecVtx[iSec].z();
+
+    mNTracksHftPxlSec[iSec] = nTrksHftPxlSec[iSec];
+    mNTracksHftHighPtPxlSec[iSec] = nTrksHftHighPtPxlSec[iSec];
   }
 
   mTree->Fill();

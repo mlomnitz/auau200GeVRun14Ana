@@ -68,7 +68,8 @@ Int_t StPicoVtxAnaMaker::Make()
    StThreeVectorF kfVtxSubEvt2(-999.,-999.,-999.);
    StThreeVectorF kfHftVtxSubEvt1(-999.,-999.,-999.);
    StThreeVectorF kfHftVtxSubEvt2(-999.,-999.,-999.);
-   StThreeVectorF kfPxlSecVtx[10];
+   StThreeVectorF kfHftPxlSecVtx[10];
+   StThreeVectorF kfHftHighPtPxlSecVtx[10];
 
    int nTrks = 0;
    int nTrksHft = 0;
@@ -80,12 +81,15 @@ Int_t StPicoVtxAnaMaker::Make()
    int nTrksSubEvt2 = 0;
    int nTrksHftSubEvt1 = 0;
    int nTrksHftSubEvt2 = 0;
-   int nTrksPxlSec[10];
+   int nTrksHftPxlSec[10];
+   int nTrksHftHighPtPxlSec[10];
    
    for(int i=0; i<10; ++i)
    { 
-     kfPxlSecVtx[i].set(-999.,-999.,-999.);
-     nTrksPxlSec[i] = 0;
+     kfHftPxlSecVtx[i].set(-999.,-999.,-999.);
+     kfHftHighPtPxlSecVtx[i].set(-999.,-999.,-999.);
+     nTrksHftPxlSec[i] = 0;
+     nTrksHftHighPtPxlSec[i] = 0;
    }
 
    if (isGoodEvent())
@@ -99,6 +103,7 @@ Int_t StPicoVtxAnaMaker::Make()
       std::vector<int> rightTracksForVtxFit;
       std::vector<int> leftTracksForVtxFit;
       std::vector<int> tracksPerPxlSecForVtxFit[10];
+      std::vector<int> highPtTracksPerPxlSecForVtxFit[10];
 
       StThreeVectorF const pVtx = mPicoEvent->primaryVertex();
 
@@ -120,9 +125,11 @@ Int_t StPicoVtxAnaMaker::Make()
          if(phi > -TMath::Pi()/2. && phi < TMath::Pi()/2.) rightTracksForVtxFit.push_back(iTrack);
          else leftTracksForVtxFit.push_back(iTrack);
 
+         if(!trk->isHFTTrack()) continue;
          if(int nSec = cuts::getPxlSectorNumber(phi))
          {
            tracksPerPxlSecForVtxFit[nSec-1].push_back(iTrack);
+           if(trk->gPt() > cuts::pxlVtxFitPtCut) highPtTracksPerPxlSecForVtxFit[nSec-1].push_back(iTrack);
          }
       } // .. end tracks loop
 
@@ -199,8 +206,14 @@ Int_t StPicoVtxAnaMaker::Make()
       {
         if(!tracksPerPxlSecForVtxFit[iSec].empty())
         {
-          nTrksPxlSec[iSec] = tracksPerPxlSecForVtxFit[iSec].size();
-          kfPxlSecVtx[iSec] = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,tracksPerPxlSecForVtxFit[iSec]);
+          nTrksHftPxlSec[iSec] = tracksPerPxlSecForVtxFit[iSec].size();
+          kfHftPxlSecVtx[iSec] = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,tracksPerPxlSecForVtxFit[iSec]);
+        }
+
+        if(!highPtTracksPerPxlSecForVtxFit[iSec].empty())
+        {
+          nTrksHftHighPtPxlSec[iSec] = highPtTracksPerPxlSecForVtxFit[iSec].size();
+          kfHftHighPtPxlSecVtx[iSec] = mKfVertexFitter.primaryVertexRefitUsingTracks(picoDst,highPtTracksPerPxlSecForVtxFit[iSec]);
         }
       }
    } //.. end of good event fill
@@ -216,7 +229,8 @@ Int_t StPicoVtxAnaMaker::Make()
                       kfVtxSubEvt2,
                       kfHftVtxSubEvt1,
                       kfHftVtxSubEvt2,
-                      kfPxlSecVtx,
+                      kfHftPxlSecVtx,
+                      kfHftHighPtPxlSecVtx,
                       nTrks,
                       nTrksHft,
                       nTrksTop,
@@ -227,7 +241,8 @@ Int_t StPicoVtxAnaMaker::Make()
                       nTrksSubEvt2,
                       nTrksHftSubEvt1,
                       nTrksHftSubEvt2,
-                      nTrksPxlSec);
+                      nTrksHftPxlSec,
+                      nTrksHftHighPtPxlSec);
    return kStOK;
 }
 

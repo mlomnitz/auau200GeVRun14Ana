@@ -32,7 +32,8 @@ public:
                  StThreeVectorF const& kfSubEvt2,
                  StThreeVectorF const& kfHftSubEvt1,
                  StThreeVectorF const& kfHftSubEvt2,
-                 StThreeVectorF const* kfPxlSecVtx,
+                 StThreeVectorF const* kfHftPxlSecVtx,
+                 StThreeVectorF const* kfHftHighPtPxlSecVtx,
                  int nTrks=0,
                  int nTrksHft=0,
                  int nTrksTop=0,
@@ -43,7 +44,8 @@ public:
                  int nTrksSubEvt2=0,
                  int nTrksHftSubEvt1=0,
                  int nTrksHftSubEvt2=0,
-                 int* nTrksPxlSec = NULL);
+                 int* nTrksHftPxlSec = NULL,
+                 int* nTrksHftHighPtPxlSec = NULL);
    void closeFile();
 
 private:
@@ -61,7 +63,8 @@ private:
    int   mNTracksSubEvt2;
    int   mNTracksHftSubEvt1;
    int   mNTracksHftSubEvt2;
-   int   mNTracksPxlSec[10];
+   int   mNTracksHftPxlSec[10];
+   int   mNTracksHftHighPtPxlSec[10];
    int   mGRefMult;
 
    float mVx;
@@ -108,9 +111,13 @@ private:
    float mKfHftSubEvt2Vy;
    float mKfHftSubEvt2Vz;
 
-   float mKfPxlSecVx[10];
-   float mKfPxlSecVy[10];
-   float mKfPxlSecVz[10];
+   float mKfHftPxlSecVx[10];
+   float mKfHftPxlSecVy[10];
+   float mKfHftPxlSecVz[10];
+
+   float mKfHftHighPtPxlSecVx[10];
+   float mKfHftHighPtPxlSecVy[10];
+   float mKfHftHighPtPxlSecVz[10];
 
    TFile* mOutputFile;
    TTree* mTree;
