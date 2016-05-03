@@ -151,7 +151,7 @@ Int_t StPicoD0AnaMaker::Make()
    }
    StThreeVectorF const kfVtx(mKfEvent->mKfVx, mKfEvent->mKfVy, mKfEvent->mKfVz);
 
-   if (isGoodEvent(picoDst->event(),kfVtx))
+   if (isGoodTrigger(picoDst->event()) && isGoodEvent(picoDst->event(),kfVtx))
    {
       TClonesArray const* aKaonPion = mPicoD0Event->kaonPionArray();
       if (aKaonPion->GetEntries()) mHists->addEvent(picoDst->event());
@@ -261,11 +261,20 @@ int StPicoD0AnaMaker::getD0PtIndex(StKaonPion const* const kp) const
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isGoodEvent(StPicoEvent const* const picoEvent, StThreeVectorF const& kfVtx) const
 {
-   return (picoEvent->triggerWord() & anaCuts::triggerWord) &&
-          fabs(kfVtx.z()) < anaCuts::vz &&
+   return fabs(kfVtx.z()) < anaCuts::vz &&
           fabs(kfVtx.z() - picoEvent->vzVpd()) < anaCuts::vzVpdVz &&
           !(fabs(kfVtx.x()) < anaCuts::Verror && fabs(kfVtx.y()) < anaCuts::Verror && fabs(kfVtx.z()) < anaCuts::Verror) &&
           sqrt(TMath::Power(kfVtx.x(), 2) + TMath::Power(kfVtx.y(), 2)) <=  anaCuts::Vrcut;
+}
+//-----------------------------------------------------------------------------
+bool StPicoD0AnaMaker::isGoodTrigger(StPicoEvent const* const picoEvent) const
+{
+  for(auto trg: anaCuts::triggers)
+  {
+    if(picoEvent->isTrigger(trg)) return true;
+  }
+
+  return false;
 }
 //-----------------------------------------------------------------------------
 bool StPicoD0AnaMaker::isGoodQaTrack(StPicoTrack const* const trk, StThreeVectorF const& momentum, double const dca) const

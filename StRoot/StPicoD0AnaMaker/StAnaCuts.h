@@ -11,6 +11,7 @@
 
 #include "Rtypes.h"
 #include <string>
+#include <array>
 
 namespace anaCuts
 {
@@ -18,7 +19,12 @@ namespace anaCuts
    // lists are obtained from http://www.star.bnl.gov/protected/common/common2014/trigger2014/plots_au200gev/
    std::string const prescalesFilesDirectoryName = "./run14AuAu200GeVPrescales";
    //event
-   UShort_t const triggerWord = 0x1F; //first five bits see http://rnc.lbl.gov/~xdong/SoftHadron/picoDst.html
+   std::array<unsigned int, 5> const triggers = { 450050,    // vpdmb-5-p-nobsmd-hlt
+                                                  450060,    // vpdmb-5-p-nobsmd-hlt
+                                                  450005,    // vpdmb-5-p-nobsmd
+                                                  450015,    // vpdmb-5-p-nobsmd
+                                                  450025};    // vpdmb-5-p-nobsmd
+
    float const vz = 6.0;// cm.
    float const vzVpdVz = 3.0; // 3 cm.
    float const Verror = 1.0e-5; // 
