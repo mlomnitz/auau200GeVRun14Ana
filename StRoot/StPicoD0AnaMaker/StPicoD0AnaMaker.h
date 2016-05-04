@@ -80,6 +80,8 @@ class StPicoD0AnaMaker : public StMaker
     ClassDef(StPicoD0AnaMaker, 1)
 };
 
+inline void StPicoD0AnaMaker::fillQaHistograms(bool b) { mFillQaHists = b;}
+
 inline int StPicoD0AnaMaker::getEntries() const 
 {
   return mChain? mChain->GetEntries() : 0;
