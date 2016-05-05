@@ -232,16 +232,8 @@ Int_t StPicoD0AnaMaker::Make()
          bool tof = tofPion && tofKaon;
 
          bool unlike = kaon->charge() * pion->charge() < 0 ? true : false;
-         bool isd0 = (unlike && pion->charge() > 0 && kaon->charge() < 0) ? true : false;//d0--> pi+ k-
-         bool isPosLike = (!unlike && pion->charge() > 0 && kaon->charge() > 0 ) ? true : false;//positive like sign  pi+ k+
 
-         int pionRegion = trkHalf(pion, kfVtx);// -1 -> left half ,  +1 -> right half side
-         int kaonRegion = trkHalf(kaon, kfVtx);// -1 -> left half ,  +1 -> right half side
-         bool isLeft  = (pionRegion+kaonRegion) < 0  ? true : false;
-         bool isRight = (pionRegion+kaonRegion) > 0  ? true : false;
-         bool isMixed = (pionRegion+kaonRegion) == 0 ? true : false;
-
-         mHists->addKaonPion(kp, unlike, isd0, isPosLike, isLeft, isRight, isMixed, true, tof, centrality, reweight);
+         mHists->addKaonPion(kp, unlike, true, tof, centrality, reweight);
 
       } // end of kaonPion loop
    } // end of isGoodEvent
