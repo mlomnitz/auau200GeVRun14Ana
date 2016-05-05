@@ -32,7 +32,7 @@ class StPicoD0AnaHists
    void addEvent(StPicoEvent const *);
    void addEventBeforeCut(StPicoEvent const *);
    void addCent(const double refmultCor,int centrality, const double reweight, const float vz);
-   void addKaonPion(StKaonPion const*, bool unlike, bool isd0, bool isPosLike, bool isLeft, bool isRight, bool isMixed, bool tpc, bool tof, int centrality, const double reweight);
+   void addKaonPion(StKaonPion const*, bool unlike, bool tpc, bool tof, int centrality, const double reweight);
    void addTpcDenom1(bool IsPion, bool IsKaon, float pt, int centrality, float Eta, float Phi, float Vz, float ZdcX);
    void addHFTNumer1(bool IsPion, bool IsKaon, float pt, int centrality, float Eta, float Phi, float Vz, float ZdcX);
    void addQaNtuple(int, float, float, float, float, float, int, const double, float, int, int);
