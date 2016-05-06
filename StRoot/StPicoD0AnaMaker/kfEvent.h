@@ -26,24 +26,42 @@ public :
    Int_t           mEventId ;
    Int_t           mRefMult ;
    Int_t           mGRefMult;
+   Int_t           mNTracks;
+   Int_t           mNTracksSubEvt1;
+   Int_t           mNTracksSubEvt2;
    Float_t         mVx      ;
    Float_t         mVy      ;
    Float_t         mVz      ;
    Float_t         mKfVx    ;
    Float_t         mKfVy    ;
    Float_t         mKfVz    ;
+   Float_t         mKfSubEvt1Vx    ;
+   Float_t         mKfSubEvt1Vy    ;
+   Float_t         mKfSubEvt1Vz    ;
+   Float_t         mKfSubEvt2Vx    ;
+   Float_t         mKfSubEvt2Vy    ;
+   Float_t         mKfSubEvt2Vz    ;
 
    // List of branches
    TBranch        *b_mRunId;   //!
    TBranch        *b_mEventId;   //!
    TBranch        *b_mRefMult;   //!
    TBranch        *b_mGRefMult;   //!
+   TBranch        *b_mNTracks;   //!
+   TBranch        *b_mNTracksSubEvt1;   //!
+   TBranch        *b_mNTracksSubEvt2;   //!
    TBranch        *b_mVx;   //!
    TBranch        *b_mVy;   //!
    TBranch        *b_mVz;   //!
    TBranch        *b_mKfVx;   //!
    TBranch        *b_mKfVy;   //!
    TBranch        *b_mKfVz;   //!
+   TBranch        *b_mKfSubEvt1Vx;   //!
+   TBranch        *b_mKfSubEvt1Vy;   //!
+   TBranch        *b_mKfSubEvt1Vz;   //!
+   TBranch        *b_mKfSubEvt2Vx;   //!
+   TBranch        *b_mKfSubEvt2Vy;   //!
+   TBranch        *b_mKfSubEvt2Vz;   //!
 
    kfEvent(TTree *tree=0);
    virtual ~kfEvent();
@@ -119,12 +137,21 @@ void kfEvent::Init(TTree *tree)
    fChain->SetBranchAddress("mEventId ", &mEventId , &b_mEventId);
    fChain->SetBranchAddress("mRefMult ", &mRefMult , &b_mRefMult);
    fChain->SetBranchAddress("mGRefMult", &mGRefMult, &b_mGRefMult);
+   fChain->SetBranchAddress("mNTracks", &mNTracks, &b_mNTracks);
+   fChain->SetBranchAddress("mNTracksSubEvt1", &mNTracksSubEvt1, &b_mNTracksSubEvt1);
+   fChain->SetBranchAddress("mNTracksSubEvt2", &mNTracksSubEvt2, &b_mNTracksSubEvt2);
    fChain->SetBranchAddress("mVx      ", &mVx      , &b_mVx);
    fChain->SetBranchAddress("mVy      ", &mVy      , &b_mVy);
    fChain->SetBranchAddress("mVz      ", &mVz      , &b_mVz);
    fChain->SetBranchAddress("mKfVx    ", &mKfVx    , &b_mKfVx);
    fChain->SetBranchAddress("mKfVy    ", &mKfVy    , &b_mKfVy);
    fChain->SetBranchAddress("mKfVz    ", &mKfVz    , &b_mKfVz);
+   fChain->SetBranchAddress("mKfSubEvt1Vx    ", &mKfSubEvt1Vx    , &b_mKfSubEvt1Vx);
+   fChain->SetBranchAddress("mKfSubEvt1Vy    ", &mKfSubEvt1Vy    , &b_mKfSubEvt1Vy);
+   fChain->SetBranchAddress("mKfSubEvt1Vz    ", &mKfSubEvt1Vz    , &b_mKfSubEvt1Vz);
+   fChain->SetBranchAddress("mKfSubEvt2Vx    ", &mKfSubEvt2Vx    , &b_mKfSubEvt2Vx);
+   fChain->SetBranchAddress("mKfSubEvt2Vy    ", &mKfSubEvt2Vy    , &b_mKfSubEvt2Vy);
+   fChain->SetBranchAddress("mKfSubEvt2Vz    ", &mKfSubEvt2Vz    , &b_mKfSubEvt2Vz);
    Notify();
 }
 
