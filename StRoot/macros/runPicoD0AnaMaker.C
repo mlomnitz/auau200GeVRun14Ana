@@ -3,7 +3,7 @@ void runPicoD0AnaMaker(TString d0list, TString outFileName, TString badRunListFi
   TStopwatch*   stopWatch = new TStopwatch();
   stopWatch->Start();
   //Check STAR Library. Please set SL_version to the original star library used in the production from http://www.star.bnl.gov/devcgi/dbProdOptionRetrv.pl
-  string SL_version = "SL15c";
+  string SL_version = "SL16d";
   string env_SL = getenv("STAR");
   if (env_SL.find(SL_version) == string::npos)
   {
@@ -30,18 +30,11 @@ void runPicoD0AnaMaker(TString d0list, TString outFileName, TString badRunListFi
   gSystem->Exec(command.Data());
   command = "sed -i 's/kfProd2/physics2/g' correspondingPico.list";
   gSystem->Exec(command.Data());
-  // create list of kfVertex files
-  TString command = "sed 's/d0tree/kfVertex/g' " + d0list + " >correspondingkfVertex.list";
-  gSystem->Exec(command.Data());
-  command = "sed -i 's/picoD0/kfVertex/g' correspondingkfVertex.list";
-  gSystem->Exec(command.Data());
-  command = "sed -i 's/kfProd2/physics2/g' correspondingkfVertex.list";
-  gSystem->Exec(command.Data());
   StPicoDstMaker* picoDstMaker = new StPicoDstMaker(0, "correspondingPico.list", "picoDstMaker");
   StRefMultCorr* grefmultCorrUtil  = CentralityMaker::instance()->getgRefMultCorr();
   // StEventPlane*  eventPlaneMaker = new StEventPlane("eventPlaneMaker",picoDstMaker,grefmultCorrUtil);
   // StPicoD0AnaMaker*  picoD0AnaMaker = new StPicoD0AnaMaker("picoD0AnaMaker", d0list, outFileName.Data(), picoDstMaker, grefmultCorrUtil, eventPlaneMaker);
-  StPicoD0AnaMaker*  picoD0AnaMaker = new StPicoD0AnaMaker("picoD0AnaMaker", d0list, "correspondingkfVertex.list", outFileName.Data(), picoDstMaker, grefmultCorrUtil);
+  StPicoD0AnaMaker*  picoD0AnaMaker = new StPicoD0AnaMaker("picoD0AnaMaker", d0list, outFileName.Data(), picoDstMaker, grefmultCorrUtil);
   picoD0AnaMaker->fillQaHistograms(false);
   grefmultCorrUtil->setVzForWeight(6, -6.0, 6.0);
   grefmultCorrUtil->readScaleForWeight("StRoot/StRefMultCorr/macros/weight_grefmult_vpd30_vpd5_Run14.txt");
@@ -73,8 +66,6 @@ void runPicoD0AnaMaker(TString d0list, TString outFileName, TString badRunListFi
 
   // delete list of picos
   command = "rm -f correspondingPico.list";
-  gSystem->Exec(command.Data());
-  command = "rm -f correspondingkfVertex.list";
   gSystem->Exec(command.Data());
   stopWatch->Stop();   
   stopWatch->Print();
