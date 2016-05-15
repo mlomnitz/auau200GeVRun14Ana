@@ -127,70 +127,72 @@ Int_t StPicoD0AnaMaker::Make()
      return kStOK;
    }
 
-   mHists->addEventBeforeCut(picoDst->event());
-
-   StThreeVectorF pVtx = picoDst->event()->primaryVertex();
-   if (isGoodTrigger(picoDst->event()) && isGoodEvent(picoDst->event(),pVtx))
+   if(!isGoodTrigger(picoDst->event()))
    {
-      TClonesArray const* aKaonPion = mPicoD0Event->kaonPionArray();
-      if (aKaonPion->GetEntries()) mHists->addEvent(picoDst->event());
+     mHists->addEventBeforeCut(picoDst->event());
 
-      mGRefMultCorrUtil->initEvent(picoDst->event()->grefMult(), pVtx.z(), picoDst->event()->ZDCx()) ;
+     StThreeVectorF pVtx = picoDst->event()->primaryVertex();
+     if (isGoodEvent(picoDst->event(),pVtx))
+     {
+       TClonesArray const* aKaonPion = mPicoD0Event->kaonPionArray();
+       mHists->addEvent(picoDst->event());
 
-      int centrality  = mGRefMultCorrUtil->getCentralityBin9();
-      const double reweight = mGRefMultCorrUtil->getWeight();
-      const double refmultCor = mGRefMultCorrUtil->getRefMultCorr();
-      mHists->addCent(refmultCor, centrality, reweight, pVtx.z());
+       mGRefMultCorrUtil->initEvent(picoDst->event()->grefMult(), pVtx.z(), picoDst->event()->ZDCx()) ;
 
-      //Basiclly add some QA plots
-      UInt_t nTracks = picoDst->numberOfTracks();
+       int centrality  = mGRefMultCorrUtil->getCentralityBin9();
+       const double reweight = mGRefMultCorrUtil->getWeight();
+       const double refmultCor = mGRefMultCorrUtil->getRefMultCorr();
+       mHists->addCent(refmultCor, centrality, reweight, pVtx.z());
 
-      if(mFillQaHists)
-      {
-        for (unsigned short iTrack = 0; iTrack < nTracks; ++iTrack)
-        {
-          StPicoTrack const* trk = picoDst->track(iTrack);
-          if (!trk) continue;
-          StPhysicalHelixD helix = trk->helix();
-          float dca = float(helix.geometricSignedDistance(pVtx));
-          StThreeVectorF momentum = trk->gMom(pVtx, picoDst->event()->bField());
+       //Basiclly add some QA plots
+       UInt_t nTracks = picoDst->numberOfTracks();
 
-          if (!isGoodQaTrack(trk, momentum, dca)) continue;
-
-          StThreeVectorF dcaPoint = helix.at(helix.pathLength(pVtx.x(), pVtx.y()));
-          float dcaZ = dcaPoint.z() - pVtx.z();
-          double dcaXy = helix.geometricSignedDistance(pVtx.x(), pVtx.y());
-
-         bool tpcPion = isTpcPion(trk);
-         bool tpcKaon = isTpcKaon(trk);
-         float pBeta = getTofBeta(trk, pVtx);
-         float kBeta = pBeta;
-         bool pTofAvailable = !isnan(pBeta) && pBeta > 0;
-         bool kTofAvailable = !isnan(kBeta) && kBeta > 0;
-         bool tofPion = isTofPion(trk, pBeta, pVtx);
-         bool tofKaon = isTofKaon(trk, kBeta, pVtx);
-
-         bool goodPion = (pTofAvailable && tofPion && tpcPion) || (!pTofAvailable && tpcPion);//Always require TPC
-         bool goodKaon = (kTofAvailable && tofKaon && tpcKaon) || (!kTofAvailable && tpcKaon);
-         // bool goodKaon = (momentum.perp() <= 1.6 && kTofAvailable && tofKaon && tpcKaon) || (momentum.perp() > 1.6 && tpcKaon);//strict Kaon pid
-
-         if (trk  && fabs(dca) < 1.5 && trk->isHFTTrack() && (goodPion || goodKaon ))
+       if(mFillQaHists)
+       {
+         for (unsigned short iTrack = 0; iTrack < nTracks; ++iTrack)
          {
-            mHists->addDcaPtCent(dca, dcaXy, dcaZ, goodPion, goodKaon, momentum.perp(), centrality, momentum.pseudoRapidity(), momentum.phi(), pVtx.z(), picoDst->event()->ZDCx() / 1000.); //add Dca distribution
-         }
-         if (trk  && fabs(dca) < 1.5 && (goodPion || goodKaon ))
-         {
-            mHists->addTpcDenom1(goodPion, goodKaon, momentum.perp(), centrality, momentum.pseudoRapidity(), momentum.phi(), pVtx.z(), picoDst->event()->ZDCx() / 1000.); //Dca cut on 1.5cm, add Tpc Denominator
-         }
-         if (trk && fabs(dca) < 1.5 && trk->isHFTTrack() && (goodPion || goodKaon ) && fabs(dcaXy) < 1. && fabs(dcaZ) < 1.)
-         {
-            mHists->addHFTNumer1(goodPion, goodKaon, momentum.perp(), centrality,  momentum.pseudoRapidity(), momentum.phi(), pVtx.z(), picoDst->event()->ZDCx() / 1000.); //Dca cut on 1.5cm, add HFT Numerator
-         }
-        } // .. end tracks loop
-      }
+           StPicoTrack const* trk = picoDst->track(iTrack);
+           if (!trk) continue;
+           StPhysicalHelixD helix = trk->helix();
+           float dca = float(helix.geometricSignedDistance(pVtx));
+           StThreeVectorF momentum = trk->gMom(pVtx, picoDst->event()->bField());
 
-      for (int idx = 0; idx < aKaonPion->GetEntries(); ++idx)
-      {
+           if (!isGoodQaTrack(trk, momentum, dca)) continue;
+
+           StThreeVectorF dcaPoint = helix.at(helix.pathLength(pVtx.x(), pVtx.y()));
+           float dcaZ = dcaPoint.z() - pVtx.z();
+           double dcaXy = helix.geometricSignedDistance(pVtx.x(), pVtx.y());
+
+           bool tpcPion = isTpcPion(trk);
+           bool tpcKaon = isTpcKaon(trk);
+           float pBeta = getTofBeta(trk, pVtx);
+           float kBeta = pBeta;
+           bool pTofAvailable = !isnan(pBeta) && pBeta > 0;
+           bool kTofAvailable = !isnan(kBeta) && kBeta > 0;
+           bool tofPion = isTofPion(trk, pBeta, pVtx);
+           bool tofKaon = isTofKaon(trk, kBeta, pVtx);
+
+           bool goodPion = (pTofAvailable && tofPion && tpcPion) || (!pTofAvailable && tpcPion);//Always require TPC
+           bool goodKaon = (kTofAvailable && tofKaon && tpcKaon) || (!kTofAvailable && tpcKaon);
+           // bool goodKaon = (momentum.perp() <= 1.6 && kTofAvailable && tofKaon && tpcKaon) || (momentum.perp() > 1.6 && tpcKaon);//strict Kaon pid
+
+           if (trk  && fabs(dca) < 1.5 && trk->isHFTTrack() && (goodPion || goodKaon ))
+           {
+             mHists->addDcaPtCent(dca, dcaXy, dcaZ, goodPion, goodKaon, momentum.perp(), centrality, momentum.pseudoRapidity(), momentum.phi(), pVtx.z(), picoDst->event()->ZDCx() / 1000.); //add Dca distribution
+           }
+           if (trk  && fabs(dca) < 1.5 && (goodPion || goodKaon ))
+           {
+             mHists->addTpcDenom1(goodPion, goodKaon, momentum.perp(), centrality, momentum.pseudoRapidity(), momentum.phi(), pVtx.z(), picoDst->event()->ZDCx() / 1000.); //Dca cut on 1.5cm, add Tpc Denominator
+           }
+           if (trk && fabs(dca) < 1.5 && trk->isHFTTrack() && (goodPion || goodKaon ) && fabs(dcaXy) < 1. && fabs(dcaZ) < 1.)
+           {
+             mHists->addHFTNumer1(goodPion, goodKaon, momentum.perp(), centrality,  momentum.pseudoRapidity(), momentum.phi(), pVtx.z(), picoDst->event()->ZDCx() / 1000.); //Dca cut on 1.5cm, add HFT Numerator
+           }
+         } // .. end tracks loop
+       }
+
+       for (int idx = 0; idx < aKaonPion->GetEntries(); ++idx)
+       {
          StKaonPion const* kp = (StKaonPion*)aKaonPion->UncheckedAt(idx);
 
          if (!isGoodPair(kp)) continue;
@@ -214,8 +216,9 @@ Int_t StPicoD0AnaMaker::Make()
 
          mHists->addKaonPion(kp, unlike, true, tof, centrality, reweight);
 
-      } // end of kaonPion loop
-   } // end of isGoodEvent
+       } // end of kaonPion loop
+     } // end of isGoodEvent
+   } // end of isGoodTrigger
 
    return kStOK;
 }
