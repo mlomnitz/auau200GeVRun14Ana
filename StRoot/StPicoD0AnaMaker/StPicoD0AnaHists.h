@@ -2,9 +2,11 @@
 #define StPicoD0AnaHists__h
 
 /* **************************************************
- *  A class to create and save my D0 analysis histograms.
+ *  A Maker to read a StPicoEvent and StPicoD0Event
+ *  simultaneously and do analysis.
  *
- *  Authors: Mustafa Mustafa (mmustafa@lbl.gov)
+ *  Authors: Guannan Xie <guannanxie@lbl.gov>
+ *           Mustafa Mustafa <mmustafa@lbl.gov>
  *
  * **************************************************
  */

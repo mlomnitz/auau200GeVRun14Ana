@@ -1,3 +1,11 @@
+/* **************************************************
+ *
+ *  Authors: Guannan Xie <guannanxie@lbl.gov>
+ *           Mustafa Mustafa <mmustafa@lbl.gov>
+ *
+ * **************************************************
+ */
+
 #include <cmath>
 
 #include "St_base/StMessMgr.h"

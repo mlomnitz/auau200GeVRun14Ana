@@ -2,9 +2,9 @@
 #define StAnaCuts_H
 
 /* **************************************************
- *  Cuts namespace.
  *
- *  Authors:  Mustafa Mustafa (mmustafa@lbl.gov)
+ *  Authors: Guannan Xie <guannanxie@lbl.gov>
+ *           Mustafa Mustafa <mmustafa@lbl.gov>
  *
  * **************************************************
  */

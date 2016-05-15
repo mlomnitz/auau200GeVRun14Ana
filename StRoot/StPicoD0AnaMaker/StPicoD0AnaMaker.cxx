@@ -1,3 +1,11 @@
+/* **************************************************
+ *
+ *  Authors: Guannan Xie <guannanxie@lbl.gov>
+ *           Mustafa Mustafa <mmustafa@lbl.gov>
+ *
+ * **************************************************
+ */
+
 #include <iostream>
 #include <fstream>
 #include <string>

@@ -3,11 +3,10 @@
 
 /* **************************************************
  *  A Maker to read a StPicoEvent and StPicoD0Event
- *  simultaneously and do analysis. 
+ *  simultaneously and do analysis.
  *
- *  Please write your analysis in the ::Make() function.
- *
- *  Authors:  Mustafa Mustafa (mmustafa@lbl.gov)
+ *  Authors: Guannan Xie <guannanxie@lbl.gov>
+ *           Mustafa Mustafa <mmustafa@lbl.gov>
  *
  * **************************************************
  */
