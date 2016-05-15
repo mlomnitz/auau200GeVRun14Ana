@@ -16,7 +16,7 @@ void runPicoD0AnaMaker(TString d0list, TString outFileName, TString badRunListFi
 
   gSystem->Load("StPicoDstMaker");
   gSystem->Load("StPicoPrescales");
-  gSystem->Load("StPicoD0EventMaker");
+  gSystem->Load("StPicoCharmContainers");
   gSystem->Load("StPicoD0AnaMaker");
   gSystem->Load("StRefMultCorr");
   // gSystem->Load("StEventPlane");
@@ -24,12 +24,15 @@ void runPicoD0AnaMaker(TString d0list, TString outFileName, TString badRunListFi
   chain = new StChain();
 
   // create list of picoDst files
-  TString command = "sed 's/hft\\\/d0tree/picodsts/g' " + d0list + " >correspondingPico.list";
+  TString command = "sed 's/hft/picodsts/g' " + d0list + " >correspondingPico.list";
   gSystem->Exec(command.Data());
   command = "sed -i 's/picoD0/picoDst/g' correspondingPico.list";
   gSystem->Exec(command.Data());
-  command = "sed -i 's/kfProd2/physics2/g' correspondingPico.list";
+  command = "sed -i 's/Pico16a/physics2/g' correspondingPico.list";
   gSystem->Exec(command.Data());
+  command = "sed -i 's/D0//g' correspondingPico.list";
+  gSystem->Exec(command.Data());
+
   StPicoDstMaker* picoDstMaker = new StPicoDstMaker(0, "correspondingPico.list", "picoDstMaker");
   StRefMultCorr* grefmultCorrUtil  = CentralityMaker::instance()->getgRefMultCorr();
   // StEventPlane*  eventPlaneMaker = new StEventPlane("eventPlaneMaker",picoDstMaker,grefmultCorrUtil);
