@@ -21,14 +21,15 @@
 #include "TNtuple.h"
 
 #include "StEvent/StDcaGeometry.h"
+#include "StarClassLibrary/StLorentzVectorF.hh"
 #include "StPhysicalHelixD.hh"
 #include "phys_constants.h"
-#include "StRoot/StPicoDstMaker/StPicoBTofPidTraits.h"
 #include "StBTofUtil/tofPathLength.hh"
 #include "StPicoDstMaker/StPicoDstMaker.h"
 #include "StPicoDstMaker/StPicoDst.h"
 #include "StPicoDstMaker/StPicoEvent.h"
 #include "StPicoDstMaker/StPicoTrack.h"
+#include "StPicoDstMaker/StPicoBTofPidTraits.h"
 #include "StPicoCharmContainers/StPicoKPiXEvent.h"
 #include "StPicoCharmContainers/StPicoKPiX.h"
 #include "StRoot/StRefMultCorr/StRefMultCorr.h"
@@ -40,7 +41,7 @@ ClassImp(StPicoKPiXAnaMaker)
 
 StPicoKPiXAnaMaker::StPicoKPiXAnaMaker(char const * name, TString const inputFilesList,
                                        std::string outFileBaseName, StPicoDstMaker* picoDstMaker, StRefMultCorr* grefmultCorrUtil):
-                                       StMaker(name), mPicoDstMaker(picoDstMaker), mPicoKPiXEvent(nullptr), 
+                                       StMaker(name), mPicoDstMaker(picoDstMaker), mPicoKPiXEvent(nullptr),
                                        mGRefMultCorrUtil(grefmultCorrUtil), mChain(nullptr),
                                        mInputFilesList(inputFilesList), mOutFileBaseName(outFileBaseName),
                                        mEventCounter(0)
@@ -131,7 +132,7 @@ Int_t StPicoKPiXAnaMaker::Make()
    if(isGoodTrigger(picoDst->event()))
    {
      // mHists->addEventBeforeCut(picoDst->event());
-     
+
      StThreeVectorF pVtx = picoDst->event()->primaryVertex();
      if (isGoodEvent(picoDst->event(),pVtx))
      {
@@ -147,26 +148,30 @@ Int_t StPicoKPiXAnaMaker::Make()
 
        for (int idx = 0; idx < aKaonPionXaon->GetEntries(); ++idx)
        {
-         StPicoKPiX const* kpx = (StPicoKPiX*)aKaonPionXaon->UncheckedAt(idx);
+         StPicoKPiX const* const kpx = (StPicoKPiX*)aKaonPionXaon->UncheckedAt(idx);
+         if(!kpx) continue;
 
-         // if (!isGoodPair(kp)) continue;
-         //
-         // StPicoTrack const* kaon = picoDst->track(kp->kaonIdx());
-         // StPicoTrack const* pion = picoDst->track(kp->pionIdx());
-         //
-         // if (!isGoodTrack(kaon, pVtx) || !isGoodTrack(pion, pVtx)) continue;
-         //
-         // // PID
-         // if(!isTpcPion(pion) || !isTpcKaon(kaon)) continue;
-         // float pBeta = getTofBeta(pion, pVtx);
-         // float kBeta = getTofBeta(kaon, pVtx);
-         // bool pTofAvailable = !isnan(pBeta) && pBeta > 0;
-         // bool kTofAvailable = !isnan(kBeta) && kBeta > 0;
-         // bool tofPion = pTofAvailable ? isTofPion(pion, pBeta, pVtx) : true;//this is bybrid pid, not always require tof
-         // bool tofKaon = kTofAvailable ? isTofKaon(kaon, kBeta, pVtx) : true;//this is bybrid pid, not always require tof
-         // bool tof = tofPion && tofKaon;
-         //
-         // bool unlike = kaon->charge() * pion->charge() < 0 ? true : false;
+         if (!kPiXAnaCuts::isGoodKPiX(*kpx, kPiXAnaCuts::DpmCuts)) continue;
+
+         StPicoTrack const* const kaon = picoDst->track(kpx->kaonIdx());
+         StPicoTrack const* const pion = picoDst->track(kpx->pionIdx());
+         StPicoTrack const* const xaon = picoDst->track(kpx->xaonIdx());
+
+         if (!isGoodTrack(kaon, pVtx) ||
+             !isGoodTrack(pion, pVtx) ||
+             !isGoodTrack(xaon, pVtx)) continue;
+
+         // PID
+         if(!isTpcPion(pion) || !isTpcKaon(kaon)) continue;
+         float pBeta = getTofBeta(pion, pVtx);
+         float kBeta = getTofBeta(kaon, pVtx);
+         bool pTofAvailable = !isnan(pBeta) && pBeta > 0;
+         bool kTofAvailable = !isnan(kBeta) && kBeta > 0;
+         bool tofPion = pTofAvailable ? isTofPion(pion, pBeta, pVtx) : true;//this is bybrid pid, not always require tof
+         bool tofKaon = kTofAvailable ? isTofKaon(kaon, kBeta, pVtx) : true;//this is bybrid pid, not always require tof
+         bool tof = tofPion && tofKaon;
+
+         bool unlike = kaon->charge() * pion->charge() < 0 ? true : false;
 
          // mHists->addKaonPion(kp, unlike, true, tof, centrality, reweight);
 
@@ -177,27 +182,17 @@ Int_t StPicoKPiXAnaMaker::Make()
    return kStOK;
 }
 
-// int StPicoKPiXAnaMaker::getD0PtIndex(StKaonPion const* const kp) const
-// {
-//    for (int i = 0; i < anaCuts::nPtBins; i++)
-//    {
-//       if ((kp->pt() >= anaCuts::PtBinsEdge[i]) && (kp->pt() < anaCuts::PtBinsEdge[i + 1]))
-//          return i;
-//    }
-//    return anaCuts::nPtBins - 1;
-// }
-
 bool StPicoKPiXAnaMaker::isGoodEvent(StPicoEvent const* const picoEvent, StThreeVectorF const& pVtx) const
 {
-   return fabs(pVtx.z()) < anaCuts::vz &&
-          fabs(pVtx.z() - picoEvent->vzVpd()) < anaCuts::vzVpdVz &&
-          !(fabs(pVtx.x()) < anaCuts::Verror && fabs(pVtx.y()) < anaCuts::Verror && fabs(pVtx.z()) < anaCuts::Verror) &&
-          sqrt(pow(pVtx.x(), 2) + pow(pVtx.y(), 2)) <=  anaCuts::Vrcut;
+   return fabs(pVtx.z()) < kPiXAnaCuts::vz &&
+          fabs(pVtx.z() - picoEvent->vzVpd()) < kPiXAnaCuts::vzVpdVz &&
+          !(fabs(pVtx.x()) < kPiXAnaCuts::Verror && fabs(pVtx.y()) < kPiXAnaCuts::Verror && fabs(pVtx.z()) < kPiXAnaCuts::Verror) &&
+          sqrt(pow(pVtx.x(), 2) + pow(pVtx.y(), 2)) <=  kPiXAnaCuts::Vrcut;
 }
 
 bool StPicoKPiXAnaMaker::isGoodTrigger(StPicoEvent const* const picoEvent) const
 {
-  for(auto trg: anaCuts::triggers)
+  for(auto trg: kPiXAnaCuts::triggers)
   {
     if(picoEvent->isTrigger(trg)) return true;
   }
@@ -210,31 +205,20 @@ bool StPicoKPiXAnaMaker::isGoodTrack(StPicoTrack const* const trk, StThreeVector
    StThreeVectorF mom = trk->gMom(vtx, mPicoDstMaker->picoDst()->event()->bField());
 
 
-   return mom.perp() > anaCuts::minPt &&
-          trk->nHitsFit() >= anaCuts::nHitsFit &&
-          fabs(mom.pseudoRapidity()) <= anaCuts::Eta;
+   return mom.perp() > kPiXAnaCuts::minPt &&
+          trk->nHitsFit() >= kPiXAnaCuts::nHitsFit &&
+          fabs(mom.pseudoRapidity()) <= kPiXAnaCuts::Eta;
 }
 
 bool StPicoKPiXAnaMaker::isTpcPion(StPicoTrack const* const trk) const
 {
-   return fabs(trk->nSigmaPion()) < anaCuts::nSigmaPion;
+   return fabs(trk->nSigmaPion()) < kPiXAnaCuts::nSigmaPion;
 }
 
 bool StPicoKPiXAnaMaker::isTpcKaon(StPicoTrack const* const trk) const
 {
-   return fabs(trk->nSigmaKaon()) < anaCuts::nSigmaKaon;
+   return fabs(trk->nSigmaKaon()) < kPiXAnaCuts::nSigmaKaon;
 }
-
-// bool StPicoKPiXAnaMaker::isGoodPair(StKaonPion const* const kp) const
-// {
-//    int tmpIndex = getD0PtIndex(kp);
-//    return cos(kp->pointingAngle()) > anaCuts::cosTheta[tmpIndex] &&
-//           kp->pionDca() > anaCuts::pDca[tmpIndex] && kp->kaonDca() > anaCuts::kDca[tmpIndex] &&
-//           kp->dcaDaughters() < anaCuts::dcaDaughters[tmpIndex] &&
-//           kp->decayLength() > anaCuts::decayLength[tmpIndex] &&
-//           fabs(kp->lorentzVector().rapidity()) < anaCuts::RapidityCut &&
-//           ((kp->decayLength()) * sin(kp->pointingAngle())) < anaCuts::dcaV0ToPv[tmpIndex];
-// }
 
 bool StPicoKPiXAnaMaker::isTofKaon(StPicoTrack const* const trk, float beta, StThreeVectorF const& vtx) const
 {
@@ -244,7 +228,7 @@ bool StPicoKPiXAnaMaker::isTofKaon(StPicoTrack const* const trk, float beta, StT
    {
       double ptot = trk->gMom(vtx, mPicoDstMaker->picoDst()->event()->bField()).mag();
       float beta_k = ptot / sqrt(ptot * ptot + M_KAON_PLUS * M_KAON_PLUS);
-      tofKaon = fabs(1 / beta - 1 / beta_k) < anaCuts::kTofBetaDiff ? true : false;
+      tofKaon = fabs(1 / beta - 1 / beta_k) < kPiXAnaCuts::kTofBetaDiff ? true : false;
    }
 
    return tofKaon;
@@ -258,7 +242,7 @@ bool StPicoKPiXAnaMaker::isTofPion(StPicoTrack const* const trk, float beta, StT
    {
       double ptot = trk->gMom(vtx, mPicoDstMaker->picoDst()->event()->bField()).mag();
       float beta_pi = ptot / sqrt(ptot * ptot + M_PION_PLUS * M_PION_PLUS);
-      tofPion = fabs(1 / beta - 1 / beta_pi) < anaCuts::pTofBetaDiff ? true : false;
+      tofPion = fabs(1 / beta - 1 / beta_pi) < kPiXAnaCuts::pTofBetaDiff ? true : false;
    }
 
    return tofPion;

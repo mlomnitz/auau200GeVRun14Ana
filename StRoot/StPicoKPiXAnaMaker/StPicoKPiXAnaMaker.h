@@ -14,6 +14,7 @@
  */
 
 #include <string>
+#include <vector>
 #include "TChain.h"
 #include "StMaker.h"
 #include "StThreeVectorF.hh"
@@ -45,7 +46,6 @@ class StPicoKPiXAnaMaker : public StMaker
     StPicoKPiXAnaMaker() {}
     void readNextEvent();
 
-    // int  getD0PtIndex(StKaonPion const* ) const;
     bool isGoodTrigger(StPicoEvent const*) const;
     bool isGoodEvent(StPicoEvent const*, StThreeVectorF const& vtx) const;
     bool isGoodTrack(StPicoTrack const*, StThreeVectorF const&) const;
@@ -53,7 +53,6 @@ class StPicoKPiXAnaMaker : public StMaker
     bool isTpcKaon(StPicoTrack const*) const;
     bool isTofPion(StPicoTrack const*, float beta, StThreeVectorF const& vtx) const;
     bool isTofKaon(StPicoTrack const*, float beta, StThreeVectorF const& vtx) const;
-    // bool isGoodPair(StKaonPion const*) const;
     float getTofBeta(StPicoTrack const*,StThreeVectorF const& vtx) const;
 
     StPicoDstMaker*  mPicoDstMaker;
