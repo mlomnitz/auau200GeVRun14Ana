@@ -61,6 +61,7 @@ class StPicoKPiXAnaMaker : public StMaker
     int getIndex(float const value, std::vector<float> const& edges) const;
     bool isGoodKPiX(StPicoKPiX const* kpx, kPiXAnaCuts::TopologicalCuts const& cuts) const;
 
+    int mEventCounter;
     StPicoDstMaker*  mPicoDstMaker;
     StPicoKPiXEvent* mPicoKPiXEvent;
     StRefMultCorr*   mGRefMultCorrUtil;
@@ -69,12 +70,14 @@ class StPicoKPiXAnaMaker : public StMaker
     std::string mInputFilesList;
     std::string mOutFileBaseName;
 
-    int mEventCounter;
+    StPicoCharmMassHists* mDpmHists;
+    StPicoCharmMassHists* mDsHists;
+    StPicoCharmMassHists* mLcHists;
 
     ClassDef(StPicoKPiXAnaMaker, 0)
 };
 
-inline int StPicoKPiXAnaMaker::getEntries() const 
+inline int StPicoKPiXAnaMaker::getEntries() const
 {
   return mChain? mChain->GetEntries() : 0;
 }
