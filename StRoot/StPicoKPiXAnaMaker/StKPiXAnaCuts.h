@@ -14,7 +14,7 @@
 #include <array>
 #include <vector>
 
-// #include "phys_constants.h"
+#include "phys_constants.h"
 
 namespace kPiXAnaCuts
 {
@@ -51,8 +51,8 @@ namespace kPiXAnaCuts
   struct TopologicalCuts
   {
     double xMassHypothesis;
-    float rapidityCut;
-    int   nPtBins;
+    float  rapidityCut;
+    int    nPtBins;
     std::vector<float> ptBinsEdge;
     std::vector<float> dcaV0ToPv;
     std::vector<float> decayLength;
@@ -61,62 +61,38 @@ namespace kPiXAnaCuts
     std::vector<float> kDca;
     std::vector<float> pDca;
 
-    // TopologicalCuts() = delete;
-    TopologicalCuts(int NumberOfPtBins): nPtBins(NumberOfPtBins),
-                                         ptBinsEdge(nPtBins+1),
-                                         dcaV0ToPv(nPtBins),
-                                         decayLength(nPtBins),
-                                         cosTheta(nPtBins),
-                                         dcaDaughters(nPtBins),
-                                         kDca(nPtBins),
-                                         pDca(nPtBins) {}
-
-    static TopologicalCuts makeCuts(int NumberOfPtBins)
-    {
-      return TopologicalCuts(NumberOfPtBins);
-    }
+    TopologicalCuts(double xMassHypothesis,
+                    float  rapidityCut,
+                    int    nPtBins,
+                    std::vector<float> const& ptBinsEdge,
+                    std::vector<float> const& dcaV0ToPv,
+                    std::vector<float> const& decayLength,
+                    std::vector<float> const& cosTheta,
+                    std::vector<float> const& dcaDaughters,
+                    std::vector<float> const& kDca,
+                    std::vector<float> const& pDca):
+                    xMassHypothesis(xMassHypothesis),
+                    rapidityCut(rapidityCut),
+                    nPtBins(nPtBins),
+                    ptBinsEdge(ptBinsEdge),
+                    dcaV0ToPv(dcaV0ToPv),
+                    decayLength(decayLength),
+                    cosTheta(cosTheta),
+                    dcaDaughters(dcaDaughters),
+                    kDca(kDca),
+                    pDca(pDca)
+    {}
   };
 
-  TopologicalCuts DpmCuts = TopologicalCuts::makeCuts(5);
-  // DpmCuts.xMassHypothesis = M_PION_PLUS;
-  // DpmCuts.rapidityCut = 1.0;
-  // DpmCuts.ptBinsEdge   = {0., 1., 2., 3., 5., 15.};
-  // DpmCuts.dcaV0ToPv    = {0.0061, 0.0049, 0.0038, 0.0038, 0.0040};
-  // DpmCuts.decayLength  = {0.0145, 0.0181, 0.0212, 0.0247, 0.0259};
-  // DpmCuts.cosTheta     = {0.0000, 0.0000, 0.0000, 0.0000, 0.0000};
-  // DpmCuts.dcaDaughters = {0.0084, 0.0066, 0.0057, 0.0050, 0.0060};
-  // DpmCuts.kDca         = {0.0103, 0.0091, 0.0095, 0.0079, 0.0058};
-  // DpmCuts.pDca         = {0.0110, 0.0111, 0.0086, 0.0081, 0.0062};
-
-  // utility methods
-
-  int getIndex(float const value, std::vector<float> const& edges)
-  {
-    for (size_t i = 0; i < edges.size(); ++i)
-    {
-      if (value >= edges[i] && value < edges[i + 1])
-        return i;
-    }
-
-    return edges.size() - 1;
-  }
-
-  bool isGoodKPiX(StPicoKPiX const& kpx, TopologicalCuts const& cuts)
-  {
-    StLorentzVectorF const fMom = kpx.fourMom(cuts.xMassHypothesis);
-
-    int const tmpIndex = getIndex(fMom.perp(), cuts.ptBinsEdge);
-
-    return cos(kpx.pointingAngle()) > cuts.cosTheta[tmpIndex] &&
-      kpx.pionDca() > cuts.pDca[tmpIndex] &&
-      kpx.kaonDca() > cuts.kDca[tmpIndex] &&
-      kpx.xaonDca() > cuts.pDca[tmpIndex] &&
-      kpx.dcaDaughters() < cuts.dcaDaughters[tmpIndex] &&
-      kpx.decayLength() > cuts.decayLength[tmpIndex] &&
-      fabs(fMom.rapidity()) < cuts.rapidityCut &&
-      kpx.perpDcaToVtx() < cuts.dcaV0ToPv[tmpIndex];
-  }
-
-
+  TopologicalCuts DpmCuts(M_PION_PLUS,
+                          1.0,                                      // rapidity
+                          5,                                        // nPtBins
+                          {0., 1., 2., 3., 5., 15.},                // ptEdges
+                          {0.0061, 0.0049, 0.0038, 0.0038, 0.0040}, // dcaV0ToPv
+                          {0.0145, 0.0181, 0.0212, 0.0247, 0.0259}, // decayLength
+                          {0.0000, 0.0000, 0.0000, 0.0000, 0.0000}, // cosTheta
+                          {0.0084, 0.0066, 0.0057, 0.0050, 0.0060}, // dcaDaughters
+                          {0.0103, 0.0091, 0.0095, 0.0079, 0.0058}, // kDca
+                          {0.0110, 0.0111, 0.0086, 0.0081, 0.0062});// pDca
 }
 #endif

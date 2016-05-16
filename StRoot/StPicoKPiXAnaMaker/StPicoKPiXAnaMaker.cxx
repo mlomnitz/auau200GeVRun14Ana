@@ -277,3 +277,30 @@ float StPicoKPiXAnaMaker::getTofBeta(StPicoTrack const* const trk, StThreeVector
 
    return beta;
 }
+
+int StPicoKPiXAnaMaker::getIndex(float const value, std::vector<float> const& edges) const
+{
+  for (size_t i = 0; i < edges.size(); ++i)
+  {
+    if (value >= edges[i] && value < edges[i + 1])
+      return i;
+  }
+
+  return edges.size() - 1;
+}
+
+bool StPicoKPiXAnaMaker::isGoodKPiX(StPicoKPiX const* const kpx, kPiXAnaCuts::TopologicalCuts const& cuts) const
+{
+  StLorentzVectorF const fMom = kpx->fourMom(cuts.xMassHypothesis);
+
+  int const tmpIndex = getIndex(fMom.perp(), cuts.ptBinsEdge);
+
+  return cos(kpx->pointingAngle()) > cuts.cosTheta[tmpIndex] &&
+         kpx->pionDca() > cuts.pDca[tmpIndex] &&
+         kpx->kaonDca() > cuts.kDca[tmpIndex] &&
+         kpx->xaonDca() > cuts.pDca[tmpIndex] &&
+         kpx->dcaDaughters() < cuts.dcaDaughters[tmpIndex] &&
+         kpx->decayLength() > cuts.decayLength[tmpIndex] &&
+         fabs(fMom.rapidity()) < cuts.rapidityCut &&
+         kpx->perpDcaToVtx() < cuts.dcaV0ToPv[tmpIndex];
+}
