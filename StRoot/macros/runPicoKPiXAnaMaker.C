@@ -38,6 +38,9 @@ void runPicoKPiXAnaMaker(string kPixList, string outFileName, string badRunListF
   StPicoDstMaker*     picoDstMaker = new StPicoDstMaker(0, "correspondingPico.list", "picoDstMaker");
   StRefMultCorr*      grefmultCorrUtil  = CentralityMaker::instance()->getgRefMultCorr();
   StPicoKPiXAnaMaker* picoKPiXAnaMaker = new StPicoKPiXAnaMaker("picoD0AnaMaker", kPixList, outFileName, picoDstMaker, grefmultCorrUtil);
+  picoKPiXAnaMaker->fillDpmHists(true);
+  picoKPiXAnaMaker->fillDsHists(true);
+  picoKPiXAnaMaker->fillLcHists(false);
 
   grefmultCorrUtil->setVzForWeight(6, -6.0, 6.0);
   grefmultCorrUtil->readScaleForWeight("StRoot/StRefMultCorr/macros/weight_grefmult_vpd30_vpd5_Run14.txt");
