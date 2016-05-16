@@ -172,7 +172,7 @@ Int_t StPicoKPiXAnaMaker::Make()
              !isGoodTrack(pion, pVtx) ||
              !isGoodTrack(xaon, pVtx)) continue;
 
-         // PID
+         // Kaon Pion PID
          if(!isTpcPion(pion) || !isTpcKaon(kaon)) continue;
          float pBeta = getTofBeta(pion, pVtx);
          float kBeta = getTofBeta(kaon, pVtx);
@@ -182,9 +182,23 @@ Int_t StPicoKPiXAnaMaker::Make()
          bool tofKaon = kTofAvailable ? isTofKaon(kaon, kBeta, pVtx) : true;//this is hybrid pid, not always require tof
          bool tof = tofPion && tofKaon;
 
-         bool unlike = kaon->charge() * pion->charge() < 0 ? true : false;
+         if(!tof) continue;
 
-         // mHists->addKaonPion(kp, unlike, true, tof, centrality, reweight);
+         // D+-
+         if(mFillDpmHists && isTpcPion(xaon) && isGoodKPiX(kpx, kPiXAnaCuts::DpmCuts))
+         {
+           bool fg = (kaon->charge() != pion->charge()) && (pion->charge() == xaon->charge()); // D+- --> K-+ π+- π+-
+           mDpmHists->addKPiX(kpx->fourMom(M_PION_PLUS), fg, centrality, reweight);
+         }
+
+         // Ds
+         if(mFillDsHists && isTpcKaon(kaon) && isGoodKPiX(kpx, kPiXAnaCuts::DsCuts))
+         {
+           bool fg = kaon->charge() != xaon->charge(); // Ds+- --> K+- K-+ π+-
+           mDsHists->addKPiX(kpx->fourMom(M_KAON_PLUS), fg, centrality, reweight);
+         }
+
+         // Λc
 
        } // kaonPionXaon loop
      } // isGoodEvent
