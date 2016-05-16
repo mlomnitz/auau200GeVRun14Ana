@@ -44,7 +44,10 @@ StPicoKPiXAnaMaker::StPicoKPiXAnaMaker(char const * name, TString const inputFil
                                        std::string outFileBaseName, StPicoDstMaker* picoDstMaker, StRefMultCorr* grefmultCorrUtil):
                                        StMaker(name), mEventCounter(0), mPicoDstMaker(picoDstMaker), mPicoKPiXEvent(nullptr),
                                        mGRefMultCorrUtil(grefmultCorrUtil), mChain(nullptr),
-                                       mInputFilesList(inputFilesList), mOutFileBaseName(outFileBaseName)
+                                       mInputFilesList(inputFilesList), mOutFileBaseName(outFileBaseName),
+                                       mFillDpmHists(false), mFillDsHists(false), mFillLcHists(false),
+                                       mDpmHists(nullptr), mDsHists(nullptr), mLcHists(nullptr)
+
 {}
 
 Int_t StPicoKPiXAnaMaker::Init()
@@ -71,9 +74,9 @@ Int_t StPicoKPiXAnaMaker::Init()
    mChain->GetBranch("kPiXEvent")->SetAutoDelete(kFALSE);
    mChain->SetBranchAddress("kPiXEvent", &mPicoKPiXEvent);
 
-   mDpmHists = new StPicoCharmMassHists(mOutFileBaseName+".Dpm",kPiXAnaCuts::prescalesFilesDirectoryName);
-   mDsHists  = new StPicoCharmMassHists(mOutFileBaseName+".Ds",kPiXAnaCuts::prescalesFilesDirectoryName);
-   mLcHists  = new StPicoCharmMassHists(mOutFileBaseName+".Lc",kPiXAnaCuts::prescalesFilesDirectoryName);
+   if(mFillDpmHists) mDpmHists = new StPicoCharmMassHists(mOutFileBaseName+".Dpm",kPiXAnaCuts::prescalesFilesDirectoryName);
+   if(mFillDsHists) mDsHists  = new StPicoCharmMassHists(mOutFileBaseName+".Ds",kPiXAnaCuts::prescalesFilesDirectoryName);
+   if(mFillLcHists) mLcHists  = new StPicoCharmMassHists(mOutFileBaseName+".Lc",kPiXAnaCuts::prescalesFilesDirectoryName);
 
    return kStOK;
 }
@@ -84,9 +87,9 @@ StPicoKPiXAnaMaker::~StPicoKPiXAnaMaker()
 
 Int_t StPicoKPiXAnaMaker::Finish()
 {
-   mDpmHists->closeFile();
-   mDsHists->closeFile();
-   mLcHists->closeFile();
+   if(mDpmHists) mDpmHists->closeFile();
+   if(mDsHists) mDsHists->closeFile();
+   if(mLcHists) mLcHists->closeFile();
    return kStOK;
 }
 
@@ -135,33 +138,31 @@ Int_t StPicoKPiXAnaMaker::Make()
 
    if(isGoodTrigger(picoDst->event()))
    {
-     mDpmHists->addEventBeforeCut(*(picoDst->event()));
-     mDsHists->addEventBeforeCut(*(picoDst->event()));
-     mLcHists->addEventBeforeCut(*(picoDst->event()));
+     if(mFillDpmHists) mDpmHists->addEventBeforeCut(*(picoDst->event()));
+     if(mFillDsHists)  mDsHists->addEventBeforeCut(*(picoDst->event()));
+     if(mFillLcHists)  mLcHists->addEventBeforeCut(*(picoDst->event()));
 
      StThreeVectorF pVtx = picoDst->event()->primaryVertex();
      if (isGoodEvent(picoDst->event(),pVtx))
      {
        TClonesArray const* aKaonPionXaon = mPicoKPiXEvent->kaonPionXaonArray();
-       mDpmHists->addEvent(*(picoDst->event()));
-       mDsHists->addEvent(*(picoDst->event()));
-       mLcHists->addEvent(*(picoDst->event()));
+       if(mFillDpmHists) mDpmHists->addEvent(*(picoDst->event()));
+       if(mFillDsHists)  mDsHists->addEvent(*(picoDst->event()));
+       if(mFillLcHists)  mLcHists->addEvent(*(picoDst->event()));
 
        mGRefMultCorrUtil->initEvent(picoDst->event()->grefMult(), pVtx.z(), picoDst->event()->ZDCx()) ;
        int centrality  = mGRefMultCorrUtil->getCentralityBin9();
        const double reweight = mGRefMultCorrUtil->getWeight();
        const double refmultCor = mGRefMultCorrUtil->getRefMultCorr();
 
-       mDpmHists->addCent(refmultCor, centrality, reweight, pVtx.z());
-       mDsHists->addCent(refmultCor, centrality, reweight, pVtx.z());
-       mLcHists->addCent(refmultCor, centrality, reweight, pVtx.z());
+       if(mFillDpmHists) mDpmHists->addCent(refmultCor, centrality, reweight, pVtx.z());
+       if(mFillDsHists)  mDsHists->addCent(refmultCor, centrality, reweight, pVtx.z());
+       if(mFillLcHists)  mLcHists->addCent(refmultCor, centrality, reweight, pVtx.z());
 
        for (int idx = 0; idx < aKaonPionXaon->GetEntries(); ++idx)
        {
          StPicoKPiX const* const kpx = (StPicoKPiX*)aKaonPionXaon->UncheckedAt(idx);
          if(!kpx) continue;
-
-         if (!isGoodKPiX(kpx, kPiXAnaCuts::DpmCuts)) continue;
 
          StPicoTrack const* const kaon = picoDst->track(kpx->kaonIdx());
          StPicoTrack const* const pion = picoDst->track(kpx->pionIdx());

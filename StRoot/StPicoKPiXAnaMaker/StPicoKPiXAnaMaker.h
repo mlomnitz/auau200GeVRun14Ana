@@ -45,6 +45,9 @@ class StPicoKPiXAnaMaker : public StMaker
     virtual Int_t Finish();
 
     int getEntries() const;
+    void fillDpmHists(bool b=true);
+    void fillDsHists(bool b=true);
+    void fillLcHists(bool b=true);
 
   private:
     StPicoKPiXAnaMaker() {}
@@ -70,6 +73,10 @@ class StPicoKPiXAnaMaker : public StMaker
     std::string mInputFilesList;
     std::string mOutFileBaseName;
 
+    bool mFillDpmHists;
+    bool mFillDsHists;
+    bool mFillLcHists;
+
     StPicoCharmMassHists* mDpmHists;
     StPicoCharmMassHists* mDsHists;
     StPicoCharmMassHists* mLcHists;
@@ -82,6 +89,9 @@ inline int StPicoKPiXAnaMaker::getEntries() const
   return mChain? mChain->GetEntries() : 0;
 }
 
+inline void StPicoKPiXAnaMaker::fillDpmHists(bool b) { mFillDpmHists = b; }
+inline void StPicoKPiXAnaMaker::fillDsHists(bool b)  { mFillDsHists = b; }
+inline void StPicoKPiXAnaMaker::fillLcHists(bool b)  { mFillLcHists = b; }
 inline void StPicoKPiXAnaMaker::readNextEvent()
 {
   mChain->GetEntry(mEventCounter++);
