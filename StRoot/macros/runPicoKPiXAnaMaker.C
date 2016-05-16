@@ -19,6 +19,7 @@ void runPicoKPiXAnaMaker(string kPixList, string outFileName, string badRunListF
   gSystem->Load("StPicoDstMaker");
   gSystem->Load("StPicoPrescales");
   gSystem->Load("StPicoCharmContainers");
+  gSystem->Load("StPicoCharmHists");
   gSystem->Load("StPicoKPiXAnaMaker");
   gSystem->Load("StRefMultCorr");
 
