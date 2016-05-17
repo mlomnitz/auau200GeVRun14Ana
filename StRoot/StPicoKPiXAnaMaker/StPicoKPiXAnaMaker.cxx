@@ -194,6 +194,9 @@ Int_t StPicoKPiXAnaMaker::Make()
          // Ds
          if(mFillDsHists && isTpcKaon(xaon) && isGoodKPiX(kpx, kPiXAnaCuts::DsCuts))
          {
+           double mass = kpx->kaonXaonFourMom(M_KAON_PLUS);
+           if(mass < 0.98 || mass > 1.08) continue;
+
            bool fg = kaon->charge() != xaon->charge(); // Ds+- --> K+- K-+ π+-
            mDsHists->addKPiX(kpx->fourMom(M_KAON_PLUS), fg, centrality, reweight);
          }
