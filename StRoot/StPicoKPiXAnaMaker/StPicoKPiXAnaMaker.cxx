@@ -198,7 +198,19 @@ Int_t StPicoKPiXAnaMaker::Make()
            mDsHists->addKPiX(kpx->fourMom(M_KAON_PLUS), fg, centrality, reweight);
          }
 
+         // Proton PID
+         if(!isTpcProton(xaon)) continue;
+         float protonBeta = getTofBeta(xaon, pVtx);
+         bool protonTofAvailable = !isnan(protonBeta) && protonBeta > 0;
+         bool tofProton = protonTofAvailable ? isTofProton(xaon, protonBeta, pVtx) : true;//this is hybrid pid, not always require tof
+         if(!tofProton) continue;
+
          // Λc
+         if(mFillLcHists&& isTpcProton(xaon) && isGoodKPiX(kpx, kPiXAnaCuts::LcCuts))
+         {
+           bool fg = (pion->charge() == xaon->charge()); //  Λc+- --> K-+ π+- p+-
+           mLcHists->addKPiX(kpx->fourMom(M_PROTON), fg, centrality, reweight);
+         }
 
        } // kaonPionXaon loop
      } // isGoodEvent
@@ -245,6 +257,11 @@ bool StPicoKPiXAnaMaker::isTpcKaon(StPicoTrack const* const trk) const
    return fabs(trk->nSigmaKaon()) < kPiXAnaCuts::nSigmaKaon;
 }
 
+bool StPicoKPiXAnaMaker::isTpcProton(StPicoTrack const* const trk) const
+{
+   return fabs(trk->nSigmaProton()) < kPiXAnaCuts::nSigmaProton;
+}
+
 bool StPicoKPiXAnaMaker::isTofKaon(StPicoTrack const* const trk, float beta, StThreeVectorF const& vtx) const
 {
    bool tofKaon = false;
@@ -271,6 +288,20 @@ bool StPicoKPiXAnaMaker::isTofPion(StPicoTrack const* const trk, float beta, StT
    }
 
    return tofPion;
+}
+
+bool StPicoKPiXAnaMaker::isTofProton(StPicoTrack const* const trk, float beta, StThreeVectorF const& vtx) const
+{
+   bool tofProton = false;
+
+   if (beta > 0)
+   {
+      double ptot = trk->gMom(vtx, mPicoDstMaker->picoDst()->event()->bField()).mag();
+      float beta_proton = ptot / sqrt(ptot * ptot + M_PROTON * M_PROTON);
+      tofProton = fabs(1 / beta - 1 / beta_proton) < kPiXAnaCuts::protonTofBetaDiff ? true : false;
+   }
+
+   return tofProton;
 }
 
 float StPicoKPiXAnaMaker::getTofBeta(StPicoTrack const* const trk, StThreeVectorF const& vtx) const
