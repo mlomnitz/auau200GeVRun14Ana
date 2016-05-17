@@ -206,7 +206,7 @@ Int_t StPicoKPiXAnaMaker::Make()
          if(!tofProton) continue;
 
          // Λc
-         if(mFillLcHists&& isTpcProton(xaon) && isGoodKPiX(kpx, kPiXAnaCuts::LcCuts))
+         if(mFillLcHists && isGoodKPiX(kpx, kPiXAnaCuts::LcCuts))
          {
            bool fg = (pion->charge() == xaon->charge()); //  Λc+- --> K-+ π+- p+-
            mLcHists->addKPiX(kpx->fourMom(M_PROTON), fg, centrality, reweight);
