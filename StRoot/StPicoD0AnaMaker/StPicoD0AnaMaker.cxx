@@ -68,6 +68,7 @@ Int_t StPicoD0AnaMaker::Init()
    mChain->GetBranch("dEvent")->SetAutoDelete(kFALSE);
    mChain->SetBranchAddress("dEvent", &mPicoD0Event);
 
+   mOutFileBaseName = mOutFileBaseName.ReplaceAll(".root","");
    // -------------- USER VARIABLES -------------------------
    mHists = new StPicoD0AnaHists(mOutFileBaseName,mFillQaHists);
 
