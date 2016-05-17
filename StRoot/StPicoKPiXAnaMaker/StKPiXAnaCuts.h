@@ -48,6 +48,10 @@ namespace kPiXAnaCuts
   float const nSigmaKaon = 2.0;
   float const kTofBetaDiff = 0.03;
 
+  //protons
+  float const nSigmaProton = 2.0;
+  float const protonTofBetaDiff = 0.03;
+
   struct TopologicalCuts
   {
     double xMassHypothesis;
@@ -114,14 +118,14 @@ namespace kPiXAnaCuts
   TopologicalCuts  LcCuts(M_PROTON,
                           1.0,                                      // rapidity
                           5,                                        // nPtBins
-                          {0., 1., 2., 3., 5., 15.},                // ptEdges
-                          {0.0061, 0.0049, 0.0038, 0.0038, 0.0040}, // dcaV0ToPv
-                          {0.0145, 0.0181, 0.0212, 0.0247, 0.0259}, // decayLength
-                          {0.0000, 0.0000, 0.0000, 0.0000, 0.0000}, // cosTheta
-                          {0.0084, 0.0066, 0.0057, 0.0050, 0.0060}, // dcaDaughters
-                          {0.0103, 0.0091, 0.0095, 0.0079, 0.0058}, // k1Dca
-                          {0.0110, 0.0111, 0.0086, 0.0081, 0.0062}, // pDca
-                          {0.0103, 0.0091, 0.0095, 0.0079, 0.0058});// k2Dhca
+                          {0., 1., 2., 3., 4., 10.},                 // ptEdges
+                          {0.0100, 0.0100, 0.0010, 0.0100, 0.0100}, // dcaV0ToPv
+                          {0.0180, 0.0180, 0.0180, 0.0166, 0.0124}, // decayLength
+                          {0.9784, 0.9784, 0.9840, 0.9896, 0.9700}, // cosTheta
+                          {0.0098, 0.0098, 0.0098, 0.0098, 0.0115}, // dcaDaughters
+                          {0.0075, 0.0075, 0.0120, 0.0075, 0.0060}, // k1Dca
+                          {0.0075, 0.0075, 0.0120, 0.0075, 0.0060}, // piDca
+                          {0.0075, 0.0075, 0.0120, 0.0075, 0.0060});// pDhca
 
 
 }
