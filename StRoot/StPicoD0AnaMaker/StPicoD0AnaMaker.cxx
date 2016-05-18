@@ -128,7 +128,7 @@ Int_t StPicoD0AnaMaker::Make()
      return kStOK;
    }
 
-   if(!isGoodTrigger(picoDst->event()))
+   if(isGoodTrigger(picoDst->event()))
    {
      mHists->addEventBeforeCut(picoDst->event());
 
