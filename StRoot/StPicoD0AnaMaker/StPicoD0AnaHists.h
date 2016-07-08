@@ -22,6 +22,7 @@ class TFile;
 class TString;
 class StPicoPrescales;
 class StPicoEvent;
+class StPicoTrack;
 class StKaonPion;
 class TNtuple;
 
@@ -29,12 +30,13 @@ class TNtuple;
 class StPicoD0AnaHists
 {
   public:
-   StPicoD0AnaHists(TString fileBaseName,bool fillQaHists=true);
+   StPicoD0AnaHists(TString fileBaseName,bool fillQaHists=true, bool fillBackgroundTrees=false);
    virtual ~StPicoD0AnaHists();
    void addEvent(StPicoEvent const *);
    void addEventBeforeCut(StPicoEvent const *);
    void addCent(const double refmultCor,int centrality, const double reweight, const float vz);
    void addKaonPion(StKaonPion const*, bool unlike, bool tpc, bool tof, int centrality, const double reweight);
+   void addBackground(StKaonPion const*, StPicoTrack const* kaon, StPicoTrack const* pion, int ptBin, bool SB);
    void addTpcDenom1(bool IsPion, bool IsKaon, float pt, int centrality, float Eta, float Phi, float Vz, float ZdcX);
    void addHFTNumer1(bool IsPion, bool IsKaon, float pt, int centrality, float Eta, float Phi, float Vz, float ZdcX);
    void addQaNtuple(int, float, float, float, float, float, int, const double, float, int, int);
@@ -52,6 +54,7 @@ class StPicoD0AnaHists
    StPicoD0AnaHists(){}
 
    bool mFillQaHists;
+   bool mFillBackgroundTrees;
    StPicoPrescales* mPrescales;
    TFile* mOutFile;
    TH1F* mh1TotalEventsInRun;
@@ -113,6 +116,7 @@ class StPicoD0AnaHists
    TH3F* mh3DcaXyPtCent;
    TH3F* mh3DcaZPtCent;
 
-   TNtuple* nt;
+   TNtuple* mNtD0BackgroungSameSign[anaCuts::nPtBins];
+   TNtuple* mNtD0BackgroungSideBand[anaCuts::nPtBins];
 };
 #endif
