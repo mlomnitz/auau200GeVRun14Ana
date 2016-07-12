@@ -53,11 +53,11 @@
 
 
 using tmvaCuts::PtBins;
+using tmvaCuts::totalNumberOfEvents;
 
 void printInitialCuts(int ptBin);
 
 void tmvaD0(int const ptBin, float const minPt,
-            int const totalNumberOfEvents = 900e6, // Run14 dataset
             TString signaFileName = " D0_tmvaTree.root",
             TString backgroundFileName = "D0_background.2016-07-08.root",
             TString myMethodList = "Cuts" )
