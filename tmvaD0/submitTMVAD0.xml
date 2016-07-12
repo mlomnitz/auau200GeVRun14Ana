@@ -28,7 +28,7 @@ EOF
 
 </command>
 
-<output fromScratch="*.hists.root" toURL="/global/project/projectdirs/starprod/rnc/mustafa/Run14/AuAu/200GeV/Pico16a/P16id/analysis/D0/cutsTunning/production/pass1/" />
+<output fromScratch="tmvaD0_*.root" toURL="/global/project/projectdirs/starprod/rnc/mustafa/Run14/AuAu/200GeV/Pico16a/P16id/analysis/D0/cutsTunning/production/pass1/" />
 
 <SandBox installer="ZIP">
   <Package name="LocalLibraries_pass1">
