@@ -170,6 +170,7 @@ void tmvaD0(int const ptBin, float const minPt,
    
    // Create a ROOT output file where TMVA will store ntuples, histograms, etc.
    TString outfileName(Form("tmvaD0_ptBin%i_minPt%1.2f_pass%i.root",ptBin, minPt,tmvaCuts::passNumber));
+   cout << "Output file name : " << outfileName << endl;
    TFile* outputFile = TFile::Open( outfileName, "RECREATE" );
 
    // Create the factory object. Later you can choose the methods
@@ -232,13 +233,13 @@ void tmvaD0(int const ptBin, float const minPt,
    
    // Weights for signal and background
    int const nOriginalSignalEntries = hMcPt->Integral(hMcPt->FindBin(PtBins[ptBin]),hMcPt->FindBin(PtBins[ptBin])); // Number of simulated D0/D0bar in this pT bin before efficiency
-   TString signalWeightExpression = TString::Format("matchHftWeight*((%i/%i)*2.*3.14*pt*2*2.*exp(-0.425-1.77*pt)*0.038)", totalNumberOfEvents, nOriginalSignalEntries); // nEvents/nD0InTree*2*pi*pt*dy*ptSpectrum*br
+   TString signalWeightExpression = TString::Format("matchHftWeight*((%f/%f)*2.*3.14*pt*2*2.*exp(-0.425-1.77*pt)*0.038)", (float)totalNumberOfEvents, (float)nOriginalSignalEntries); // nEvents/nD0InTree*2*pi*pt*dy*ptSpectrum*br
    factory->SetSignalWeightExpression(signalWeightExpression);
 
    TH2F* hBkgVzVpdVz = (TH2F*)inputBackground->Get("mh2CentVz");
    hBkgVzVpdVz->GetXaxis()->SetRange(2,10); // 0-80 % centrality
    int const nEventsBackgroundTree = hBkgVzVpdVz->Integral();
-   TString backgroundWeightExpression = TString::Format("%i/%i",totalNumberOfEvents, nEventsBackgroundTree);
+   TString backgroundWeightExpression = TString::Format("%f/%f",(float)totalNumberOfEvents, (float)nEventsBackgroundTree);
    factory->SetBackgroundWeightExpression(backgroundWeightExpression);
       
    // Apply additional cuts on the signal and background samples (can be different)
@@ -495,7 +496,7 @@ void tmvaD0(int const ptBin, float const minPt,
    delete factory;
 
    // Launch the GUI for the root macros
-   if (!gROOT->IsBatch()) TMVAGui( outfileName );
+   // if (!gROOT->IsBatch()) TMVAGui( outfileName );
 
 
    cout << "------------------------------------------------------------------\n";
@@ -509,6 +510,7 @@ void tmvaD0(int const ptBin, float const minPt,
 void printInitialCuts(int const ptBin)
 {
    cout << "------------------------------------------------------------------\n";
+   cout << "Pass # "         << tmvaCuts::passNumber << "\n";
    cout << "Initial cuts for pT bin " << ptBin << "\n";
    cout << "D0 pT range = (" << PtBins[ptBin] << "," << PtBins[ptBin+1] << ")\n";
    cout << "dcaV0ToPv    < " << tmvaCuts::dcaV0ToPv[ptBin] << "\n";
