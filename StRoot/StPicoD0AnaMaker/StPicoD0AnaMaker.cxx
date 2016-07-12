@@ -220,6 +220,7 @@ Int_t StPicoD0AnaMaker::Make()
 
          if(mFillBackgroundTrees && tof)
          {
+           if(centrality < 0) continue;
            int const ptBin = getD0PtIndex(kp);
 
            if(unlike)
