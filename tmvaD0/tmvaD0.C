@@ -233,7 +233,8 @@ void tmvaD0(int const ptBin, float const minPt,
    
    // Weights for signal and background
    int const nOriginalSignalEntries = hMcPt->Integral(hMcPt->FindBin(PtBins[ptBin]),hMcPt->FindBin(PtBins[ptBin+1])); // Number of simulated D0/D0bar in this pT bin before efficiency
-   TString signalWeightExpression = TString::Format("matchHftWeight*((%f/%f)*2.*3.14*pt*2*2.*exp(-0.425-1.77*pt)*0.038)", (float)totalNumberOfEvents, (float)nOriginalSignalEntries); // nEvents/nD0InTree*2*pi*pt*dy*ptSpectrum*br
+    TString signalWeightExpression = TString::Format("ncoll*w*((%f/%f)*0.8*2.*3.14*pt*2*(%f)*2.*exp(-1.45-1.73*pt)*0.0389)",
+                                                     (float)totalNumberOfEvents, nOriginalSignalEntries, tmvaCuts::PtBins[ib+1]-tmvaCuts::PtBins[ib]);
    factory->SetSignalWeightExpression(signalWeightExpression);
 
    TH2F* hBkgVzVpdVz = (TH2F*)inputBackground->Get("mh2CentVz");
