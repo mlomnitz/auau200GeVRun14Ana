@@ -39,6 +39,7 @@ class StPicoD0AnaMaker : public StMaker
 
     int getEntries() const;
     void fillQaHistograms(bool b = true);
+    void fillBackgroundTrees(bool b = true);
 
   private:
     StPicoD0AnaMaker() {}
@@ -54,6 +55,7 @@ class StPicoD0AnaMaker : public StMaker
     bool isTofPion(StPicoTrack const*, float beta, StThreeVectorF const& vtx) const;
     bool isTofKaon(StPicoTrack const*, float beta, StThreeVectorF const& vtx) const;
     bool isGoodPair(StKaonPion const*) const;
+    bool isSideBand(float m) const;
     float getTofBeta(StPicoTrack const*,StThreeVectorF const& vtx) const;
     int trkHalf(StPicoTrack const*, StThreeVectorF const& vtx) const;
 
@@ -66,6 +68,7 @@ class StPicoD0AnaMaker : public StMaker
     TChain* mChain;
     int mEventCounter;
     bool mFillQaHists;
+    bool mFillBackgroundTrees;
 
     // -------------- USER variables -------------------------
     // add your member variables here. 
@@ -76,6 +79,7 @@ class StPicoD0AnaMaker : public StMaker
 };
 
 inline void StPicoD0AnaMaker::fillQaHistograms(bool b) { mFillQaHists = b;}
+inline void StPicoD0AnaMaker::fillBackgroundTrees(bool b) { mFillBackgroundTrees = b;}
 
 inline int StPicoD0AnaMaker::getEntries() const 
 {
