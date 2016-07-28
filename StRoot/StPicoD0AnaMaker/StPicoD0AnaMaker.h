@@ -24,6 +24,7 @@ class StKaonPion;
 class StPicoTrack;
 class StPicoDstMaker;
 class StPicoD0AnaHists;
+class StD0Hists;
 class StRefMultCorr;
 
 class StPicoD0AnaMaker : public StMaker

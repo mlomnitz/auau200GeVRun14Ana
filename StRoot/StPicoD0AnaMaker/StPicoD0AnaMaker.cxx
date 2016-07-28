@@ -30,6 +30,7 @@
 #include "StPicoCharmContainers/StKaonPion.h"
 #include "StPicoD0AnaMaker.h"
 #include "StPicoD0AnaHists.h"
+#include "StD0Hists.h"
 #include "StAnaCuts.h"
 #include "StRoot/StRefMultCorr/StRefMultCorr.h"
 
