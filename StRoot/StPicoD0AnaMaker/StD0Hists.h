@@ -21,6 +21,7 @@ class TProfile;
 class TFile;
 class TString;
 class StKaonPion;
+class StEventPlane;
 
 class StD0Hists
 {
@@ -28,19 +29,22 @@ public:
   StD0Hists(std::string fileBaseName, int harmonic = 2);
    virtual ~StD0Hists();
    void closeFile();
-   //void addKaonPion(StKaonPion const*, bool unlike, bool tpc, bool tof, int centrality, const double reweight);
+   void addEvent(int const, float const, float const, float const);
+   void addKaonPion(bool unlike, StKaonPion const*, float const, float const, StEventPlane*, const int, const double);
    bool isGoodPair(StKaonPion const* pair, topoCuts::TopologicalCuts const& cuts) const;
    int getD0PtIndex(StKaonPion const* pair, std::vector<float> const& edges) const;
    //
+ private:
    TH3F* hCentVzPsi;
-   TH3F* hCentVzPsiSameEventNoWeight;
-   TH3F* hCentVzPsiSameEvent;
+   TH3F* hCentVzPsiNoWeight;
    // Half eta's event plane 
    THn* hD0EtaSubCentPtMDphi[topoCuts::nCutsSets];
    THn* hD0EtaSubCentPtMDphiLikeSign[topoCuts::nCutsSets];
    // Eta Gap Event Plane
    THn* hD0CentPtMDphiEtaGap[topoCuts::nCutsSets];
    THn* hD0CentPtMDphiEtaGapLikeSign[topoCuts::nCutsSets];
+   int mHarmonic;
+   TFile *mOutfile;
 };
 
 #endif

@@ -33,20 +33,22 @@
 #include "StD0Hists.h"
 #include "StAnaCuts.h"
 #include "StRoot/StRefMultCorr/StRefMultCorr.h"
-
+#include "StRoot/StEventPlane/StEventPlane.h"
 #include "StMemStat.h"
 
 ClassImp(StPicoD0AnaMaker)
 
 StPicoD0AnaMaker::StPicoD0AnaMaker(char const * name, TString const inputFilesList,
-                                   TString const outFileBaseName, StPicoDstMaker* picoDstMaker, StRefMultCorr* grefmultCorrUtil):
-   StMaker(name), mPicoDstMaker(picoDstMaker), mPicoD0Event(NULL), mGRefMultCorrUtil(grefmultCorrUtil),
+                                   TString const outFileBaseName, StPicoDstMaker* picoDstMaker, StRefMultCorr* grefmultCorrUtil, StEventPlane* eventPlane,int harmonic):
+StMaker(name), mPicoDstMaker(picoDstMaker), mPicoD0Event(NULL), mGRefMultCorrUtil(grefmultCorrUtil),mEventPlane(eventPlane),
    mInputFilesList(inputFilesList), mOutFileBaseName(outFileBaseName),
-   mChain(NULL), mEventCounter(0), mFillQaHists(false), mFillBackgroundTrees(false), mHists(NULL)
+  mChain(NULL), mEventCounter(0), mFillQaHists(false), mFillBackgroundTrees(false), mHists(NULL),
+  v2Hists(NULL),mHarmonic(harmonic)
 {}
 
 Int_t StPicoD0AnaMaker::Init()
 {
+  cout<<"Lomnitz:: Init StPicoD0Maker"<<endl;
    mPicoD0Event = new StPicoD0Event();
 
    mChain = new TChain("T");
@@ -65,13 +67,14 @@ Int_t StPicoD0AnaMaker::Init()
       LOG_ERROR << "StPicoD0AnaMaker - Could not open list of files. ABORT!" << endm;
       return kStErr;
    }
-
    mChain->GetBranch("dEvent")->SetAutoDelete(kFALSE);
    mChain->SetBranchAddress("dEvent", &mPicoD0Event);
 
    mOutFileBaseName = mOutFileBaseName.ReplaceAll(".root","");
    // -------------- USER VARIABLES -------------------------
    mHists = new StPicoD0AnaHists(mOutFileBaseName,mFillQaHists,mFillBackgroundTrees);
+   v2Hists = new StD0Hists(mOutFileBaseName.Data(),mHarmonic);
+   //mEventPlane->setFileOut(mOutputFile);
 
    return kStOK;
 }
@@ -82,8 +85,10 @@ StPicoD0AnaMaker::~StPicoD0AnaMaker()
 //-----------------------------------------------------------------------------
 Int_t StPicoD0AnaMaker::Finish()
 {
-   mHists->closeFile();
-   return kStOK;
+  cout<<"StPicoD0AnaMaker - Finish"<<endl;
+  v2Hists->closeFile();
+  mHists->closeFile();
+  return kStOK;
 }
 //-----------------------------------------------------------------------------
 Int_t StPicoD0AnaMaker::Make()
@@ -128,6 +133,11 @@ Int_t StPicoD0AnaMaker::Make()
      //cout<<"This is a bad run from mGRefMultCorrUtil! Skip! " << endl;
      return kStOK;
    }
+   
+   if( !loadEventPlaneCorr(mEventPlane)){
+     LOG_WARN << "Event plane calculations are unavailable! Skipping" << endm;
+     return kStOk;
+   }
 
    if(isGoodTrigger(picoDst->event()))
    {
@@ -144,8 +154,12 @@ Int_t StPicoD0AnaMaker::Make()
        int centrality  = mGRefMultCorrUtil->getCentralityBin9();
        const double reweight = mGRefMultCorrUtil->getWeight();
        const double refmultCor = mGRefMultCorrUtil->getRefMultCorr();
-       mHists->addCent(refmultCor, centrality, reweight, pVtx.z());
+       const double eventPlane = mEventPlane->getEventPlane();
 
+       mHists->addCent(refmultCor, centrality, reweight, pVtx.z());
+       v2Hists->addEvent( centrality, pVtx.z(), eventPlane, reweight);
+
+       
        //Basiclly add some QA plots
        UInt_t nTracks = picoDst->numberOfTracks();
 
@@ -198,7 +212,7 @@ Int_t StPicoD0AnaMaker::Make()
          StKaonPion const* kp = (StKaonPion*)aKaonPion->UncheckedAt(idx);
 
          bool goodPair = isGoodPair(kp);
-         if(!goodPair && !mFillBackgroundTrees) continue;
+         //if(!goodPair && !mFillBackgroundTrees) continue;
 
          StPicoTrack const* kaon = picoDst->track(kp->kaonIdx());
          StPicoTrack const* pion = picoDst->track(kp->pionIdx());
@@ -214,9 +228,12 @@ Int_t StPicoD0AnaMaker::Make()
          bool tofPion = pTofAvailable ? isTofPion(pion, pBeta, pVtx) : true;//this is bybrid pid, not always require tof
          bool tofKaon = kTofAvailable ? isTofKaon(kaon, kBeta, pVtx) : true;//this is bybrid pid, not always require tof
          bool tof = tofPion && tofKaon;
-
          bool unlike = kaon->charge() * pion->charge() < 0 ? true : false;
 
+	 StThreeVectorF pionMom = pion->gMom(pVtx, picoDst->event()->bField());
+	 StThreeVectorF kaonMom = kaon->gMom(pVtx, picoDst->event()->bField());
+	 //am I requirign TOF?
+	 v2Hists->addKaonPion(unlike, kp, pionMom.pseudoRapidity(), kaonMom.pseudoRapidity(), mEventPlane, centrality, reweight);
          if(goodPair) mHists->addKaonPion(kp, unlike, true, tof, centrality, reweight);
 
          if(mFillBackgroundTrees && tof)
@@ -377,4 +394,16 @@ int StPicoD0AnaMaker::trkHalf(StPicoTrack const* const trk, StThreeVectorF const
    if (mom.phi() > anaCuts:: rightHalfLowEdge && mom.phi() < anaCuts:: rightHalfHighEdge) return +1; //right side
    else return -1;//lest side
 
+}
+//-----------------------------------------------------------------------------
+bool StPicoD0AnaMaker::loadEventPlaneCorr(StEventPlane const * mEventPlane)
+{
+  if(!mEventPlane){
+    LOG_WARN << "No Event Plane ! Skipping! " << endm;
+    return kFALSE;
+  }
+  if( !mEventPlane->getAcceptEvent() ){
+    return kFALSE;
+  }
+  return kTRUE;
 }

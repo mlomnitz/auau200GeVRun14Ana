@@ -24,14 +24,15 @@ class StKaonPion;
 class StPicoTrack;
 class StPicoDstMaker;
 class StPicoD0AnaHists;
-class StD0Hists;
 class StRefMultCorr;
+class StD0Hists;
+class StEventPlane;
 
 class StPicoD0AnaMaker : public StMaker
 {
   public:
     StPicoD0AnaMaker(char const * name, TString const inputFilesList,
-        TString const outBaseName,StPicoDstMaker* picoDstMaker, StRefMultCorr* grefmultCorrUtil);
+		     TString const outBaseName,StPicoDstMaker* picoDstMaker, StRefMultCorr* grefmultCorrUtil, StEventPlane* eventPlane, int harmonic);
     virtual ~StPicoD0AnaMaker();
 
     virtual Int_t Init();
@@ -59,10 +60,12 @@ class StPicoD0AnaMaker : public StMaker
     bool isSideBand(float m) const;
     float getTofBeta(StPicoTrack const*,StThreeVectorF const& vtx) const;
     int trkHalf(StPicoTrack const*, StThreeVectorF const& vtx) const;
+    bool loadEventPlaneCorr(StEventPlane const *mEventPlane);
 
     StPicoDstMaker* mPicoDstMaker;
     StPicoD0Event* mPicoD0Event;
     StRefMultCorr* mGRefMultCorrUtil;
+    StEventPlane* mEventPlane;
 
     TString mInputFilesList;
     TString mOutFileBaseName;
@@ -75,7 +78,11 @@ class StPicoD0AnaMaker : public StMaker
     // add your member variables here. 
     // Remember that ntuples size can be really big, use histograms where appropriate
     StPicoD0AnaHists* mHists;
-
+    StD0Hists* v2Hists;
+    int mHarmonic;
+    
+    TFile *mOutputFile;
+    
     ClassDef(StPicoD0AnaMaker, 1)
 };
 
