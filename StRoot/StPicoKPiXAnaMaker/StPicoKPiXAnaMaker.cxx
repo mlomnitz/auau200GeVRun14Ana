@@ -189,41 +189,64 @@ Int_t StPicoKPiXAnaMaker::Make()
          float kBeta = getTofBeta(kaon, pVtx);
          bool pTofAvailable = !isnan(pBeta) && pBeta > 0;
          bool kTofAvailable = !isnan(kBeta) && kBeta > 0;
-         bool tofPion = pTofAvailable ? isTofPion(pion, pBeta, pVtx) : true;//this is hybrid pid, not always require tof
-         bool tofKaon = kTofAvailable ? isTofKaon(kaon, kBeta, pVtx) : true;//this is hybrid pid, not always require tof
-         bool tof = tofPion && tofKaon;
+         bool hybridPion = pTofAvailable ? isTofPion(pion, pBeta, pVtx) : true;
+         bool hybridKaon = kTofAvailable ? isTofKaon(kaon, kBeta, pVtx) : true;
 
-         if(!tof) continue;
+         if(!hybridPion || !hybridKaon) continue;
+
+         //xaon tof
+         float xaonBeta = getTofBeta(xaon, pVtx);
+         bool xaonTofAvailable = !isnan(xaonBeta) && xaonBeta > 0;
 
          // D+-
-         if(mFillDpmHists && isTpcPion(xaon) && isGoodKPiX(kpx, kPiXAnaCuts::DpmCuts))
+         if(mFillDpmHists)
          {
-           bool fg = (kaon->charge() != pion->charge()) && (pion->charge() == xaon->charge()); // D+- --> K-+ π+- π+-
-           mDpmHists->addKPiX(kpx->fourMom(M_PION_PLUS), fg, centrality, reweight);
+           bool hybridXaonPion = xaonTofAvailable ? isTofPion(xaon, xaonBeta, pVtx) : isTpcPion(xaon);
+
+           if(hybridXaonPion)
+           {
+             bool fg = (kaon->charge() != pion->charge()) && (pion->charge() == xaon->charge()); // D+- --> K-+ π+- π+-
+
+             if(isGoodKPiX(kpx, kPiXAnaCuts::DpmCuts))
+             {
+               mDpmHists->addKPiX(kpx->fourMom(M_PION_PLUS), fg, centrality, reweight);
+             }
+           }
          }
 
          // Ds
-         if(mFillDsHists && isTpcKaon(xaon) && isGoodKPiX(kpx, kPiXAnaCuts::DsCuts))
+         if(mFillDsHists)
          {
-           double mass = kpx->kaonXaonFourMom(M_KAON_PLUS).m();
-           if(mass < 0.98 || mass > 1.08) continue;
+           bool hybridXaonKaon = xaonTofAvailable ? isTofKaon(xaon, xaonBeta, pVtx) : isTpcKaon(xaon);
 
-           bool fg = kaon->charge() != xaon->charge(); // Ds+- --> K+- K-+ π+-
-           mDsHists->addKPiX(kpx->fourMom(M_KAON_PLUS), fg, centrality, reweight);
+           if(hybridXaonKaon)
+           {
+             double mass = kpx->kaonXaonFourMom(M_KAON_PLUS).m();
+             if(mass < 0.98 || mass > 1.08) continue;
+
+             bool fg = kaon->charge() != xaon->charge(); // Ds+- --> K+- K-+ π+-
+
+             if(isGoodKPiX(kpx, kPiXAnaCuts::DsCuts))
+             {
+               mDsHists->addKPiX(kpx->fourMom(M_KAON_PLUS), fg, centrality, reweight);
+             }
+           }
          }
 
-         // Proton PID
-         if(!isTpcProton(xaon)) continue;
-         float protonBeta = getTofBeta(xaon, pVtx);
-         bool protonTofAvailable = !isnan(protonBeta) && protonBeta > 0;
-         bool tofProton = protonTofAvailable ? isTofProton(xaon, protonBeta, pVtx) : true;//this is hybrid pid, not always require tof
-         if(!tofProton) continue;
-
          // Λc
-         if(mFillLcHists && isGoodKPiX(kpx, kPiXAnaCuts::LcCuts))
+         if(mFillLcHists)
          {
-           bool fg = (pion->charge() == xaon->charge()) && (kaon->charge() != xaon->charge()) ; //  Λc+- --> K-+ π+- p+-
-           mLcHists->addKPiX(kpx->fourMom(M_PROTON), fg, centrality, reweight);
+           bool hybridXaonProton = xaonTofAvailable ? isTofProton(xaon, xaonBeta, pVtx) : isTpcProton(xaon);
+
+           if(hybridXaonProton)
+           {
+             bool fg = (pion->charge() == xaon->charge()) && (kaon->charge() != xaon->charge()) ; //  Λc+- --> K-+ π+- p+-
+
+             if(isGoodKPiX(kpx, kPiXAnaCuts::LcCuts))
+             {
+               mLcHists->addKPiX(kpx->fourMom(M_PROTON), fg, centrality, reweight);
+             }
+           }
          }
 
        } // kaonPionXaon loop
