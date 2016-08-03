@@ -47,7 +47,7 @@ StPicoKPiXAnaMaker::StPicoKPiXAnaMaker(char const * name, TString const inputFil
                                        StMaker(name), mEventCounter(0), mPicoDstMaker(picoDstMaker), mPicoKPiXEvent(nullptr),
                                        mGRefMultCorrUtil(grefmultCorrUtil), mChain(nullptr),
                                        mInputFilesList(inputFilesList), mOutFileBaseName(outFileBaseName),
-                                       mFillDpmHists(false), mFillDsHists(false), mFillLcHists(false),
+                                       mFillDpmHists(false), mFillDsHists(false), mFillLcHists(false), mFillTopoDistHistograms(false),
                                        mDpmHists(nullptr), mDsHists(nullptr), mLcHists(nullptr)
 
 {}
@@ -76,9 +76,9 @@ Int_t StPicoKPiXAnaMaker::Init()
    mChain->GetBranch("kPiXEvent")->SetAutoDelete(kFALSE);
    mChain->SetBranchAddress("kPiXEvent", &mPicoKPiXEvent);
 
-   if(mFillDpmHists) mDpmHists = new StPicoCharmMassHists(mOutFileBaseName+".Dpm",kPiXAnaCuts::prescalesFilesDirectoryName);
-   if(mFillDsHists) mDsHists  = new StPicoCharmMassHists(mOutFileBaseName+".Ds",kPiXAnaCuts::prescalesFilesDirectoryName);
-   if(mFillLcHists) mLcHists  = new StPicoCharmMassHists(mOutFileBaseName+".Lc",kPiXAnaCuts::prescalesFilesDirectoryName);
+   if(mFillDpmHists) mDpmHists = new StPicoCharmMassHists(mOutFileBaseName+".Dpm",kPiXAnaCuts::prescalesFilesDirectoryName, mFillTopoDistHistograms);
+   if(mFillDsHists) mDsHists  = new StPicoCharmMassHists(mOutFileBaseName+".Ds",kPiXAnaCuts::prescalesFilesDirectoryName, mFillTopoDistHistograms);
+   if(mFillLcHists) mLcHists  = new StPicoCharmMassHists(mOutFileBaseName+".Lc",kPiXAnaCuts::prescalesFilesDirectoryName, mFillTopoDistHistograms);
 
    return kStOK;
 }
@@ -211,6 +211,11 @@ Int_t StPicoKPiXAnaMaker::Make()
              {
                mDpmHists->addKPiX(kpx->fourMom(M_PION_PLUS), fg, centrality, reweight);
              }
+
+             if(mFillTopoDistHistograms)
+             {
+               mDpmHists->fillTopoDistHistograms(*kpx, fg, centrality, kPiXAnaCuts::DpmCuts);
+             }
            }
          }
 
@@ -230,6 +235,11 @@ Int_t StPicoKPiXAnaMaker::Make()
              {
                mDsHists->addKPiX(kpx->fourMom(M_KAON_PLUS), fg, centrality, reweight);
              }
+
+             if(mFillTopoDistHistograms)
+             {
+               mDsHists->fillTopoDistHistograms(*kpx, fg, centrality, kPiXAnaCuts::DsCuts);
+             }
            }
          }
 
@@ -245,6 +255,11 @@ Int_t StPicoKPiXAnaMaker::Make()
              if(isGoodKPiX(kpx, kPiXAnaCuts::LcCuts))
              {
                mLcHists->addKPiX(kpx->fourMom(M_PROTON), fg, centrality, reweight);
+             }
+
+             if(mFillTopoDistHistograms)
+             {
+               mLcHists->fillTopoDistHistograms(*kpx, fg, centrality, kPiXAnaCuts::LcCuts);
              }
            }
          }
