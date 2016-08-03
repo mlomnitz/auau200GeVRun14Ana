@@ -179,7 +179,6 @@ Int_t StPicoKPiXAnaMaker::Make()
          if(search == usedTriplet.end())
          {
            usedTriplet.insert({kpx->kaonIdx(),kpx->pionIdx(),kpx->xaonIdx()});
-           usedTriplet.insert({kpx->kaonIdx(),kpx->xaonIdx(),kpx->pionIdx()});
          }
          else continue;
 
@@ -201,20 +200,25 @@ Int_t StPicoKPiXAnaMaker::Make()
          // D+-
          if(mFillDpmHists)
          {
-           bool hybridXaonPion = xaonTofAvailable ? isTofPion(xaon, xaonBeta, pVtx) : isTpcPion(xaon);
+           search = usedTriplet.find({kpx->kaonIdx(), kpx->xaonIdx(), kpx->pionIdx()});
 
-           if(hybridXaonPion)
+           if(search == usedTriplet.end())
            {
-             bool fg = (kaon->charge() != pion->charge()) && (pion->charge() == xaon->charge()); // D+- --> K-+ π+- π+-
+             bool hybridXaonPion = xaonTofAvailable ? isTofPion(xaon, xaonBeta, pVtx) : isTpcPion(xaon);
 
-             if(isGoodKPiX(kpx, kPiXAnaCuts::DpmCuts))
+             if(hybridXaonPion)
              {
-               mDpmHists->addKPiX(kpx->fourMom(M_PION_PLUS), fg, centrality, reweight);
-             }
+               bool fg = (kaon->charge() != pion->charge()) && (pion->charge() == xaon->charge()); // D+- --> K-+ π+- π+-
 
-             if(mFillTopoDistHistograms)
-             {
-               mDpmHists->fillTopoDistHistograms(*kpx, fg, centrality, kPiXAnaCuts::DpmCuts);
+               if(isGoodKPiX(kpx, kPiXAnaCuts::DpmCuts))
+               {
+                 mDpmHists->addKPiX(kpx->fourMom(M_PION_PLUS), fg, centrality, reweight);
+               }
+
+               if(mFillTopoDistHistograms)
+               {
+                 mDpmHists->fillTopoDistHistograms(*kpx, fg, centrality, kPiXAnaCuts::DpmCuts);
+               }
              }
            }
          }
