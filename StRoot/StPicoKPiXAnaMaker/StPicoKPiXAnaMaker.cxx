@@ -250,9 +250,10 @@ Int_t StPicoKPiXAnaMaker::Make()
          // Λc
          if(mFillLcHists)
          {
-           bool hybridXaonProton = xaonTofAvailable ? isTofProton(xaon, xaonBeta, pVtx) : isTpcProton(xaon);
+           bool tofXaonProton = xaonTofAvailable && isTofProton(xaon, xaonBeta, pVtx) && isTpcProton(xaon);
+           bool tofKaon = kTofAvailable && isTofKaon(kaon, kBeta, pVtx);
 
-           if(hybridXaonProton)
+           if(tofKaon && tofXaonProton)
            {
              bool fg = (pion->charge() == xaon->charge()) && (kaon->charge() != xaon->charge()) ; //  Λc+- --> K-+ π+- p+-
 
