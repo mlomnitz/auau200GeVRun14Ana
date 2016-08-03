@@ -14,6 +14,8 @@
 #include <fstream>
 #include <string>
 #include <cmath>
+#include <set>
+#include <vector>
 
 #include "TFile.h"
 #include "TClonesArray.h"
@@ -143,6 +145,7 @@ Int_t StPicoKPiXAnaMaker::Make()
      if(mFillLcHists)  mLcHists->addEventBeforeCut(*(picoDst->event()));
 
      StThreeVectorF pVtx = picoDst->event()->primaryVertex();
+     std::set<std::vector<int>> usedTriplet;
      if (isGoodEvent(picoDst->event(),pVtx))
      {
        TClonesArray const* aKaonPionXaon = mPicoKPiXEvent->kaonPionXaonArray();
@@ -171,6 +174,14 @@ Int_t StPicoKPiXAnaMaker::Make()
          if (!isGoodTrack(kaon, pVtx) ||
              !isGoodTrack(pion, pVtx) ||
              !isGoodTrack(xaon, pVtx)) continue;
+
+         auto search = usedTriplet.find({kpx->kaonIdx(),kpx->pionIdx(),kpx->xaonIdx()});
+         if(search == usedTriplet.end())
+         {
+           usedTriplet.insert({kpx->kaonIdx(),kpx->pionIdx(),kpx->xaonIdx()});
+           usedTriplet.insert({kpx->kaonIdx(),kpx->xaonIdx(),kpx->pionIdx()});
+         }
+         else continue;
 
          // Kaon Pion PID
          if(!isTpcPion(pion) || !isTpcKaon(kaon)) continue;
