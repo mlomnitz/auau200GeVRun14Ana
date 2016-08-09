@@ -193,7 +193,7 @@ void StPicoCharmMassHists::fillTopoDistHistograms(StPicoKPiX const&  kpx, bool f
    //perpDcaToVtx
    if (kpx.kaonDca() > cuts.kDca[ptIndex] &&
        kpx.pionDca() > cuts.pDca[ptIndex] &&
-       // kpx.xaonDca() > cuts.xDca[ptIndex] &&
+       kpx.xaonDca() > cuts.xDca[ptIndex] &&
        kpx.dcaDaughters() < cuts.dcaDaughters[ptIndex] &&
        kpx.decayLength() > cuts.decayLength[ptIndex] &&
        std::cos(kpx.pointingAngle()) > cuts.cosTheta[ptIndex]
