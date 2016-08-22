@@ -102,6 +102,12 @@ void StD0Hists::addKaonPion(bool unlike, StKaonPion const* pair, float const pio
     QEtaSub = mEventPlane->QEtaMinusGap005();
   else
     QEtaSub = mEventPlane->QEtaPlusGap005();
+  //   ------------  Remove daughters
+  if (pionEta*pair->eta() <0 && std::fabs(pionEta) > 0.05 )
+    QEtaSub -= mEventPlane->q(pair->pionIdx());
+  if (kaonEta*pair->eta() <0 && std::fabs(kaonEta) > 0.05 )
+    QEtaSub -= mEventPlane->q(pair->kaonIdx());
+  
   double dPhiEtaSub = pair->phi() - QEtaSub.Phi() / mHarmonic;
   while (dPhiEtaSub < 0) dPhiEtaSub += (2.0/mHarmonic)*TMath::Pi();
   while (dPhiEtaSub >= (2.0/mHarmonic)*TMath::Pi()) dPhiEtaSub -= (2.0/mHarmonic)*TMath::Pi();
