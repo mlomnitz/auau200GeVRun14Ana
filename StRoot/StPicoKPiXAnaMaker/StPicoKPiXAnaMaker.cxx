@@ -40,15 +40,19 @@
 #include "StKPiXAnaCuts.h"
 #include "StPicoKPiXAnaMaker.h"
 
+#include "StDpmHists.h"  
+#include "StRoot/StEventPlane/StEventPlane.h"
+
 ClassImp(StPicoKPiXAnaMaker)
 
 StPicoKPiXAnaMaker::StPicoKPiXAnaMaker(char const * name, TString const inputFilesList,
-                                       std::string outFileBaseName, StPicoDstMaker* picoDstMaker, StRefMultCorr* grefmultCorrUtil):
+                                       std::string outFileBaseName, StPicoDstMaker* picoDstMaker, StRefMultCorr* grefmultCorrUtil, StEventPlane* eventPlane, int const harmonic):
                                        StMaker(name), mEventCounter(0), mPicoDstMaker(picoDstMaker), mPicoKPiXEvent(nullptr),
                                        mGRefMultCorrUtil(grefmultCorrUtil), mChain(nullptr),
                                        mInputFilesList(inputFilesList), mOutFileBaseName(outFileBaseName),
                                        mFillDpmHists(false), mFillDsHists(false), mFillLcHists(false), mFillTopoDistHistograms(false),
-                                       mDpmHists(nullptr), mDsHists(nullptr), mLcHists(nullptr)
+  mDpmHists(nullptr), mDsHists(nullptr), mLcHists(nullptr),
+  mDpmvnHists(nullptr), mEventPlane(eventPlane), mHarmonic(harmonic)
 
 {}
 
@@ -80,6 +84,8 @@ Int_t StPicoKPiXAnaMaker::Init()
    if(mFillDsHists) mDsHists  = new StPicoCharmMassHists(mOutFileBaseName+".Ds",kPiXAnaCuts::prescalesFilesDirectoryName, mFillTopoDistHistograms);
    if(mFillLcHists) mLcHists  = new StPicoCharmMassHists(mOutFileBaseName+".Lc",kPiXAnaCuts::prescalesFilesDirectoryName, mFillTopoDistHistograms);
 
+   mDpmvnHists = new StDpmHists(mOutFileBaseName.c_str(),mHarmonic);
+
    return kStOK;
 }
 
@@ -92,6 +98,7 @@ Int_t StPicoKPiXAnaMaker::Finish()
    if(mDpmHists) mDpmHists->closeFile();
    if(mDsHists) mDsHists->closeFile();
    if(mLcHists) mLcHists->closeFile();
+   mDpmvnHists->closeFile();
    return kStOK;
 }
 
@@ -124,6 +131,7 @@ Int_t StPicoKPiXAnaMaker::Make()
    // -------------- USER ANALYSIS -------------------------
 
    mGRefMultCorrUtil->init(picoDst->event()->runId());
+   const double eventPlane = mEventPlane->getEventPlane();
 
    if (!mGRefMultCorrUtil)
    {
@@ -152,7 +160,7 @@ Int_t StPicoKPiXAnaMaker::Make()
        if(mFillDpmHists) mDpmHists->addEvent(*(picoDst->event()));
        if(mFillDsHists)  mDsHists->addEvent(*(picoDst->event()));
        if(mFillLcHists)  mLcHists->addEvent(*(picoDst->event()));
-
+       
        mGRefMultCorrUtil->initEvent(picoDst->event()->grefMult(), pVtx.z(), picoDst->event()->ZDCx()) ;
        int centrality  = mGRefMultCorrUtil->getCentralityBin9();
        const double reweight = mGRefMultCorrUtil->getWeight();
@@ -161,6 +169,7 @@ Int_t StPicoKPiXAnaMaker::Make()
        if(mFillDpmHists) mDpmHists->addCent(refmultCor, centrality, reweight, pVtx.z());
        if(mFillDsHists)  mDsHists->addCent(refmultCor, centrality, reweight, pVtx.z());
        if(mFillLcHists)  mLcHists->addCent(refmultCor, centrality, reweight, pVtx.z());
+       mDpmvnHists->addEvent( centrality, pVtx.z(), eventPlane, reweight);
 
        for (int idx = 0; idx < aKaonPionXaon->GetEntries(); ++idx)
        {
@@ -213,6 +222,10 @@ Int_t StPicoKPiXAnaMaker::Make()
                if(isGoodKPiX(kpx, kPiXAnaCuts::DpmCuts))
                {
                  mDpmHists->addKPiX(kpx->fourMom(M_PION_PLUS), fg, centrality, reweight);
+		 StThreeVectorF pionMom = pion->gMom(pVtx, picoDst->event()->bField());
+		 StThreeVectorF kaonMom = kaon->gMom(pVtx, picoDst->event()->bField());
+		 StThreeVectorF xaonMom = xaon->gMom(pVtx, picoDst->event()->bField());
+		 mDpmvnHists->addKaPiX(fg, M_PION_PLUS, kpx, pionMom.pseudoRapidity(), kaonMom.pseudoRapidity(), xaonMom.pseudoRapidity(), mEventPlane, centrality, reweight);
                }
 
                if(mFillTopoDistHistograms)

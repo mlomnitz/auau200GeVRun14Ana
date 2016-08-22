@@ -27,6 +27,8 @@ class StPicoKPiXEvent;
 class StPicoKPiX;
 class StRefMultCorr;
 class StPicoCharmMassHists;
+class StDpmHists;
+class StEventPlane;
 
 namespace kPiXAnaCuts
 {
@@ -37,7 +39,7 @@ class StPicoKPiXAnaMaker : public StMaker
 {
   public:
     StPicoKPiXAnaMaker(char const * name, TString const inputFilesList, std::string const outBaseName,
-                       StPicoDstMaker* picoDstMaker, StRefMultCorr* grefmultCorrUtil);
+                       StPicoDstMaker* picoDstMaker, StRefMultCorr* grefmultCorrUtil, StEventPlane*, int const harmonic);
     virtual ~StPicoKPiXAnaMaker();
 
     virtual Int_t Init();
@@ -84,6 +86,10 @@ class StPicoKPiXAnaMaker : public StMaker
     StPicoCharmMassHists* mDpmHists;
     StPicoCharmMassHists* mDsHists;
     StPicoCharmMassHists* mLcHists;
+
+    StDpmHists* mDpmvnHists;
+    StEventPlane* mEventPlane;
+    int mHarmonic;
 
     ClassDef(StPicoKPiXAnaMaker, 0)
 };
